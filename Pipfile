@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+ipykernel = "*"
+plotnine = {extras = ["all"], version = "*"}
+scikit-learn = "*"
+scikit-misc = "*"
+pbpstats = "*"
+nba-api = "*"
+nba-stats-tracking = "*"
+jinja2 = "*"
+seaborn = "*"
+tqdm = "*"
+adjusttext = "*"
+modin = {extras = ["dask"], version = "*"}
+plotly = "*"
+jupyter-dash = "*"
+ipywidgets = "*"
+kaleido = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
