@@ -1,10 +1,10 @@
 # Shooting Analysis 
 
-1. 3PT Shooting and FT Shooting Correlation
+## 3PT Shooting and FT Shooting Correlation
     - Using NBA API
     - Get different type of 3 PT shooting data
     - Find and plot correlations between them and FT shooting
-2. 3PT shooting for various attributes
+## 3PT shooting for various attributes
     - Number of dribbles
     - Shotclock
     - Touch time
