@@ -5,9 +5,6 @@ name = "pypi"
 
 [packages]
 ipykernel = "*"
-plotnine = {extras = ["all"], version = "*"}
-scikit-learn = "*"
-scikit-misc = "*"
 pbpstats = "*"
 nba-api = "*"
 nba-stats-tracking = "*"
@@ -15,11 +12,11 @@ jinja2 = "*"
 seaborn = "*"
 tqdm = "*"
 adjusttext = "*"
-modin = {extras = ["dask"], version = "*"}
 plotly = "*"
 jupyter-dash = "*"
 ipywidgets = "*"
 kaleido = "*"
+sportsipy = "*"
 
 [dev-packages]
 

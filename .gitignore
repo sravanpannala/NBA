@@ -1,3 +1,19 @@
+# Extra Folders
+ShotLocationData/
+Misc/
+pbpdata/
+*.lock
+**/fdata
+**/player_imgs
+
+# Ignore png files
+*.png
+
+# VSCode
+.vscode/
+
+# Default gitignore below
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -128,12 +144,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# VSCode
-.vscode/
-
-# Extra Folders
-ShotLocationData/
-pbpdata/
-*.lock
 
 
