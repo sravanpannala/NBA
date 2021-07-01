@@ -9,8 +9,12 @@ pbpdata/
 # Ignore png files
 *.png
 
+# Ignore test files
+test*
+
 # VSCode
 .vscode/
+*.code-workspace
 
 # Default gitignore below
 
