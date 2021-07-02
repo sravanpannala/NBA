@@ -2,6 +2,7 @@
 ShotLocationData/
 Misc/
 pbpdata/
+pbpdata.zip
 *.lock
 **/fdata
 **/player_imgs
