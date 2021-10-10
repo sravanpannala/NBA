@@ -438,7 +438,7 @@ def layout_update_plotly(fig, player_name,season, league, bgcolor):
                     ),
             ),
             go.layout.Annotation(
-                x=-155,
+                x=-225,
                 y=400,
                 showarrow=False,
                 text=season+' '+league,
@@ -450,7 +450,7 @@ def layout_update_plotly(fig, player_name,season, league, bgcolor):
                     ),
             ),
                     go.layout.Annotation(
-                x=-155,
+                x=-225,
                 y=380,
                 showarrow=False,
                 text='Regular Season',

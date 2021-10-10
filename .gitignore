@@ -6,6 +6,7 @@ pbpdata.zip
 *.lock
 **/fdata
 **/player_imgs
+twitter_keys.json
 
 # Ignore png files
 *.png
