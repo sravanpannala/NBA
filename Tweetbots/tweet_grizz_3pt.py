@@ -7,7 +7,8 @@ from nba_api.stats.endpoints.leaguedashteamshotlocations import LeagueDashTeamSh
 from nba_api.stats.endpoints.leaguedashplayerptshot import LeagueDashPlayerPtShot
 from nba_api.stats.endpoints.shotchartdetail import ShotChartDetail
 import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath("__file__"))))
+sys.path.append((os.path.dirname(os.path.abspath("__file__"))))
+print(sys.path)
 from nbafuns import *
 league = 'NBA'
 team_name = 'Memphis Grizzlies'
