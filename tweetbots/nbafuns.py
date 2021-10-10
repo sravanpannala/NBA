@@ -410,7 +410,7 @@ def draw_plotly_court(fig,lw=3, lcolor='Orange', fig_width=600, margins=10):
     )
     return True
 
-def layout_update_plotly(fig, player_name,season, league, bgcolor):
+def layout_update_plotly(fig, player_name,season, league, season_type, bgcolor):
     fig.update_layout(
         plot_bgcolor=bgcolor,
         paper_bgcolor=bgcolor,
@@ -453,7 +453,7 @@ def layout_update_plotly(fig, player_name,season, league, bgcolor):
                 x=-225,
                 y=380,
                 showarrow=False,
-                text='Regular Season',
+                text=season_type,
                 xanchor='left',
                 font=dict(
                     family="Arial, Tahoma, Helvetica",

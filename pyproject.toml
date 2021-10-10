@@ -13,7 +13,6 @@ seaborn = "^0.11.2"
 kaleido = "0.2.1"
 ipywidgets = "^7.6.5"
 tqdm = "^4.62.3"
-twitter = "^1.19.3"
 tweepy = "^4.1.0"
 
 [tool.poetry.dev-dependencies]
