@@ -7,8 +7,8 @@ from nba_api.stats.endpoints.leaguedashteamshotlocations import LeagueDashTeamSh
 from nba_api.stats.endpoints.leaguedashplayerptshot import LeagueDashPlayerPtShot
 from nba_api.stats.endpoints.shotchartdetail import ShotChartDetail
 import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath("__file__"))))
 sys.path.append((os.path.dirname(os.path.abspath("__file__"))))
-print(sys.path)
 from nbafuns import *
 league = 'NBA'
 team_name = 'Memphis Grizzlies'
@@ -113,10 +113,10 @@ fig.add_trace(go.Scatter(
     hovertemplate ='<i>FG%</i>: %{text:.0f}<extra></extra>',
 ))
 layout_update_plotly(fig,team_name,season, league,season_type, bball_black)
-fig.write_image("Hex Map {0} {1}.png".format(team_name,season),scale=5)
+fig.write_image("G:/My Drive/Sra_coding/NBA/Tweetbots/Hex Map {0} {1}.png".format(team_name,season),scale=5)
 # fig.show()
 
-f = open('./tweetbots/twitter_keys.json')
+f = open('G:/My Drive/Sra_coding/NBA/Tweetbots/twitter_keys.json')
 twitter_auth_keys = json.load(f)
 
 auth = tweepy.OAuthHandler(
@@ -132,5 +132,5 @@ api = tweepy.API(auth)
 
 tweet = "Memphis Grizzlies {} 3PT Makes Ranks:\nLeft Corner 3: {}\n\
 Right Corner 3: {}\nAbove the Break 3: {}\nTotal 3s: {}\n".format(season_type,c3_l_rank,c3_r_rank,abv3_rank,tot_rank)
-media = api.media_upload("./Hex Map Memphis Grizzlies {}.png".format(season))
+media = api.media_upload("G:/My Drive/Sra_coding/NBA/Tweetbots/Hex Map Memphis Grizzlies {}.png".format(season))
 post_result = api.update_status(status=tweet, media_ids=[media.media_id])
