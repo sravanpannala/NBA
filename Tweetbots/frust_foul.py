@@ -22,7 +22,7 @@ settings = {
 client = Client(settings)
 # ID of all games for 2020-21 Season
 league = "nba"
-season_yr = "2020"
+season_yr = "2021"
 season_type = "Regular Season"
 season = client.Season(league, season_yr, season_type)
 games_id = []
@@ -114,6 +114,6 @@ auth.set_access_token(
 api = tweepy.API(auth)
 
 
-tweet = "Frustration Fouls leaderboard for the 2020-21 NBA Season\n #basketballobservations"
+tweet = "Frustration Fouls leaderboard for the 21-22 NBA Season\n #basketballobservations"
 media = api.media_upload("G:/My Drive/Sra_coding/NBA/Tweetbots/Frust_Foul.png")
 post_result = api.update_status(status=tweet, media_ids=[media.media_id])

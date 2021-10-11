@@ -8,7 +8,7 @@ settings = {
 }
 client = Client(settings)
 # ID of all games for 2020-21 Season
-season_yr = "2020"
+season_yr = "2021"
 season_type = "Regular Season"
 leagues = ['nba','gleague']
 for league in leagues:
