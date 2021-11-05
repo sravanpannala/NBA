@@ -3,6 +3,7 @@ import json
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath("__file__"))))
 sys.path.append((os.path.dirname(os.path.abspath("__file__"))))
+sys.path.append("G:\\My Drive\\Sra_Coding\\NBA")
 from nbafuns import *
 import pandas as pd
 import numpy as np
@@ -16,7 +17,7 @@ from tqdm import tqdm
 from pbpstats.client import Client
 
 settings = {
-    "Games": {"source": "web", "data_provider": "data_nba"},
+    "Games": {"source": "file", "data_provider": "data_nba"},
      "dir": "G:/My Drive/Sra_coding/NBA/pbpdata",
 }
 client = Client(settings)
@@ -100,7 +101,7 @@ ax.set_title(f"Frustration Fouls: 2020-21 NBA Season",fontsize=18)
 fig.savefig("G:/My Drive/Sra_coding/NBA/Tweetbots/Frust_Foul.png")
 
 
-f = open('./twitter_keys.json')
+f = open('G:/My Drive/Sra_coding/NBA/Tweetbots/twitter_keys.json')
 twitter_auth_keys = json.load(f)
 
 auth = tweepy.OAuthHandler(

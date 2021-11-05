@@ -10,6 +10,7 @@ client = Client(settings)
 # ID of all games for 2020-21 Season
 season_yr = "2021"
 season_type = "Regular Season"
+leagues = ['nba','gleague','wnba']
 leagues = ['nba','gleague']
 for league in leagues:
     print(league)
@@ -36,4 +37,4 @@ for league in leagues:
         except:
             bad_games_list.append(gameid)
             continue
-    print(len(bad_games_list))
+    print('Number of bad games: ',len(bad_games_list))

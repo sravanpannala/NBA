@@ -4,6 +4,7 @@ import os, sys
 import matplotlib.pyplot as plt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath("__file__"))))
 sys.path.append((os.path.dirname(os.path.abspath("__file__"))))
+sys.path.append("G:\\My Drive\\Sra_Coding\\NBA")
 from nbafuns import *
 import pandas as pd
 import numpy as np
@@ -17,7 +18,7 @@ from tqdm import tqdm
 from pbpstats.client import Client
 
 settings = {
-    "Games": {"source": "web", "data_provider": "data_nba"},
+    "Games": {"source": "file", "data_provider": "data_nba"},
      "dir": "G:/My Drive/Sra_coding/NBA/pbpdata",
 }
 client = Client(settings)
@@ -85,11 +86,11 @@ data_euro = data_euro.sort_values(by=['rank'])
 data_euro_plot = data_euro.drop(columns=['Foul_tID', 'rank'])
 data_euro_plot = data_euro_plot.head(10)
 
-fig,ax = render_mpl_table(data_euro_plot, header_columns=0, col_width=3.0)
+fig,ax = render_mpl_table(data_euro_plot, header_columns=0, col_width=3.2)
 ax.set_title(f"Euro Fouls: 2020-21 NBA Season",fontsize=18)
 fig.savefig("G:/My Drive/Sra_coding/NBA/Tweetbots/Euro_Foul.png")
 
-f = open('.G:/My Drive/Sra_coding/NBA/Tweetbots/twitter_keys.json')
+f = open('G:/My Drive/Sra_coding/NBA/Tweetbots/twitter_keys.json')
 twitter_auth_keys = json.load(f)
 
 auth = tweepy.OAuthHandler(
