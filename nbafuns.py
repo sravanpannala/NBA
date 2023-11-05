@@ -13,7 +13,7 @@ import pathlib
 def get_players(league = 'NBA', from_year =2020, to_year =2020):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    data = pd.read_csv(DATA_PATH.joinpath("{0}_players_database_2021.csv".format(league)))  
+    data = pd.read_csv(DATA_PATH.joinpath("{0}_players_database.csv".format(league)))  
     from_year = from_year
     to_year = to_year
     player_data = data[(data['From']<=from_year) & (data['To']>=to_year)]
