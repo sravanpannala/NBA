@@ -3,7 +3,7 @@ import json
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath("__file__"))))
 sys.path.append((os.path.dirname(os.path.abspath("__file__"))))
-sys.path.append("G:\\My Drive\\Sra_Coding\\NBA")
+sys.path.append("C:\\Users\\pansr\\Documents\\Sra_Coding\\NBA")
 from nbafuns import *
 import pandas as pd
 import numpy as np
@@ -18,7 +18,7 @@ from pbpstats.client import Client
 
 settings = {
     "Games": {"source": "file", "data_provider": "data_nba"},
-     "dir": "G:/My Drive/Sra_coding/NBA/pbpdata",
+     "dir": "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata",
 }
 client = Client(settings)
 # ID of all games for 2020-21 Season
@@ -35,7 +35,7 @@ print('Number of games: ',len(games_id))
 settings = {
     "Boxscore": {"source": "file", "data_provider": "data_nba"},
     "Possessions": {"source": "file", "data_provider": "data_nba"},
-    "dir": "G:/My Drive/Sra_coding/NBA/pbpdata"
+    "dir": "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata"
 }
 client = Client(settings)
 games_list = []
@@ -98,10 +98,10 @@ data_frust_plot = data_frust_plot.head(10)
 
 fig,ax = render_mpl_table(data_frust_plot, header_columns=0, col_width=3.0)
 ax.set_title(f"Frustration Fouls: 2020-21 NBA Season",fontsize=18)
-fig.savefig("G:/My Drive/Sra_coding/NBA/Tweetbots/Frust_Foul.png")
+fig.savefig("C:/Users/pansr/Documents/Sra_Coding/NBA/Tweetbots/Frust_Foul.png")
 
 
-f = open('G:/My Drive/Sra_coding/NBA/Tweetbots/twitter_keys.json')
+f = open('C:/Users/pansr/Documents/Sra_Coding/NBA/Tweetbots/twitter_keys.json')
 twitter_auth_keys = json.load(f)
 
 auth = tweepy.OAuthHandler(
@@ -116,5 +116,5 @@ api = tweepy.API(auth)
 
 
 tweet = "Frustration Fouls leaderboard for the 21-22 NBA Season\n #basketballobservations"
-media = api.media_upload("G:/My Drive/Sra_coding/NBA/Tweetbots/Frust_Foul.png")
+media = api.media_upload("C:/Users/pansr/Documents/Sra_Coding/NBA/Tweetbots/Frust_Foul.png")
 post_result = api.update_status(status=tweet, media_ids=[media.media_id])

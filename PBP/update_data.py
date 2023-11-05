@@ -4,11 +4,11 @@ from pbpstats.client import Client
 
 settings = {
     "Games": {"source": "web", "data_provider": "data_nba"},
-     "dir": "G:/My Drive/Sra_coding/NBA/pbpdata",
+     "dir": "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata",
 }
 client = Client(settings)
 # ID of all games for 2020-21 Season
-season_yr = "2021"
+season_yr = "2022"
 season_type = "Regular Season"
 leagues = ['nba','gleague','wnba']
 leagues = ['nba','gleague']
@@ -26,7 +26,7 @@ for league in leagues:
     settings = {
         "Boxscore": {"source": "web", "data_provider": "data_nba"},
         "Possessions": {"source": "web", "data_provider": "data_nba"},
-        "dir": "G:/My Drive/Sra_coding/NBA/pbpdata"
+        "dir": "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata"
     }
     client = Client(settings)
     games_list = []
