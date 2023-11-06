@@ -19,7 +19,7 @@ client = Client(settings)
 seasons = ["2019","2020","2021","2022","2023"]
 season_types = ["Regular Season","Playoffs"]
 leagues = ["nba","wnba"]
-seasons = ["2015"]
+seasons = ["2023"]
 season_types = ["Regular Season"]
 leagues = ["nba"]
 for season_yr in seasons:
