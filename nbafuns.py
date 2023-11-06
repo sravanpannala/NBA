@@ -7,7 +7,17 @@ import os
 import requests
 import sys
 import pathlib
-
+import time
+import datetime
+from IPython.display import clear_output
+from collections import Counter
+from functools import reduce
+import itertools
+from nba_api.stats.static import teams
+from pbpstats.client import Client
+import plotly.graph_objects as go 
+from tqdm import tqdm
+pbp_DIR = "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata"
 
 #function to get player info as dictionary
 def get_players(league = 'NBA', from_year =2020, to_year =2020):
@@ -28,6 +38,41 @@ def get_teams(league = 'NBA'):
     team_data = pd.read_csv(DATA_PATH.joinpath('{0}_teams_database.csv'.format(league))) 
     team_dict = team_data.to_dict(orient="records")
     return team_dict
+
+# function to get all games list for a season pbp
+def pbp_season(league="nba",season_yr="2023",season_type="Regular Season"):
+    settings = {
+        "Games": {"source": "file", "data_provider": "data_nba"},
+        "dir": pbp_DIR,
+    }
+    client = Client(settings)
+    season = client.Season(league, season_yr, season_type)
+    games_id = []
+
+    for final_game in season.games.final_games:
+        games_id.append(final_game['game_id'])
+    print('Number of games: ',len(games_id))
+    return games_id
+
+# function to get all games pbp data for a season
+def pbp_games(games_id):
+    settings = {
+        "Boxscore": {"source": "file", "data_provider": "data_nba"},
+        "Possessions": {"source": "file", "data_provider": "data_nba"},
+        "dir": pbp_DIR
+    }
+    client = Client(settings)
+    games_list = []
+    bad_games_list = []
+    for gameid in tqdm(games_id):
+        try:
+            games_list.append(client.Game(gameid))
+        except:
+            bad_games_list.append(gameid)
+            continue
+    print('Number of bad games: ',len(bad_games_list))
+
+    return games_list
 
 # Amazing function by Bradley Fay for plotting the nba court
 # source: https://github.com/bradleyfay/py-Goldsberry/blob/master/docs/Visualizing%20NBA%20Shots%20with%20py-Goldsberry.ipynb
