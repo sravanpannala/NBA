@@ -1,3 +1,4 @@
+# Update pbp data
 import pandas as pd
 from tqdm import tqdm
 from pbpstats.client import Client
@@ -7,11 +8,13 @@ settings = {
      "dir": "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata",
 }
 client = Client(settings)
-# ID of all games for 2020-21 Season
-season_yr = "2022"
+# Choose season here
+season_yr = "2023"
 season_type = "Regular Season"
+#Choose league here
 leagues = ['nba','gleague','wnba']
 leagues = ['nba','gleague']
+leagues = ['nba']
 for league in leagues:
     print(league)
     season = client.Season(league, season_yr, season_type)
