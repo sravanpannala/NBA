@@ -14,12 +14,13 @@
     - Using NBA API
     - Get different type of 3 PT shooting data
     - Find and plot correlations between them and FT shooting
-3. [Frustration Fouls and Coast to Coast](Frustration_Coast/)
-    - Using PBP Stats API
-    - Frustration fouls
-    - Euro fouls for player and team
-    - Coast-to-coast buckets and assists
-    - Assists after offensive rebounds 
+3. [Play-by-Play Related Stuff](pbp_related/)
+    - Uses pbpstats API 
+   - Frustration fouls
+   - Euro fouls for player and team
+   - Coast-to-coast buckets and assists
+   - Assists after offensive rebounds 
+   - Chasedown blocks?
 4. [Save Player and League Data](Save_Player_League_Data/)
    - Using NBA API and pbpstats API
    - Save player data

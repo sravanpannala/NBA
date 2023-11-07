@@ -569,3 +569,31 @@ def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
             cell.set_facecolor(row_colors[k[0]%len(row_colors) ])
     fig.set_facecolor('#fc8662')
     return ax.get_figure(), ax
+
+## Code to figure out errors in player ID mapping
+# Player_Name = []
+# a = Assist_pID
+# wrong_id = []
+# Assist_pID1, Assists = np.unique(a, return_counts=True)  
+# for pID in Assist_pID1:
+#     abc = False
+#     for player in player_dict:
+#         if player['pID'] == pID:
+#             abc= True
+#             Player_Name.append(player['Name'])
+#     if not abc:
+#         wrong_id.append(pID)
+# print(len(Assist_pID1))
+# print(len(Player_Name))
+# print(len(wrong_id))
+
+## Code to map pID to players using old format
+# Player_Name = []
+# a = Assist_pID
+# Assist_pID1, Assists = np.unique(a, return_counts=True)  
+# for pID in Assist_pID1:
+#     Player_Name.append([player['Name'] for player in player_dict if player['pID'] == pID]) 
+# for i in range(len(Player_Name)):
+#     if not Player_Name[i]:
+#         Player_Name[i] =['abc']
+# Player_Name = list(itertools.chain(*Player_Name))

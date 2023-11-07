@@ -1,10 +1,11 @@
-# Frustration Fouls and Coast to Coast
+# Play-by-Play Related Stuff
+Uses pbpstats API to estimate
 
-- Using PBP Stats API
 - Frustration fouls
 - Euro fouls for player and team
-- Coast to coast buckets and assists
+- Coast-to-coast buckets and assists
 - Assists after offensive rebounds 
+- Chasedown blocks?
 
 
 
