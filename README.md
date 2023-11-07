@@ -18,23 +18,22 @@
     - Using PBP Stats API
     - Frustration fouls
     - Euro fouls for player and team
-    - Coast to coast buckets and assists
+    - Coast-to-coast buckets and assists
     - Assists after offensive rebounds 
 4. [Save Player and League Data](Save_Player_League_Data/)
-    - Using NBA API
-    - Save player data
-    - Save league data
-    - Write functions to import these data for use in other projects
+   - Using NBA API and pbpstats API
+   - Save player data
+   - Save league data
+   - Functions exist to import this data for use in other projects
 5. [Plot Shot Charts](Shot_Charts/)
-    - Get location data using PBP Stats API
-    - Plot location heat maps for NBA
-    - Plot location heat maps for WNBA (probably need to merge both files)
-    - Plot shot hex map using NBA API and plotly
+   - Get location data using PBP Stats API
+   - Plot location heat maps for NBA and WNBA
+   - Plot shot hex map using NBA API and plotly
 6. [3PT shooting for various attributes](Shooting/)
     - Number of dribbles
     - Shotclock
     - Touch time
-7. [Tweeting Bots](Tweetbots/)
+7. [Tweeting Bots](Tweetbots/) (Might not work because of new Twitter API)
     - Uses [Tweepy API](https://www.tweepy.org/)
     - Gets Shotdata from NBA API
     - Plots shotchart

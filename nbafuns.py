@@ -9,6 +9,7 @@ import sys
 import pathlib
 import time
 import datetime
+import json
 from IPython.display import clear_output
 from collections import Counter
 from functools import reduce
@@ -18,6 +19,20 @@ from pbpstats.client import Client
 import plotly.graph_objects as go 
 from tqdm import tqdm
 pbp_DIR = "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata"
+
+
+def get_players_pbp(league = 'NBA'):
+    PATH = pathlib.Path(__file__)
+    DATA_PATH = PATH.joinpath("../data").resolve()
+    f=open(DATA_PATH.joinpath("{0}.json".format(league)))
+    data = json.load(f)
+    data = data["players"]
+    player_dict = {int(k):v for k,v in data.items()}
+    idx_bad = []
+    # idx_bad = [2168,2345,2610,2794,202435,202443,202603,203606,203624,1627310,1610612745,873,1301,1371,1672,1778,1941,203152,204005,1610612746,1658,2152,1610612737,1610612741,1610612744,1610612747,1610612749,1610612750,1610612756,1610612762,1243,1256,1320,1335,1787,2719,201690,201690,202101,202105,203535,204085,1610612751,1610612752,1610612755]
+    for idx in idx_bad:
+        player_dict[idx]=np.nan
+    return player_dict
 
 #function to get player info as dictionary
 def get_players(league = 'NBA', from_year =2020, to_year =2020):
