@@ -13,6 +13,7 @@ import operator
 from functools import reduce
 import itertools
 from tqdm import tqdm
+import nba_api
 from nba_api.stats.static import teams
 from pbpstats.client import Client
 
@@ -582,7 +583,7 @@ def rank_data_pbp(IDs,player_dict,team_dict,sort="Player",var="Fouls"):
 
     return df3
 
-def plot_table_rank(df,var,sort="Player",title=" ",title_shift=0.1,title_font=15,footer=" ",source="pbpstats",col_width=15):
+def plot_table_rank(df,var,sort="Player",title=" ",title_shift=0.1,title_font=15,footer=" ",source="nba.com/stats",col_width=15):
     fig = go.Figure(data=[go.Table(
         columnwidth=[5,40,col_width],
         header=dict(values=list(df.columns),
