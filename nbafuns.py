@@ -3,24 +3,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle, Arc
 import plotly.graph_objects as go
-import os
+import os, sys, pathlib
 import requests
-import sys
-import pathlib
-import time
-import datetime
+import time, datetime
 import json
 from IPython.display import clear_output
 from collections import Counter
+import operator
 from functools import reduce
 import itertools
+from tqdm import tqdm
 from nba_api.stats.static import teams
 from pbpstats.client import Client
-import plotly.graph_objects as go 
-from tqdm import tqdm
+
 pbp_DIR = "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata"
 
-
+#function to get player info as dictionary using pbpstats database
 def get_players_pbp(league = 'NBA'):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
@@ -34,7 +32,7 @@ def get_players_pbp(league = 'NBA'):
         player_dict[idx]=np.nan
     return player_dict
 
-#function to get player info as dictionary
+#function to get player info as dictionary using NBA database
 def get_players(league = 'NBA', from_year =2020, to_year =2020):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
@@ -46,7 +44,7 @@ def get_players(league = 'NBA', from_year =2020, to_year =2020):
     player_dict = player_data.to_dict(orient="records")
     return player_dict
 
-#function to get team info as dictionary
+#function to get team info as dictionary using NBA database
 def get_teams(league = 'NBA'):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
@@ -54,7 +52,7 @@ def get_teams(league = 'NBA'):
     team_dict = team_data.to_dict(orient="records")
     return team_dict
 
-# function to get all games list for a season pbp
+# pbp function to get all games list for a season
 def pbp_season(league="nba",season_yr="2023",season_type="Regular Season"):
     settings = {
         "Games": {"source": "file", "data_provider": "data_nba"},
@@ -63,7 +61,6 @@ def pbp_season(league="nba",season_yr="2023",season_type="Regular Season"):
     client = Client(settings)
     season = client.Season(league, season_yr, season_type)
     games_id = []
-
     for final_game in season.games.final_games:
         games_id.append(final_game['game_id'])
     print('Number of games: ',len(games_id))
@@ -158,8 +155,7 @@ def draw_court(ax=None, color='black', lw=2, outer_lines=True, z=3):
 
     return ax
 
-from collections import Counter
-import operator
+# creating bins for hex shot chart
 def create_bins(data_frame, bin_number_x = 30, bin_number_y=300 / (500.0 / 30.0), league_average = None,
                 width = 500, height = 300, norm_x = 250, norm_y = 48):
     """
@@ -348,10 +344,8 @@ def create_bins(data_frame, bin_number_x = 30, bin_number_y=300 / (500.0 / 30.0)
 
     return copied_df
 
+# Drawing NBA court using plotly
 def draw_plotly_court(fig,lw=3, lcolor='Orange', fig_width=600, margins=10):
-
-    import numpy as np
-        
     # From: https://community.plot.ly/t/arc-shape-with-path/7205/5
     def ellipse_arc(x_center=0.0, y_center=0.0, a=10.5, b=10.5, start_angle=0.0, end_angle=2 * np.pi, N=200, closed=False):
         t = np.linspace(start_angle, end_angle, N)
@@ -470,6 +464,7 @@ def draw_plotly_court(fig,lw=3, lcolor='Orange', fig_width=600, margins=10):
     )
     return True
 
+# add annotations/text to plotly hex maps
 def layout_update_plotly(fig, player_name,season, league, season_type, bgcolor):
     fig.update_layout(
         plot_bgcolor=bgcolor,
@@ -547,7 +542,7 @@ def import_image(league,player_id):
     # return str(img_path), sizex, sizey
     return url_image, sizex, sizey
 
-# Plot Table
+# Obsolete: Plot Table using matplotlib
 def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
                      header_color='#40466e', row_colors=['#f1f1f2', 'w'], edge_color='w',
                      bbox=[0, 0, 1, 1], header_columns=0,
@@ -569,6 +564,57 @@ def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
             cell.set_facecolor(row_colors[k[0]%len(row_colors) ])
     fig.set_facecolor('#fc8662')
     return ax.get_figure(), ax
+
+# function to rank pbp data like fouls, assists etc
+def rank_data_pbp(IDs,player_dict,team_dict,sort="Player",var="Fouls"):
+    ID, items = np.unique(IDs, return_counts=True)
+    if sort == "Player":
+        ppl = np.array([player_dict.get(x,np.nan) for x in ID])  
+    elif sort == "Team":
+        ppl = [team['full_name'] for team, tID in zip(team_dict,ID) if team['id'] ==tID]
+    df = pd.DataFrame({sort:ppl,var:items})
+    df1 = df.sort_values(by=[var],ascending=False)
+    df1 = df1.reset_index(drop=True)
+    df1 = df1.reset_index(drop=False)
+    df1["#"] = df1["index"] +1
+    df2 = df1[["#",sort,var]]
+    df3 = df2.iloc[:10]
+
+    return df3
+
+def plot_table_rank(df,var,sort="Player",title=" ",title_shift=0.1,title_font=15,footer=" ",source="pbpstats",col_width=15):
+    fig = go.Figure(data=[go.Table(
+        columnwidth=[5,40,col_width],
+        header=dict(values=list(df.columns),
+                    fill_color='blue',
+                    align=['center','left','center'],
+                    font=dict(color='snow',family="Arial Black, monospace", size=12),
+                    line_color="grey"
+                    ),
+        cells=dict(values=[df["#"],df[sort],df[var]],
+                fill_color='lavender',
+                align=['center','left','center'],
+                height=23,
+                line_color="grey",#lightgrey",
+                ),
+                # height=25
+        ),
+    ])
+    # fig.update_layout(title_text=title)
+    fig.update_layout(title=dict(text=title,y=0.98,x=title_shift,font=dict(size=title_font,family="Arial Black, monospace")))
+    tab_width = 250 + col_width
+    tab_height = 305
+    fig.add_annotation(x=0.0, y=0.0,text="@SravanNBA",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
+    fig.add_annotation(x=1.0, y=0.0,text=f"Source: {source}",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
+    if len(footer)>1:
+        fig.add_annotation(x=0.0, y=0.0,text=footer,showarrow=False,xshift=0,yshift=15,font=dict(size=10))
+        tab_height = 315
+    fig.update_layout(width=tab_width,height=tab_height,margin=dict(t=25,b=1,l=1,r=1))
+    # fig.update_layout(autosize=True)
+    fig.show()
+    return fig
+
+# Obsolete code from other places
 
 ## Code to figure out errors in player ID mapping
 # Player_Name = []
