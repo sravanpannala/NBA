@@ -108,10 +108,10 @@ badcalls_df1 <- badcalls_df %>%
   pivot_longer(-player) %>% 
   mutate(value = as.numeric(value), 
          value = case_when(
-           name == "player_ic" ~ value * 1, 
-           name == "opponent_inc" ~ value * 1, 
-           name == "player_inc" ~ value * 0, 
-           name == "opponent_ic" ~ value * 0, 
+           name == "player_ic" ~ value * 0, 
+           name == "opponent_inc" ~ value * 0, 
+           name == "player_inc" ~ value * 1, 
+           name == "opponent_ic" ~ value * 1, 
            TRUE ~ value
          )) 
 
@@ -202,5 +202,5 @@ p <- p +
   )
 
 # Save plot
-ggsave("./figs/R/BadCalls_against_2015_23.png", p, w = 6, h = 8, dpi = 300)
+ggsave("./figs/R/BadCalls_for_2015_23.png", p, w = 6, h = 8, dpi = 300)
 

@@ -183,7 +183,7 @@ oppose_chart <- badcalls_df %>%
         panel.grid.minor.y = element_blank(),
         axis.title.x = element_markdown(size = 6.5)) + 
   labs(x = "Bad Calls That Have <span style='color:#BE4A47FF'>**Disadvantaged**</span><br>A Player From 2015-2023", 
-       y = "") 
+       y = "")
   # annotate(geom = 'text', x = -10, y = 38, label = "Incorrect no call on opponent", size = 2.5,  fontface = 'bold',  color = "#BE4A47FF", family = "Consolas", hjust = .5) +   
   # annotate(geom = 'text', x = -10, y = 35, label = "Incorrect call against player", size = 2.5,  fontface = 'bold', color = "#FEA19EFF", family = "Consolas", hjust = .5)  
 
@@ -194,14 +194,13 @@ p <- oppose_chart + favor_chart
 p <- p + 
   plot_annotation(
     title = "Bad Shooting Foul Calls That Have <span style='color:#BE4A47FF'>**Disadvantaged**</span> Or <span style='color:#008A80FF'>**Advantaged**</span> A Player From 2015-23", 
-    subtitle = "A call is considered to have disadvantaged a player if it was an incorrect no call on their opponent or a incorrect call\nagainst them and visa versa for calls that advantage a player | Only showing players that have been ad/disadvantaged at least 20x\nSorted by the difference in disadavantaged and advantaged calls | Only Shooting Fouls are considered",
+    subtitle = "A call is considered to have disadvantaged a player if it was an incorrect no call on their opponent or a incorrect call\nagainst them and visa versa for calls that advantage a player | Only showing players that have been ad/disadvantaged at least 3x\nSorted by the difference in disadavantaged and advantaged calls | Only Shooting Fouls are considered",
     caption = "graph: @SravanNBA |code: @owenlhjphillips | Source: github.com/atlhawksfanatic/L2M",
     theme = theme(plot.title = element_markdown(face = 'bold', family = "Consolas", size = 9.0), 
                   plot.subtitle = element_text(family = "Consolas", size = 5.75),
                   plot.background = element_rect(fill = 'floralwhite', color = 'floralwhite'), 
                   plot.caption = element_text(family = "Consolas"))
   )
-
 # Save plot
 ggsave("./figs/R/BadCalls_shooting_diff_2015_23.png", p, w = 6, h = 8, dpi = 600)
 
