@@ -7,7 +7,7 @@ pbpdata.zip
 **/fdata
 **/player_imgs
 twitter_keys.json
-
+*.data.gz
 # Ignore png files
 *.png
 

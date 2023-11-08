@@ -17,7 +17,7 @@ import nba_api
 from nba_api.stats.static import teams
 from pbpstats.client import Client
 
-pbp_DIR = "C:/Users/pansr/Documents/Sra_Coding/NBA/pbpdata"
+pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata"
 
 #function to get player info as dictionary using pbpstats database
 def get_players_pbp(league = 'NBA'):
