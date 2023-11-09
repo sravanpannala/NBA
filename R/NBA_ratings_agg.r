@@ -180,4 +180,5 @@ df_all %>%
         data_row.padding = px(2)
     ) %>% 
     tab_source_note(source_note = "@SravanNBA | Source: basketball-reference, DunksandThrees, ESPN"
-    ) %>% gtsave("./figs/R/NBA_rat_comp.png",zoom=5)
+    ) #%>% gtsave("./figs/R/NBA_rat_comp.png",zoom=5)
+
