@@ -1,4 +1,4 @@
-# Code to plot bad shooting foul calls based on L2M Reports
+# Code to plot ball calls based on L2M Reports for Teams
 # Load packages
 library(tidyverse)
 library(extrafont)
@@ -27,9 +27,8 @@ theme_owen <- function () {
 dat <- vroom("https://raw.githubusercontent.com/atlhawksfanatic/L2M/master/1-tidy/L2M/L2M.csv")
 
 # Select relevant columns
-df <- dat %>% select(game_details, game_date, period, time, comments, call_type, committing, disadvantaged, decision, season)
+df <- dat %>% select(game_details, game_date, period, time, comments, call_type, committing_team, disadvantaged_team, decision, season)
 
-df <- df %>% filter(call_type == "Foul: Shooting")
 # Remove duplicates
 df <- df %>% distinct()
 
@@ -40,17 +39,17 @@ df <- df %>% distinct()
 # Count times a player committed a foul, but wasnt called for it
 player_inc <- df %>% 
   filter(decision == "INC") %>%  
-  count(committing) %>% 
+  count(committing_team) %>% 
   arrange(desc(n))
 
 # Count times opponent was called for a foul, but didnt actually commit -- thus favoring the player
 opponent_ic <- df %>% 
-  filter(decision == "IC" & !is.na(disadvantaged)) %>% 
-  count(disadvantaged) %>% 
+  filter(decision == "IC" & !is.na(disadvantaged_team)) %>% 
+  count(disadvantaged_team) %>% 
   arrange(desc(n))
 
 # get total bad calls that went in player's favor
-favor <- full_join(player_inc, opponent_ic, by = c("committing" = "disadvantaged"))
+favor <- full_join(player_inc, opponent_ic, by = c("committing_team" = "disadvantaged_team"))
 
 # rename columns
 favor <- favor %>% 
@@ -64,18 +63,18 @@ favor <- favor %>%
 
 # Count times a player was called for a foul that they didn't commit   
 player_ic <- df %>% 
-  filter(decision == "IC" & !is.na(committing)) %>% 
-  count(committing) %>% 
+  filter(decision == "IC" & !is.na(committing_team)) %>% 
+  count(committing_team) %>% 
   arrange(desc(n))
 
 # Count times an opponent committed a foul, but wasn't called for it
 opponent_inc <- df %>% 
   filter(decision == "INC") %>% 
-  count(disadvantaged) %>% 
+  count(disadvantaged_team) %>% 
   arrange(desc(n))
 
 # Get total bad calls that went against a player
-oppose <- full_join(player_ic, opponent_inc, by = c("committing" = "disadvantaged"))
+oppose <- full_join(player_ic, opponent_inc, by = c("committing_team" = "disadvantaged_team"))
 
 # rename columsns
 oppose <- oppose %>% 
@@ -88,7 +87,7 @@ oppose <- oppose %>%
   mutate(total = sum(player_ic, opponent_inc, na.rm = TRUE))
 
 # combine two bad call dataframes into one
-badcalls_df <- full_join(favor, oppose, by = "committing")
+badcalls_df <- full_join(favor, oppose, by = "committing_team")
 
 # Replace all NAs with 0s
 # badcalls_df <- badcalls_df %>% mutate_all(funs(replace_na(., 0))) %>% filter(committing != 0)
@@ -98,8 +97,8 @@ badcalls_df <- na.omit(badcalls_df)
 badcalls_df <- badcalls_df %>% 
   rename("favor" = "total.x",
          "oppose" = "total.y") %>% 
-  rename("player" = "committing") %>% 
-  filter((oppose >= 3 | favor >= 3) & player != "Lakers" )
+  rename("player" = "committing_team") #%>% 
+  # filter((oppose >= 20 | favor >= 20) & player != "Lakers" )
   # filter((oppose >= 40 | favor >= 25) )
   # filter((oppose >= 3 | favor >= 3) & player %notin% bref$teams & player != "Trail Blazers")
 
@@ -149,8 +148,8 @@ favor_chart <- badcalls_df %>%
   ggplot(aes(x = value, y = fct_reorder(player, badcall), fill = fct_rev(name))) + 
   geom_col(color = 'floralwhite', width = 1) + 
   scale_fill_manual(values = c("#008A80FF", "#99E3DDFF")) +
-  scale_x_continuous(limits = c(0, 25), breaks = seq(0, 25, 5)) + 
-  geom_vline(xintercept = seq(1, 25, 1), color = 'floralwhite') +
+  scale_x_continuous(limits = c(0, 300), breaks = seq(0, 300, 50)) + 
+  # geom_vline(xintercept = seq(1, 300, 1), color = 'floralwhite') +
   theme_owen()  +
   coord_cartesian(clip = 'off') +
   theme(plot.margin = margin(10, 10, 15, 0),
@@ -159,7 +158,7 @@ favor_chart <- badcalls_df %>%
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank(),
         axis.title.x = element_markdown(size = 6.5)) + 
-  labs(x = "Bad Calls That Have <span style='color:#008A80FF'>**Advantaged**</span><br>A Player From 2015-2023", 
+  labs(x = "Bad Calls That Have <span style='color:#008A80FF'>**Advantaged**</span><br>A Team From 2015-2023", 
        y = "") 
   # annotate(geom = 'text', x = 10, y = 38, label = "Incorrect no call on player", size = 2.5, fontface = 'bold', color = "#008A80FF", family = "Consolas", hjust = .5) + 
   # annotate(geom = 'text', x = 10, y = 35, label = "Incorrect call against opponent", size = 2.5, fontface = 'bold', color = "#33C6BBFF", family = "Consolas", hjust = .5)  
@@ -171,9 +170,9 @@ oppose_chart <- badcalls_df %>%
   ggplot(aes(x = value, y = fct_reorder(player, badcall), fill = (name))) + 
   geom_col(color = 'floralwhite', width = 1) + 
   scale_fill_manual(values = c("#BE4A47FF", "#FEA19EFF")) +
-  scale_x_continuous(limits = c(-25, 0), breaks = c(-25,-20,-15,-10,-5,0), labels = c("25", "20", "15", "10", "5", "0")) +
+  scale_x_continuous(limits = c(-300, 0), breaks = c(-300,-250,-200, -150, -100, -50, 0), labels = c("300","250","200", "150", "100", "50", "0")) +
   scale_y_discrete(position = "right") + 
-  geom_vline(xintercept = seq(-25, -1, 1), color = 'floralwhite') +
+  # geom_vline(xintercept = seq(-300, -1, 1), color = 'floralwhite') +
   theme_owen()  +
   coord_cartesian(clip = 'off') +
   theme(plot.margin = margin(10, 0, 15, 10),
@@ -182,8 +181,8 @@ oppose_chart <- badcalls_df %>%
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank(),
         axis.title.x = element_markdown(size = 6.5)) + 
-  labs(x = "Bad Calls That Have <span style='color:#BE4A47FF'>**Disadvantaged**</span><br>A Player From 2015-2023", 
-       y = "")
+  labs(x = "Bad Calls That Have <span style='color:#BE4A47FF'>**Disadvantaged**</span><br>A Team From 2015-2023", 
+       y = "") 
   # annotate(geom = 'text', x = -10, y = 38, label = "Incorrect no call on opponent", size = 2.5,  fontface = 'bold',  color = "#BE4A47FF", family = "Consolas", hjust = .5) +   
   # annotate(geom = 'text', x = -10, y = 35, label = "Incorrect call against player", size = 2.5,  fontface = 'bold', color = "#FEA19EFF", family = "Consolas", hjust = .5)  
 
@@ -193,14 +192,15 @@ p <- oppose_chart + favor_chart
 # add title and subtitle
 p <- p + 
   plot_annotation(
-    title = "Bad Shooting Foul Calls That Have <span style='color:#BE4A47FF'>**Disadvantaged**</span> Or <span style='color:#008A80FF'>**Advantaged**</span> A Player From 2015-23", 
-    subtitle = "A call is considered to have disadvantaged a player if it was an incorrect no call on their opponent or a incorrect call\nagainst them and visa versa for calls that advantage a player | Only showing players that have been ad/disadvantaged at least 3x\nSorted by the difference in disadavantaged and advantaged calls | Only Shooting Fouls are considered",
+    title = "Bad Calls That Have <span style='color:#BE4A47FF'>**Disadvantaged**</span> Or <span style='color:#008A80FF'>**Advantaged**</span> A Team From 2015-23", 
+    subtitle = "A call is considered to have disadvantaged a team if it was an incorrect no call on their opponent or a incorrect call against them\nand visa versa for calls that advantage a team",
     caption = "graph: @SravanNBA |code: @owenlhjphillips | Source: github.com/atlhawksfanatic/L2M",
-    theme = theme(plot.title = element_markdown(face = 'bold', family = "Consolas", size = 9.0), 
-                  plot.subtitle = element_text(family = "Consolas", size = 5.75),
+    theme = theme(plot.title = element_markdown(face = 'bold', family = "Consolas", size = 9.5), 
+                  plot.subtitle = element_text(family = "Consolas", size = 5.25),
                   plot.background = element_rect(fill = 'floralwhite', color = 'floralwhite'), 
                   plot.caption = element_text(family = "Consolas"))
   )
+
 # Save plot
-ggsave("./figs/R/BadCalls_shooting_diff_2015_23.png", p, w = 6, h = 8, dpi = 600)
+ggsave("./figs/R/BadCalls_team_diff_2015_23.png", p, w = 6, h = 8, dpi = 600)
 

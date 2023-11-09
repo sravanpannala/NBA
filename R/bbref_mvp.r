@@ -99,6 +99,6 @@ df %>%
   ) %>% 
   tab_source_note(
     source_note = md("@SravanNBA | **Source**: Basketball-Reference MVP Tracker")
-  ) %>% gtsave("./figs/R/bbref_MVP_table.png")
+  ) #%>% gtsave("./figs/R/bbref_MVP_table.png")
 
 
