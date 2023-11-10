@@ -87,6 +87,56 @@ def pbp_games(games_id):
 
     return games_list
 
+# function to rank pbp data like fouls, assists etc
+def rank_data_pbp(IDs,player_dict,team_dict,sort="Player",var="Fouls"):
+    ID, items = np.unique(IDs, return_counts=True)
+    if sort == "Player":
+        ppl = np.array([player_dict.get(x,np.nan) for x in ID])  
+    elif sort == "Team":
+        ppl = [team['full_name'] for team, tID in zip(team_dict,ID) if team['id'] ==tID]
+    df = pd.DataFrame({sort:ppl,var:items})
+    df1 = df.sort_values(by=[var],ascending=False)
+    df1 = df1.reset_index(drop=True)
+    df1["#"] = df1.index +1
+    df2 = df1[["#",sort,var]]
+    df3 = df2.iloc[:10]
+
+    return df3
+
+# Function to plot table with Top 10 ranked
+def plot_table_rank(df,var,sort="Player",title=" ",title_shift=0.05,title_font=15,footer=" ",source="nba.com/stats",col_width=15):
+    fig = go.Figure(data=[go.Table(
+        columnwidth=[5,40,col_width],
+        header=dict(values=list('<b>'+df.columns+'<b>'),
+                    fill_color='blue',
+                    align=['center','left','center'],
+                    font=dict(color='snow', size=12),
+                    line_color="grey"
+                    ),
+        cells=dict(values=[df["#"],df[sort],df[var]],
+                fill_color='lavender',
+                align=['center','left','center'],
+                height=23,
+                line_color="grey",#lightgrey",
+                # font=dict(family="Cambria", size=12)
+                ),
+                # height=25
+        ),
+    ])
+    # fig.update_layout(title_text=title)
+    fig.update_layout(title=dict(text='<b>'+title+'<b>',y=0.98,x=title_shift,font=dict(size=title_font)))
+    tab_width = 250 + col_width
+    tab_height = 305
+    fig.add_annotation(x=0.0, y=0.0,text="@SravanNBA",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
+    fig.add_annotation(x=1.0, y=0.0,text=f"Source: {source}",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
+    if len(footer)>1:
+        fig.add_annotation(x=0.0, y=0.0,text=footer,showarrow=False,xshift=0,yshift=15,font=dict(size=10))
+        tab_height = 315
+    fig.update_layout(width=tab_width,height=tab_height,margin=dict(t=25,b=1,l=1,r=1))
+    # fig.update_layout(autosize=True)
+    fig.show()
+    return fig
+
 # Amazing function by Bradley Fay for plotting the nba court
 # source: https://github.com/bradleyfay/py-Goldsberry/blob/master/docs/Visualizing%20NBA%20Shots%20with%20py-Goldsberry.ipynb
 def draw_court(ax=None, color='black', lw=2, outer_lines=True, z=3):
@@ -566,54 +616,6 @@ def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
     fig.set_facecolor('#fc8662')
     return ax.get_figure(), ax
 
-# function to rank pbp data like fouls, assists etc
-def rank_data_pbp(IDs,player_dict,team_dict,sort="Player",var="Fouls"):
-    ID, items = np.unique(IDs, return_counts=True)
-    if sort == "Player":
-        ppl = np.array([player_dict.get(x,np.nan) for x in ID])  
-    elif sort == "Team":
-        ppl = [team['full_name'] for team, tID in zip(team_dict,ID) if team['id'] ==tID]
-    df = pd.DataFrame({sort:ppl,var:items})
-    df1 = df.sort_values(by=[var],ascending=False)
-    df1 = df1.reset_index(drop=True)
-    df1 = df1.reset_index(drop=False)
-    df1["#"] = df1["index"] +1
-    df2 = df1[["#",sort,var]]
-    df3 = df2.iloc[:10]
-
-    return df3
-
-def plot_table_rank(df,var,sort="Player",title=" ",title_shift=0.1,title_font=15,footer=" ",source="nba.com/stats",col_width=15):
-    fig = go.Figure(data=[go.Table(
-        columnwidth=[5,40,col_width],
-        header=dict(values=list(df.columns),
-                    fill_color='blue',
-                    align=['center','left','center'],
-                    font=dict(color='snow',family="Arial Black, monospace", size=12),
-                    line_color="grey"
-                    ),
-        cells=dict(values=[df["#"],df[sort],df[var]],
-                fill_color='lavender',
-                align=['center','left','center'],
-                height=23,
-                line_color="grey",#lightgrey",
-                ),
-                # height=25
-        ),
-    ])
-    # fig.update_layout(title_text=title)
-    fig.update_layout(title=dict(text=title,y=0.98,x=title_shift,font=dict(size=title_font,family="Arial Black, monospace")))
-    tab_width = 250 + col_width
-    tab_height = 305
-    fig.add_annotation(x=0.0, y=0.0,text="@SravanNBA",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
-    fig.add_annotation(x=1.0, y=0.0,text=f"Source: {source}",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
-    if len(footer)>1:
-        fig.add_annotation(x=0.0, y=0.0,text=footer,showarrow=False,xshift=0,yshift=15,font=dict(size=10))
-        tab_height = 315
-    fig.update_layout(width=tab_width,height=tab_height,margin=dict(t=25,b=1,l=1,r=1))
-    # fig.update_layout(autosize=True)
-    fig.show()
-    return fig
 
 # Obsolete code from other places
 
