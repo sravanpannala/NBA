@@ -10,6 +10,8 @@ twitter_keys.json
 *.data.gz
 # Ignore png files
 *.png
+*.gif
+*.html
 
 # Ignore test files
 test*

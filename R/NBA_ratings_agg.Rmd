@@ -8,6 +8,8 @@ library(scales)
 library(fuzzyjoin)
 library(gt)
 library(ggimage)
+library(extrafont)
+extrafont::loadfonts(quiet=TRUE)
 ```
 
 ```{r, message = FALSE, warning = FALSE}
@@ -59,7 +61,6 @@ df$aORTG_Rank <- rank(-df$aORTG)
 df$aDRTG_Rank <- rank(-df$aDRTG)
 
 df_dnt <- df
-
 df_all1 <- df_dnt %>% left_join(., tms, by = "sTeam")
 ```
 
@@ -234,6 +235,10 @@ p <- ggplot(
     subtitle = "Net Ratings here are adjusted for Strength of Schedule",
     caption = "@SravanNBA | Source: basketballreference"
   )
+ggsave("./figs/R/BBRef_TRatings.png", p, w = 10 * 1.5, h = 8 * 1.5, dpi = 300)
+
+```
+, message = FALSE, warning = FALSE
+```{r}
 p
-# ggsave("./figs/R/BBRef_TRatings.png", p, w = 10 * 1.5, h = 8 * 1.5, dpi = 300)
 ```

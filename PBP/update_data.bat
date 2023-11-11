@@ -1,2 +1,2 @@
-C:\Users\pansr\Documents\Sra_Coding\NBA\.venv\Scripts\python.exe "C:\Users\pansr\Documents\Sra_Coding\NBA\PBP\update_data.py"
+C:\Users\pansr\AppData\Local\pypoetry\Cache\virtualenvs\nba-ub9Z_EQq-py3.11\Scripts\python.exe "C:\Users\pansr\Documents\NBA\PBP\update_data.py"
 pause

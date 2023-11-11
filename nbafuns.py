@@ -17,7 +17,7 @@ import nba_api
 from nba_api.stats.static import teams
 from pbpstats.client import Client
 
-pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata"
+pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/"
 
 #function to get player info as dictionary using pbpstats database
 def get_players_pbp(league = 'NBA'):
@@ -65,10 +65,10 @@ def get_teams(league = 'NBA'):
     return team_dict
 
 # pbp function to get all games list for a season
-def pbp_season(league="nba",season_yr="2023",season_type="Regular Season"):
+def pbp_season(league="nba",season_yr="2023",season_type="Regular Season",data_provider="data_nba"):
     settings = {
-        "Games": {"source": "file", "data_provider": "data_nba"},
-        "dir": pbp_DIR,
+        "Games": {"source": "file", "data_provider": data_provider},
+        "dir": pbp_DIR + data_provider,
     }
     client = Client(settings)
     season = client.Season(league, season_yr, season_type)
@@ -79,11 +79,11 @@ def pbp_season(league="nba",season_yr="2023",season_type="Regular Season"):
     return games_id
 
 # function to get all games pbp data for a season
-def pbp_games(games_id):
+def pbp_games(games_id,data_provider="data_nba"):
     settings = {
-        "Boxscore": {"source": "file", "data_provider": "data_nba"},
-        "Possessions": {"source": "file", "data_provider": "data_nba"},
-        "dir": pbp_DIR
+        "Boxscore":    {"source": "file", "data_provider": data_provider},
+        "Possessions": {"source": "file", "data_provider": data_provider},
+        "dir": pbp_DIR + data_provider
     }
     client = Client(settings)
     games_list = []
@@ -141,7 +141,7 @@ def plot_table_rank(df,var,sort="Player",title=" ",title_shift=0.05,title_font=1
     fig.add_annotation(x=0.0, y=0.0,text="@SravanNBA",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
     fig.add_annotation(x=1.0, y=0.0,text=f"Source: {source}",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
     if len(footer)>1:
-        fig.add_annotation(x=0.0, y=0.0,text=footer,showarrow=False,xshift=0,yshift=14,font=dict(size=10))
+        fig.add_annotation(x=0.0, y=0.0,text=footer,showarrow=False,xshift=0,yshift=15,font=dict(size=10))
         tab_height = 318
     fig.update_layout(width=tab_width,height=tab_height,margin=dict(t=25,b=1,l=1,r=1))
     # fig.update_layout(autosize=True)
