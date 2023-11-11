@@ -1,49 +1,52 @@
 # Aggregate Strength Adjusted Net Rating from different sources
-#Load Packages
+
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(rvest)
 library(nbastatR)
 library(scales)
 library(fuzzyjoin)
 library(gt)
+library(ggimage)
+```
 
+```{r, message = FALSE, warning = FALSE}
 header.true <- function(df) {
-  names(df) <- as.character(unlist(df[1,]))
-  df[-1,]
+  names(df) <- as.character(unlist(df[1, ]))
+  df[-1, ]
 }
 
 Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 
 tms <- nba_teams()
 tms <- tms %>% filter(isNonNBATeam == 0)
-tms <- tms %>% 
-  select(slugTeam, nameTeam) %>% 
+tms <- tms %>%
+  select(slugTeam, nameTeam, urlThumbnailTeam) %>%
   rename("sTeam" = "slugTeam") %>%
-  rename("Team" = "nameTeam") # %>%  
-#   mutate(sTeam = case_when(
-#          sTeam == "BKN" ~ "BRK", 
-#          sTeam == "PHX" ~ "PHO", 
-#          sTeam == "CHA" ~ "CHO", 
-#          TRUE ~ sTeam))
+  rename("Team" = "nameTeam") # %>%
+```
 
-#Dunks and Threes Net Ratings
+## Dunks and Threes Net Ratings
+```{r}
 url <- "https://dunksandthrees.com/"
 
-df1 <- url %>% 
+df1 <- url %>%
   read_html() %>%
-  html_table(header=TRUE) %>%
-  as.data.frame() 
+  html_table(header = TRUE) %>%
+  as.data.frame()
 
 df <- header.true(df1)
-rownames(df)=NULL
-df <- df %>% select(Team,aNET,aORTG,aDRTG)  %>% rename("sTeam"="Team")
-df <- head(df,-2)
+rownames(df) <- NULL
+df <- df %>%
+  select(Team, aNET, aORTG, aDRTG) %>%
+  rename("sTeam" = "Team")
+df <- head(df, -2)
 
-df$sTeam <- gsub('[0-9.]', '', df$sTeam)
-df$aNET <- gsub("\\n.*","",df$aNET)
-df$aORTG <- gsub("\\n.*","",df$aORTG)
-df$aDRTG <- gsub("\\n.*","",df$aDRTG)
-df$aNET <- gsub("\u2212","-",df$aNET)
+df$sTeam <- gsub("[0-9.]", "", df$sTeam)
+df$aNET <- gsub("\\n.*", "", df$aNET)
+df$aORTG <- gsub("\\n.*", "", df$aORTG)
+df$aDRTG <- gsub("\\n.*", "", df$aDRTG)
+df$aNET <- gsub("\u2212", "-", df$aNET)
 
 df <- transform(df,
   aNET = as.numeric(aNET),
@@ -51,27 +54,33 @@ df <- transform(df,
   aDRTG = as.numeric(aDRTG)
 )
 
-df$aNET_Rank <- rank(df$aNET)
-df$aORTG_Rank <- rank(df$aORTG)
-df$aDRTG_Rank <- rank(df$aDRTG)
+df$aNET_Rank <- rank(-df$aNET)
+df$aORTG_Rank <- rank(-df$aORTG)
+df$aDRTG_Rank <- rank(-df$aDRTG)
 
 df_dnt <- df
 
-df_all1 = df_dnt  %>% left_join(., tms, by = "sTeam")
+df_all1 <- df_dnt %>% left_join(., tms, by = "sTeam")
+```
 
+## ESPN BPI
+
+```{r}
 url <- "https://www.espn.com/nba/bpi"
 
-df1 <- url %>% 
+df1 <- url %>%
   read_html() %>%
-  html_table(header=TRUE) %>%
-  as.data.frame() 
+  html_table(header = TRUE) %>%
+  as.data.frame()
 
 df <- header.true(df1)
-rownames(df)=NULL
-df <- df[,-2]
-df <- df %>% select(Team,BPI,OFF,DEF)  
-df$Team <- gsub("LA Clippers","Los Angeles Clippers",df$Team)
-df <- df %>% rename("O_BPI"="OFF") %>% rename("D_BPI"="DEF") 
+rownames(df) <- NULL
+df <- df[, -2]
+df <- df %>% select(Team, BPI, OFF, DEF)
+df$Team <- gsub("LA Clippers", "Los Angeles Clippers", df$Team)
+df <- df %>%
+  rename("O_BPI" = "OFF") %>%
+  rename("D_BPI" = "DEF")
 
 df <- transform(df,
   BPI = as.numeric(BPI),
@@ -79,32 +88,29 @@ df <- transform(df,
   D_BPI = as.numeric(D_BPI)
 )
 
-df$BPI_Rank <- rank(df$BPI)
-df$O_BPI_Rank <- rank(df$O_BPI)
-df$D_BPI_Rank <- rank(df$D_BPI)
+df$BPI_Rank <- rank(-df$BPI)
+df$O_BPI_Rank <- rank(-df$O_BPI)
+df$D_BPI_Rank <- rank(-df$D_BPI)
 
 df_espn <- df
+df_all2 <- df_all1 %>% left_join(., df_espn, by = "Team")
+```
 
-df_all2 = df_all1  %>%  left_join(., df_espn, by = "Team")
+# Basketball Reference Ratings
 
-
-
-
+```{r}
 url <- "https://www.basketball-reference.com/leagues/NBA_2024_ratings.html"
 
-df1 <- url %>% 
+df1 <- url %>%
   read_html() %>%
-  html_table(header=TRUE) %>%
-  as.data.frame() 
+  html_table(header = TRUE) %>%
+  as.data.frame()
 
 df <- header.true(df1)
-rownames(df)=NULL
-df <- df %>% select(Team,"NRtg/A","ORtg/A","DRtg/A")  %>% 
-      rename("aNRtg"="NRtg/A","aORtg"="ORtg/A","aDRtg"="DRtg/A")
-
-df$aNRtg_Rank <- rank(df$aNRtg)
-df$aORtg_Rank <- rank(df$aORtg)
-df$aDRtg_Rank <- rank(df$aDRtg)
+rownames(df) <- NULL
+df <- df %>%
+  select(Team, "NRtg/A", "ORtg/A", "DRtg/A") %>%
+  rename("aNRtg" = "NRtg/A", "aORtg" = "ORtg/A", "aDRtg" = "DRtg/A")
 
 df <- transform(df,
   aNRtg = as.numeric(aNRtg),
@@ -112,73 +118,122 @@ df <- transform(df,
   aDRtg = as.numeric(aDRtg)
 )
 
+df$aNRtg_Rank <- rank(-df$aNRtg)
+df$aORtg_Rank <- rank(-df$aORtg)
+df$aDRtg_Rank <- rank(-df$aDRtg)
 
 df_bbref <- df
+df_all3 <- df_all2 %>% left_join(., df_bbref, by = "Team")
+```
 
-
-df_all3 <- df_all2  %>%  left_join(., df_bbref, by = "Team")
-
-df_all <- df_all3
-
-
+## Cleaning the Glass
+```{r}
 url <- "https://cleaningtheglass.com/stats/league/summary"
 
-df1 <- url %>% 
+df1 <- url %>%
   read_html() %>%
-  html_table(header=TRUE) %>%
-  as.data.frame() 
+  html_table(header = TRUE) %>%
+  as.data.frame()
 
 df <- header.true(df1)
-rownames(df)=NULL
+rownames(df) <- NULL
+```
 
-
-
-
-
-
-
-
-
-
-df_all %>% 
-  select(Team,aORTG,aDRTG,aNET,O_BPI,D_BPI,BPI,aORtg,aDRtg,aNRtg) %>% 
-  gt()%>%
+```{r}
+df_all <- df_all3
+df_print <- df_all %>%
+  select(Team, aORTG, aDRTG, aNET, O_BPI, D_BPI, BPI, aORtg, aDRtg, aNRtg) %>%
+  gt() %>%
   tab_header(
-    title = md("**NBA Net Rating Leaders 2023-24**")) %>%
-    data_color(columns = aORTG, palette = c("red", "green")) %>%
-    data_color(columns = aDRTG, palette = c("green","red")) %>%
-    data_color(columns = aNET, palette = c("red", "green")) %>%
-    data_color(columns = O_BPI, palette = c("red", "green")) %>%
-    data_color(columns = D_BPI, palette = c("red", "green")) %>%
-    data_color(columns = BPI, palette = c("red", "green")) %>%
-    data_color(columns = aORtg, palette = c("red", "green")) %>%
-    data_color(columns = aDRtg, palette = c("green","red")) %>%
-    data_color(columns = aNRtg, palette = c("red", "green")) %>%
-    # cols_align(align = "center",columns = c("#",OFF_RTG,O_RANK,DEF_RTG,D_RANK,NET_RTG))  %>%
-    tab_spanner(
-      label = "Dunks and Threes",
-      columns = vars(aORTG, aDRTG, aNET)
-    ) %>% 
-    tab_spanner(
-      label = "ESPN BPI",
-      columns = vars(O_BPI, D_BPI, BPI)
-    ) %>%
-    tab_spanner(
-      label = "Basketball Ref",
-      columns = vars(aORtg, aDRtg, aNRtg)
-    ) %>% 
-    tab_options(
-        table.background.color = "floralwhite",
-        column_labels.font.size = 12,
-        column_labels.font.weight = 'bold',
-        row_group.font.weight = 'bold',
-        row_group.background.color = "#E5E1D8",
-        table.font.size = 10,
-        heading.title.font.size = 20,
-        heading.subtitle.font.size = 12.5,
-        table.font.names = "Consolas", 
-        data_row.padding = px(2)
-    ) %>% 
-    tab_source_note(source_note = "@SravanNBA | Source: basketball-reference, DunksandThrees, ESPN"
-    ) #%>% gtsave("./figs/R/NBA_rat_comp.png",zoom=5)
+    title = md("**NBA Net Rating Leaders 2023-24**")
+  ) %>%
+  data_color(columns = aORTG, palette = c("red", "green")) %>%
+  data_color(columns = aDRTG, palette = c("green", "red")) %>%
+  data_color(columns = aNET, palette = c("red", "green")) %>%
+  data_color(columns = O_BPI, palette = c("red", "green")) %>%
+  data_color(columns = D_BPI, palette = c("red", "green")) %>%
+  data_color(columns = BPI, palette = c("red", "green")) %>%
+  data_color(columns = aORtg, palette = c("red", "green")) %>%
+  data_color(columns = aDRtg, palette = c("green", "red")) %>%
+  data_color(columns = aNRtg, palette = c("red", "green")) %>%
+  # cols_align(align = "center",columns = c("#",OFF_RTG,O_RANK,DEF_RTG,D_RANK,NET_RTG))  %>%
+  tab_spanner(
+    label = "Dunks and Threes",
+    columns = c(aORTG, aDRTG, aNET)
+  ) %>%
+  tab_spanner(
+    label = "ESPN BPI",
+    columns = c(O_BPI, D_BPI, BPI)
+  ) %>%
+  tab_spanner(
+    label = "Basketball Ref",
+    columns = c(aORtg, aDRtg, aNRtg)
+  ) %>%
+  tab_options(
+    table.background.color = "floralwhite",
+    column_labels.font.size = 12,
+    column_labels.font.weight = "bold",
+    row_group.font.weight = "bold",
+    row_group.background.color = "#E5E1D8",
+    table.font.size = 10,
+    heading.title.font.size = 20,
+    heading.subtitle.font.size = 12.5,
+    table.font.names = "Consolas",
+    data_row.padding = px(2)
+  ) %>%
+  tab_source_note(
+    source_note = "@SravanNBA | Source: basketball-reference, DunksandThrees, ESPN"
+  ) # %>% gtsave("./figs/R/NBA_rat_comp.png",zoom=5)
+df_print
+```
 
+```{r}
+theme_owen <- function() {
+  theme_minimal(base_size = 16, base_family = "Consolas") %+replace%
+    theme(
+      panel.grid.minor = element_blank(),
+      plot.background = element_rect(fill = "ghostwhite", color = "ghostwhite")
+    )
+}
+```
+```{r}
+df_all <- df_all3
+p <- ggplot(
+  df_all,
+  aes(x = aORtg, y = aDRtg, label = paste0("#", aNRtg_Rank, " Net"))
+) +
+  # geom_point(aes(size = aNRtg_Rank)) +
+  scale_y_reverse() +
+  geom_hline(aes(yintercept = mean(aDRtg)), color = "black") +
+  geom_vline(aes(xintercept = mean(aORtg)), color = "black") +
+  geom_image(
+    aes(
+      x = aORtg, y = aDRtg,
+      image = urlThumbnailTeam
+    ),
+    size = 0.1
+  ) +
+  geom_text(nudge_x = 1.3, nudge_y = 0, size = 6) +
+  theme_owen() +
+  theme(
+    plot.title.position = "plot",
+    plot.title = element_text(face = "bold", size = 24, hjust = 0.5),
+    plot.margin = margin(10, 10, 15, 10),
+    plot.subtitle = element_text(size = 18),
+    plot.caption = element_text(size = 14)
+  ) +
+  theme(
+    axis.text.x = element_text(size = 14, face = "bold", color = "black"),
+    axis.text.y = element_text(size = 14, face = "bold", color = "black"),
+    axis.title.x = element_text(size = 18, face = "bold", colour = "black"),
+    axis.title.y = element_text(size = 18, face = "bold", colour = "black")
+  ) +
+  labs(
+    title = "Adjusted Net Ratings Landscape",
+    x = "Adjusted Offensive Rating", y = "Adjusted Defensive Rating",
+    subtitle = "Net Ratings here are adjusted for Strength of Schedule",
+    caption = "@SravanNBA | Source: basketballreference"
+  )
+p
+# ggsave("./figs/R/BBRef_TRatings.png", p, w = 10 * 1.5, h = 8 * 1.5, dpi = 300)
+```

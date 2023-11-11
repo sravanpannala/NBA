@@ -33,6 +33,17 @@ def get_players_pbp(league = 'NBA'):
         player_dict[idx]=np.nan
     return player_dict
 
+#get player ID for player name
+def get_pID(player,league = 'NBA'):
+    PATH = pathlib.Path(__file__)
+    DATA_PATH = PATH.joinpath("../data").resolve()
+    f=open(DATA_PATH.joinpath("{0}.json".format(league)))
+    data = json.load(f)
+    data = data["players"]
+    pID_dict = {v:int(k) for k,v in data.items()}
+    pID = pID_dict.get(player,np.nan)
+    return pID
+
 #function to get player info as dictionary using NBA database
 def get_players(league = 'NBA', from_year =2020, to_year =2020):
     PATH = pathlib.Path(__file__)
@@ -130,8 +141,8 @@ def plot_table_rank(df,var,sort="Player",title=" ",title_shift=0.05,title_font=1
     fig.add_annotation(x=0.0, y=0.0,text="@SravanNBA",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
     fig.add_annotation(x=1.0, y=0.0,text=f"Source: {source}",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
     if len(footer)>1:
-        fig.add_annotation(x=0.0, y=0.0,text=footer,showarrow=False,xshift=0,yshift=15,font=dict(size=10))
-        tab_height = 315
+        fig.add_annotation(x=0.0, y=0.0,text=footer,showarrow=False,xshift=0,yshift=14,font=dict(size=10))
+        tab_height = 318
     fig.update_layout(width=tab_width,height=tab_height,margin=dict(t=25,b=1,l=1,r=1))
     # fig.update_layout(autosize=True)
     fig.show()
@@ -618,6 +629,14 @@ def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
 
 
 # Obsolete code from other places
+
+# Get Fonts
+# import matplotlib.font_manager
+# fpaths = matplotlib.font_manager.findSystemFonts()
+
+# for i in fpaths:
+#     f = matplotlib.font_manager.get_font(i)
+#     print(f.family_name)
 
 ## Code to figure out errors in player ID mapping
 # Player_Name = []
