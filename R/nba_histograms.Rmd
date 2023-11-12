@@ -1,0 +1,105 @@
+
+```{r}
+library(tidyverse)
+library(nbastatR)
+library(hrbrthemes)
+library(ggridges)
+library(patchwork)
+library(ggtext) 
+Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 50)
+
+# custom ggplot2 theme
+theme_sravan <- function () { 
+  theme_minimal(base_size=9, base_family="Tahoma") %+replace% 
+    theme(
+      panel.grid.minor = element_blank(),
+      plot.background = element_rect(fill = 'ghostwhite', color = "ghostwhite")
+    )
+}
+
+theme_plot <- theme_sravan() +
+  theme(plot.title.position = 'plot', 
+        legend.position = "none",
+        plot.title = element_text(face = 'bold',size=20), 
+        plot.margin = margin(10, 10, 15, 10)) +
+  theme(axis.text.x = element_text(size=10, face="bold", color = "black"),
+        axis.text.y = element_text(size=10, face="bold", color = "black"),
+        axis.title.x = element_text(size=12, face="bold", colour = "black"),
+        axis.title.y = element_text(size=12, face="bold", colour = "black")) 
+
+tms <- nba_teams()
+tms <- tms %>% filter(isNonNBATeam == 0)
+tms <- tms %>%
+  select(slugTeam, nameTeam, idDivision ,idConference,colorsTeam,urlThumbnailTeam)
+tms$colorsTeam <- gsub(",.*", "", tms$colorsTeam)
+```
+
+```{r}
+df1 <- teams_players_stats(seasons =2024,types=c("player"),tables=c("general"),modes = c("PerGame"))
+df2 <- df1$dataTable
+data <- as.data.frame(df2)
+```
+
+```{r}
+data <- left_join(data, tms, by = "slugTeam")
+```
+
+```{r}
+p <- ggplot(data, aes(x=agePlayer)) + 
+  geom_histogram( binwidth=1, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
+  geom_vline(aes(xintercept=mean(agePlayer))) +
+  annotate("text", x=27, y=40, label="Mean Age", angle=0) +
+  theme_sravan() +
+  theme(plot.title.position = 'plot', 
+        plot.title = element_text(face = 'bold',size=20), 
+        plot.margin = margin(10, 10, 15, 10)) +
+  theme(axis.text.x = element_text(size=10, face="bold", color = "black"),
+        axis.text.y = element_text(size=10, face="bold", color = "black"),
+        axis.title.x = element_text(size=12, face="bold", colour = "black"),
+        axis.title.y = element_text(size=12, face="bold", colour = "black")) +
+  labs(
+        title = "Histogram of Player Age in the NBA",
+        x = "Player Age",
+        y = "Number of Players"
+    )
+ggsave("./figs/R/Player_Age_Histogram.png", p, w = 8, h = 5, dpi = 600)
+p
+```
+
+```{r}
+data1 <- data %>%  filter(idConference == 1)
+p1 <- ggplot(data1, aes(x=agePlayer,y= slugTeam)) + 
+  geom_density_ridges(
+    aes(fill=colorsTeam,weight= minutes,height=..density..), alpha=0.5, stat="density",)+
+    # from = 18, to = 40, quantile_lines = TRUE, quantiles = 2) +
+  scale_color_identity(aesthetics =  c("fill"))  +
+  scale_x_continuous(limits = c(18, 40), expand = c(0, 0)) +
+  theme_plot +
+  labs(x = "Player Age", y = "Team")
+p1
+```
+
+```{r}
+data2 <- data %>%  filter(idConference == 2)
+p2 <- ggplot(data2, aes(x=agePlayer,y= slugTeam )) + 
+   geom_density_ridges(
+    aes(fill=colorsTeam,weight= minutes,height=..density..), alpha=0.5, stat="density",)+
+    # from = 18, to = 40, quantile_lines = TRUE, quantiles = 2) +
+  scale_color_identity(aesthetics =  c("fill"))  +
+  scale_x_continuous(limits = c(18, 40), expand = c(0, 0)) +
+  theme_plot +
+  labs(x = "Player Age")
+p <- p1 + p2
+p <- p + 
+    plot_annotation(
+    title = "Age Distribution of NBA Teams", 
+    subtitle = "Ages are weighted by mins played per game | These are density plots (similar to Histograms)",
+    caption = "@SravanNBA  | Source: nba.com/stats",
+    theme = theme(plot.title = element_markdown(face = 'bold', family = "Tahoma", size = 20), 
+                  plot.subtitle = element_text(family = "Tahoma", size = 12),
+                  plot.background = element_rect(fill = 'ghostwhite', color = 'ghostwhite'), 
+                  plot.caption = element_text(family = "Tahoma", size = 12))
+    )
+    
+ggsave("./figs/R/Player_Age_Ridge.png", p, w = 8, h = 10, dpi = 600)
+```
