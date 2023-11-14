@@ -24,6 +24,7 @@ kaleido = "0.2.1"
 ipykernel = "^6.26.0"
 nbformat = "^5.9.2"
 numba = "^0.58.1"
+pyqt6 = "^6.6.0"
 
 
 [build-system]

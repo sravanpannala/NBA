@@ -16,6 +16,7 @@ from tqdm import tqdm
 import nba_api
 from nba_api.stats.static import teams
 from pbpstats.client import Client
+from itertools import product
 
 pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/"
 

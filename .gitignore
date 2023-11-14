@@ -12,6 +12,10 @@ twitter_keys.json
 *.png
 *.gif
 *.html
+*.lintr
+
+*.csv
+!data/*.csv
 
 # Ignore test files
 test*
