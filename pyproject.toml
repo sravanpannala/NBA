@@ -25,6 +25,7 @@ ipykernel = "^6.26.0"
 nbformat = "^5.9.2"
 numba = "^0.58.1"
 pyqt6 = "^6.6.0"
+datar = "^0.15.3"
 
 
 [build-system]
