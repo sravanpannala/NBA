@@ -11,6 +11,7 @@ twitter_keys.json
 # Ignore png files
 *.png
 *.gif
+*.mp4
 *.html
 *.lintr
 

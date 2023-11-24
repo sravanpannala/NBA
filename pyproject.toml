@@ -26,6 +26,7 @@ nbformat = "^5.9.2"
 numba = "^0.58.1"
 pyqt6 = "^6.6.0"
 datar = "^0.15.3"
+imageio = {extras = ["ffmpeg"], version = "^2.33.0"}
 
 
 [build-system]

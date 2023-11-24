@@ -21,10 +21,13 @@
    - Coast-to-coast buckets and assists
    - Assists after offensive rebounds 
    - Chasedown blocks?
-4. [Save Player and League Data](Save_Player_League_Data/)
+4. [Import and Update Data](import_data/)
    - Using NBA API and pbpstats API
    - Save player data
    - Save league data
+   - Update possession data
+   - Import shot location data
+   - Import possession data for RAPM
    - Functions exist to import this data for use in other projects
 5. [Plot Shot Charts](Shot_Charts/)
    - Get location data using PBP Stats API

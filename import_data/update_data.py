@@ -2,16 +2,15 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from pbpstats.client import Client
 from itertools import product
 import time 
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath("__file__")))
+from nbafuns import *
+from pbpstats.client import Client
 from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3, boxscorefourfactorsv3
 from nba_api.stats.endpoints import boxscorescoringv3,boxscoreplayertrackv3,boxscoremiscv3,boxscorehustlev2
 from pbpstats.resources.enhanced_pbp import FieldGoal
-import os, sys
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath("__file__"))))
-sys.path.append(os.path.dirname(os.path.abspath("__file__")))
-from nbafuns import *
 
 data_DIR_box = "C:/Users/pansr/Documents/NBA/Leaderboards/boxscores/"
 data_DIR_shot = "C:/Users/pansr/Documents/NBA/Shot_charts/ShotLocationData/"
@@ -159,12 +158,14 @@ name = "Scoring"
 print("BoxScore " + name)
 get_boxscores(seasons,fun,name)
 
-# Import Shot Details
+# Import Shot Details PBP
 def get_loc_data(games_list,player_dict,team_dict):
     game_id, period, clock, seconds_remaining,poss_length = [],[],[],[],[]
-    team_id, player1_id= [],[]
+    score_margin = []
+    team_id, player1_id, player2_id= [],[],[]
     locX, locY, distance, shot_value, shot_type = [],[],[],[],[]
-    is_made, is_putback, is_assisted, player2_id  = [],[],[],[]
+    is_made, is_putback, is_assisted, is_heave, is_and1  = [],[],[],[],[]
+    is_second_chance_event = []
     pos_store = []
     for game in tqdm(games_list):
         for possession in game.possessions.items:
@@ -176,6 +177,7 @@ def get_loc_data(games_list,player_dict,team_dict):
                         clock.append(possession_event.clock)
                         seconds_remaining.append(possession_event.seconds_remaining)
                         poss_length.append(possession_event.seconds_since_previous_event)
+                        score_margin.append(possession_event.score_margin)
                         team_id.append(possession_event.team_id)
                         player1_id.append(possession_event.player1_id)
                         locX.append(possession_event.locX)
@@ -184,6 +186,9 @@ def get_loc_data(games_list,player_dict,team_dict):
                         shot_value.append(possession_event.shot_value)
                         shot_type.append(possession_event.shot_type)
                         is_made.append(possession_event.is_made)
+                        is_and1.append(possession_event.is_and1)
+                        is_second_chance_event.append(possession_event.is_second_chance_event)
+                        is_heave.append(possession_event.is_heave)
                         is_assisted.append(possession_event.is_assisted)
                         if possession_event.is_assisted:
                             player2_id.append(possession_event.player2_id)
@@ -196,12 +201,13 @@ def get_loc_data(games_list,player_dict,team_dict):
     player2_name = np.array([player_dict.get(x,np.nan) for x in player2_id])  
     team_name = [team['Team'] for team, tID in product(team_dict,team_id) if team['TeamID'] ==tID]
     data = pd.DataFrame({'game_id':game_id,'period':period,'clock':clock,
-                        'seconds_remaining':seconds_remaining,'poss_length':poss_length,
+                        'seconds_remaining':seconds_remaining,'poss_length':poss_length,'score_margin':score_margin,
                         'team_id':team_id,'team_name':team_name,'player_id':player1_id,
                         'player_name':player1_name,'locX': locX,'locY':locY, 'distance':distance,
-                        'shot_value':shot_value,'shot_type':shot_type,'is_made':is_made,
-                        'is_assisted':is_assisted,'player_ast_id':player2_id,'player_ast_name':player2_name,
-                        'is_putback':is_putback})
+                        'shot_value':shot_value,'shot_type':shot_type,
+                        'is_made':is_made,'is_and1':is_and1,'is_heave':is_heave,'is_putback':is_putback,
+                        'is_assisted':is_assisted,'player_ast_id':player2_id,'player_ast_name':player2_name
+                        })
     return data
 
 print("Shot Details")
