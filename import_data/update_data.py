@@ -6,6 +6,7 @@ from itertools import product
 import time 
 import os, sys
 sys.path.append(os.path.dirname(os.path.abspath("__file__")))
+# print(sys.path.append(os.path.dirname(os.path.abspath("__file__"))))
 from nbafuns import *
 from pbpstats.client import Client
 from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3, boxscorefourfactorsv3
@@ -103,7 +104,7 @@ def get_game_box(game_ids,fun):
     df_ap = []
     for game_id in tqdm(game_ids):
         for ii in range(5):
-            time.sleep(0.6)
+            # time.sleep(0.6)
             try:
                 stats = fun(game_id=game_id)
                 df1 = stats.get_data_frames()[1]
@@ -111,7 +112,7 @@ def get_game_box(game_ids,fun):
                 break
             except:
                 print(game_id)
-                # time.sleep(0.6)
+                time.sleep(0.6)
                 continue
     return df_ap
 
