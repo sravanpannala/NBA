@@ -112,12 +112,13 @@ def rank_data_pbp(IDs,player_dict,team_dict,sort="Player",var="Fouls"):
     df1 = df1.reset_index(drop=True)
     df1["#"] = df1.index +1
     df2 = df1[["#",sort,var]]
-    df3 = df2.iloc[:10]
+    # df3 = df2.iloc[:10]
 
-    return df3
+    return df2
 
 # Function to plot table with Top 10 ranked
-def plot_table_rank(df,var,sort="Player",title=" ",title_shift=0.05,title_font=15,footer=" ",source="nba.com/stats",col_width=15):
+def plot_table_rank(df1,var,sort="Player",n=10,title=" ",title_shift=0.05,title_font=15,footer=" ",source="nba.com/stats",col_width=15):
+    df = df1.iloc[:n]
     fig = go.Figure(data=[go.Table(
         columnwidth=[5,40,col_width],
         header=dict(values=list('<b>'+df.columns+'<b>'),

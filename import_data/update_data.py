@@ -20,84 +20,81 @@ data_DIR_shot = "C:/Users/pansr/Documents/NBA/Shot_charts/ShotLocationData/"
 data_provider = "data_nba"
 pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/"+data_provider
 
-seasons = ["2019","2020","2021","2022","2023"]
-season_types = ["Regular Season","Playoffs"]
-leagues = ["nba","wnba"]
-seasons = ["2023"]
-season_types = ["Regular Season"]
-leagues = ["nba"]
-for season_yr,league,season_type in product(seasons,leagues,season_types):
-    print(f"{season_yr},{league},{season_type}")
-    settings = {
-        "Games": {"source": "web", "data_provider": data_provider},
-        "dir": pbp_DIR,
-    }
-    client = Client(settings)
-    season = client.Season(league, season_yr, season_type)
-    games_id = []
-    k = 0
-    for final_game in season.games.final_games:
-        k += 1
-        games_id.append(final_game['game_id'])
-
-    print('Number of games: ',len(games_id))
-    settings = {
-        "Boxscore": {"source": "file", "data_provider": data_provider},
-        "Possessions": {"source": "file", "data_provider": data_provider},
-        "dir": pbp_DIR,
-    }
-    client = Client(settings)
-    games_list_online = []
-    error_list = []
-    bad_games_list = []
-    for gameid in tqdm(games_id):
-        try:
-            client.Game(gameid)
-        except Exception as error:
-            if "does not exist" in error.args[0]:
-                games_list_online.append(gameid)
-            elif "pstsg" in error.args[0]:
-                games_list_online.append(gameid)
-                error_list.append(error.args[0])
-            else:
-                bad_games_list.append(gameid)
-                error_list.append(error.args[0])
-            continue
-    print(error_list)
-    print('Number of bad games: ',len(bad_games_list))
-    print('Number of missing games: ',len(games_list_online))
-    settings = {
-        "Boxscore": {"source": "web", "data_provider": data_provider},
-        "Possessions": {"source": "web", "data_provider": data_provider},
-        "dir": pbp_DIR,
-    }
-    client = Client(settings)
-    # error_list = []
-    for gameid in tqdm(games_list_online):
-        try:
-            client.Game(gameid)
-        except Exception as error:
-            # print(error)
-            # error_list.append(error.args[0])
-            continue
-    # print(error_list)
+def update_pbp(seasons):
+    season_types = ["Regular Season"]
+    leagues = ["nba"]
+    for season_yr,league,season_type in product(seasons,leagues,season_types):
+        print(f"{season_yr},{league},{season_type}")
+        settings = {
+            "Games": {"source": "web", "data_provider": data_provider},
+            "dir": pbp_DIR,
+        }
+        client = Client(settings)
+        season = client.Season(league, season_yr, season_type)
+        games_id = []
+        k = 0
+        for final_game in season.games.final_games:
+            k += 1
+            games_id.append(final_game['game_id'])
+        print('Number of games: ',len(games_id))
+        settings = {
+            "Boxscore": {"source": "file", "data_provider": data_provider},
+            "Possessions": {"source": "file", "data_provider": data_provider},
+            "dir": pbp_DIR,
+        }
+        client = Client(settings)
+        games_list_online = []
+        error_list = []
+        bad_games_list = []
+        for gameid in tqdm(games_id):
+            try:
+                client.Game(gameid)
+            except Exception as error:
+                if "does not exist" in error.args[0]:
+                    games_list_online.append(gameid)
+                elif "pstsg" in error.args[0]:
+                    games_list_online.append(gameid)
+                    error_list.append(error.args[0])
+                else:
+                    bad_games_list.append(gameid)
+                    error_list.append(error.args[0])
+                continue
+        print(error_list)
+        print('Number of bad games: ',len(bad_games_list))
+        print('Number of missing games: ',len(games_list_online))
+        settings = {
+            "Boxscore": {"source": "web", "data_provider": data_provider},
+            "Possessions": {"source": "web", "data_provider": data_provider},
+            "dir": pbp_DIR,
+        }
+        client = Client(settings)
+        # error_list = []
+        for gameid in tqdm(games_list_online):
+            try:
+                client.Game(gameid)
+            except Exception as error:
+                # print(error)
+                # error_list.append(error.args[0])
+                continue
+        # print(error_list)
 
 # Update BoxScores
 def get_gameids(season,name):
-    stats = leaguegamelog.LeagueGameLog(player_or_team_abbreviation="T",season=season,season_type_all_star="Regular Season")
-    df = stats.get_data_frames()[0]
+    # stats = leaguegamelog.LeagueGameLog(player_or_team_abbreviation="T",season=season,season_type_all_star="Regular Season")
+    # df = stats.get_data_frames()[0]
+    df  = pd.read_csv(data_DIR_box+"NBA_BoxScores_"+"Standard"+"_"+season+".csv")
     game_ids1 = df["GAME_ID"].tolist()
     game_ids1  = np.unique(game_ids1)
     try:
         dfr = pd.read_csv(data_DIR_box+"NBA_BoxScores_"+name+"_"+season+".csv")
         dfr = dfr.drop(dfr.columns[0],axis=1)
-        game_ids3 = dfr["gameId"].astype(str).tolist()
-        game_ids2 = ["00" +s for s in game_ids3]
-        game_ids2  = np.unique(game_ids2)
+        game_ids3 = dfr["gameId"].tolist()
+        game_ids2  = np.unique(game_ids3)
         game_ids = list(set(game_ids1).difference(game_ids2))
     except:
         game_ids = game_ids1
         dfr = pd.DataFrame()
+    game_ids = ["00" + str(s) for s in game_ids]
     return game_ids,dfr
 
 def get_game_box(game_ids,fun):
@@ -129,35 +126,11 @@ def get_boxscores(seasons,fun,name):
         except:
             continue
 
-season_start = 2023
-season_end = 2023
-seasons = np.arange(season_start,season_end+1,1).astype(str)
-
-
-fun = boxscoreadvancedv3.BoxScoreAdvancedV3
-name = "Adv"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
-
-fun = boxscorehustlev2.BoxScoreHustleV2
-name = "Hustle"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
-
-fun = boxscoremiscv3.BoxScoreMiscV3
-name = "Misc"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
-
-fun = boxscoreplayertrackv3.BoxScorePlayerTrackV3
-name = "Track"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
-
-fun = boxscorescoringv3.BoxScoreScoringV3
-name = "Scoring"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
+def update_standard_boxscores(seasons):
+    for season in seasons:
+        stats = leaguegamelog.LeagueGameLog(player_or_team_abbreviation="T",season=season,season_type_all_star="Regular Season")
+        df = stats.get_data_frames()[0]
+        df.to_csv(data_DIR_box+"NBA_BoxScores_"+"Standard"+"_"+season+".csv")
 
 # Import Shot Details PBP
 def get_loc_data(games_list,player_dict,team_dict):
@@ -211,16 +184,55 @@ def get_loc_data(games_list,player_dict,team_dict):
                         })
     return data
 
+def update_shotdetails(seasons):
+    data_provider = "data_nba"
+    league = "NBA"
+    season_type = "Regular Season"
+    for season in seasons:
+        games_id = pbp_season(league=league,season_yr=season,season_type=season_type,data_provider=data_provider)
+        games_list = pbp_games(games_id,data_provider=data_provider)
+        player_dict = get_players_pbp(league=league)
+        team_dict = teams.get_teams()
+        team_dict = get_teams(league = league)
+        data = get_loc_data(games_list,player_dict,team_dict)
+        data.to_csv(data_DIR_shot+f"{league}_Shot_Loc_"+season+".csv",index=False)
+
+season_start = 2023
+season_end = 2023
+seasons = np.arange(season_start,season_end+1,1).astype(str)
+
+# Update pbp Data
+update_pbp(seasons)
+
+# Update Boxscores
+print("Update Standard Boxscores")
+update_standard_boxscores(seasons)
+
+fun = boxscoreadvancedv3.BoxScoreAdvancedV3
+name = "Adv"
+print("BoxScore " + name)
+get_boxscores(seasons,fun,name)
+
+fun = boxscorehustlev2.BoxScoreHustleV2
+name = "Hustle"
+print("BoxScore " + name)
+get_boxscores(seasons,fun,name)
+
+fun = boxscoremiscv3.BoxScoreMiscV3
+name = "Misc"
+print("BoxScore " + name)
+get_boxscores(seasons,fun,name)
+
+fun = boxscoreplayertrackv3.BoxScorePlayerTrackV3
+name = "Track"
+print("BoxScore " + name)
+get_boxscores(seasons,fun,name)
+
+fun = boxscorescoringv3.BoxScoreScoringV3
+name = "Scoring"
+print("BoxScore " + name)
+get_boxscores(seasons,fun,name)
+
+# Update Shot Details
 print("Shot Details")
-data_provider = "data_nba"
-league = "NBA"
-season_type = "Regular Season"
-seasons = np.arange(2023,2024,1).astype(str)
-for season in seasons:
-    games_id = pbp_season(league=league,season_yr=season,season_type=season_type,data_provider=data_provider)
-    games_list = pbp_games(games_id,data_provider=data_provider)
-    player_dict = get_players_pbp(league=league)
-    team_dict = teams.get_teams()
-    team_dict = get_teams(league = league)
-    data = get_loc_data(games_list,player_dict,team_dict)
-    data.to_csv(data_DIR_shot+f"{league}_Shot_Loc_"+season+".csv",index=False)
+update_shotdetails(seasons)
