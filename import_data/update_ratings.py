@@ -147,6 +147,13 @@ n = 1.5
 lambdas_net = [.01*n, .05*n, 0.1*n]
 results_adj,model,intercept = calculate_netrtg(train_x, train_y, lambdas_net, teams_list)
 results,ortg_mean,drtg_mean = process_results(data,results_adj,intercept)
+results["OFF_R"] = results["OFF"].rank(ascending=False).astype(int)
+results["DEF_R"] = results["DEF"].rank(ascending=True).astype(int)
+results["NET_R"] = results["NET"].rank(ascending=False).astype(int)
+results["aOFF_R"] = results["aOFF"].rank(ascending=False).astype(int)
+results["aDEF_R"] = results["aDEF"].rank(ascending=True).astype(int)
+results["aNET_R"] = results["aNET"].rank(ascending=False).astype(int)
+
 results.to_csv(export_DIR + "NBA_Adj_Ratings_2023_2024.csv",index=False)
 
 subprocess.run(["git", "add", "."],cwd=export_DIR)

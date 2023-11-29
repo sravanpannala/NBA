@@ -33,7 +33,7 @@ tms$colorsTeam <- gsub(",.*", "", tms$colorsTeam)
 
 # Load Data
 ```{r}
-df1 <- teams_players_stats(seasons = 2023, types = c("player"), tables = c("general"), modes = c("PerGame"))
+df1 <- teams_players_stats(seasons = 2024, types = c("player"), tables = c("general"), modes = c("PerGame"))
 df2 <- df1$dataTable
 data <- as.data.frame(df2)
 ```
@@ -94,7 +94,7 @@ p2 <- ggplot(data2, aes(x = agePlayer, y = slugTeam, weight = minutes, fill = co
 p <- p1 + p2
 p <- p +
   plot_annotation(
-    title = "Age Distribution of NBA Teams 2022-23",
+    title = "Updated Age Distribution of NBA Teams 2023-24",
     subtitle = "Ages are weighted by mins played per game | These are density plots (similar to Histograms)",
     caption = "@SravanNBA  | Source: nba.com/stats",
     theme = theme(
