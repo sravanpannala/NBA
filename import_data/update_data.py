@@ -13,7 +13,7 @@ from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3, boxscoref
 from nba_api.stats.endpoints import boxscorescoringv3,boxscoreplayertrackv3,boxscoremiscv3,boxscorehustlev2
 from pbpstats.resources.enhanced_pbp import FieldGoal
 
-data_DIR_box = "C:/Users/pansr/Documents/NBA/Leaderboards/boxscores/"
+data_DIR_box = "C:/Users/pansr/Documents/NBA/team_ratings/boxscores/"
 data_DIR_shot = "C:/Users/pansr/Documents/NBA/Shot_charts/ShotLocationData/"
 
 # Update PBP Data
@@ -211,6 +211,10 @@ update_standard_boxscores(seasons)
 fun = boxscoreadvancedv3.BoxScoreAdvancedV3
 name = "Adv"
 print("BoxScore " + name)
+get_boxscores(seasons,fun,name)
+
+fun = boxscorefourfactorsv3.BoxScoreFourFactorsV3
+name = "4Factor"
 get_boxscores(seasons,fun,name)
 
 fun = boxscorehustlev2.BoxScoreHustleV2

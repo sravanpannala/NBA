@@ -10,7 +10,7 @@ import subprocess
 
 data_DIR = "C:\\Users\\pansr\\Documents\\NBA\\data\\"
 
-box_DIR = "C:\\Users\\pansr\\Documents\\NBA\\Leaderboards\\boxscores\\"
+box_DIR = "C:\\Users\\pansr\\Documents\\NBA\\team_ratings\\boxscores\\"
 
 export_DIR = "C:\\Users\\pansr\\Documents\\repos\\csv\\"
 
