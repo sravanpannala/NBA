@@ -80,8 +80,6 @@ def update_pbp(seasons):
 
 # Update BoxScores
 def get_gameids(season,name):
-    # stats = leaguegamelog.LeagueGameLog(player_or_team_abbreviation="T",season=season,season_type_all_star="Regular Season")
-    # df = stats.get_data_frames()[0]
     df  = pd.read_csv(data_DIR_box+"NBA_BoxScores_"+"Standard"+"_"+season+".csv")
     game_ids1 = df["GAME_ID"].tolist()
     game_ids1  = np.unique(game_ids1)
@@ -97,11 +95,10 @@ def get_gameids(season,name):
     game_ids = ["00" + str(s) for s in game_ids]
     return game_ids,dfr
 
-def get_game_box(game_ids,fun):
+def get_game_box(game_ids,fun, it = 5):
     df_ap = []
     for game_id in tqdm(game_ids):
-        for ii in range(5):
-            # time.sleep(0.6)
+        for ii in range(it):
             try:
                 stats = fun(game_id=game_id)
                 df1 = stats.get_data_frames()[1]
@@ -115,6 +112,7 @@ def get_game_box(game_ids,fun):
 
 def get_boxscores(seasons,fun,name):
     for season in seasons:  
+        print(season)
         game_ids,dfr = get_gameids(season,name)
         try:
             df_ap = get_game_box(game_ids,fun)
@@ -128,67 +126,42 @@ def get_boxscores(seasons,fun,name):
 
 def update_standard_boxscores(seasons):
     for season in seasons:
+        print(season)
         stats = leaguegamelog.LeagueGameLog(player_or_team_abbreviation="T",season=season,season_type_all_star="Regular Season")
         df = stats.get_data_frames()[0]
         df.to_csv(data_DIR_box+"NBA_BoxScores_"+"Standard"+"_"+season+".csv")
 
 # Import Shot Details PBP
+shot_variables = ['game_id','clock','player1_id','team_id','distance','locX','locY','shot_value','shot_type','is_and1','is_assisted','is_blocked','is_corner_3','is_heave','is_made','is_putback','player2_id','period','score_margin','seconds_remaining','seconds_since_previous_event']
 def get_loc_data(games_list,player_dict,team_dict):
-    game_id, period, clock, seconds_remaining,poss_length = [],[],[],[],[]
-    score_margin = []
-    team_id, player1_id, player2_id= [],[],[]
-    locX, locY, distance, shot_value, shot_type = [],[],[],[],[]
-    is_made, is_putback, is_assisted, is_heave, is_and1  = [],[],[],[],[]
-    is_second_chance_event = []
     pos_store = []
     for game in tqdm(games_list):
         for possession in game.possessions.items:
             for possession_event in possession.events:
-                if isinstance(possession_event, FieldGoal):
-                    try: 
-                        game_id.append(possession_event.game_id)
-                        period.append(possession_event.period)
-                        clock.append(possession_event.clock)
-                        seconds_remaining.append(possession_event.seconds_remaining)
-                        poss_length.append(possession_event.seconds_since_previous_event)
-                        score_margin.append(possession_event.score_margin)
-                        team_id.append(possession_event.team_id)
-                        player1_id.append(possession_event.player1_id)
-                        locX.append(possession_event.locX)
-                        locY.append(possession_event.locY)
-                        distance.append(possession_event.distance)
-                        shot_value.append(possession_event.shot_value)
-                        shot_type.append(possession_event.shot_type)
-                        is_made.append(possession_event.is_made)
-                        is_and1.append(possession_event.is_and1)
-                        is_second_chance_event.append(possession_event.is_second_chance_event)
-                        is_heave.append(possession_event.is_heave)
-                        is_assisted.append(possession_event.is_assisted)
-                        if possession_event.is_assisted:
-                            player2_id.append(possession_event.player2_id)
-                        else:
-                            player2_id.append(0)
-                        is_putback.append(possession_event.is_putback)
-                    except:
-                        is_putback.append(False)
-    player1_name = np.array([player_dict.get(x,np.nan) for x in player1_id])  
-    player2_name = np.array([player_dict.get(x,np.nan) for x in player2_id])  
-    team_name = [team['Team'] for team, tID in product(team_dict,team_id) if team['TeamID'] ==tID]
-    data = pd.DataFrame({'game_id':game_id,'period':period,'clock':clock,
-                        'seconds_remaining':seconds_remaining,'poss_length':poss_length,'score_margin':score_margin,
-                        'team_id':team_id,'team_name':team_name,'player_id':player1_id,
-                        'player_name':player1_name,'locX': locX,'locY':locY, 'distance':distance,
-                        'shot_value':shot_value,'shot_type':shot_type,
-                        'is_made':is_made,'is_and1':is_and1,'is_heave':is_heave,'is_putback':is_putback,
-                        'is_assisted':is_assisted,'player_ast_id':player2_id,'player_ast_name':player2_name
-                        })
-    return data
+                if isinstance(possession_event, FieldGoal):    
+                    poss = {}
+                    for var in shot_variables:
+                        try:
+                            poss[var] = getattr(possession_event,var)
+                        except:
+                            poss[var] = 0
+                    pos_store.append(poss)
+    df = pd.DataFrame(pos_store)
+    df = df.rename(columns = {"player1_id":"player_id","player2_id":"player_ast_id"})
+    df["player_name"] = df["player_id"].map(player_dict)
+    df["player_ast_name"] = df["player_ast_id"].map(player_dict)
+    return df
 
 def update_shotdetails(seasons):
     data_provider = "data_nba"
     league = "NBA"
     season_type = "Regular Season"
     for season in seasons:
+        print(season)
+        if int(season) >2021:
+            data_provider = "data_nba"
+        else:
+            data_provider = "stats_nba"
         games_id = pbp_season(league=league,season_yr=season,season_type=season_type,data_provider=data_provider)
         games_list = pbp_games(games_id,data_provider=data_provider)
         player_dict = get_players_pbp(league=league)
@@ -208,34 +181,18 @@ update_pbp(seasons)
 print("Update Standard Boxscores")
 update_standard_boxscores(seasons)
 
-fun = boxscoreadvancedv3.BoxScoreAdvancedV3
-name = "Adv"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
+boxscores = [
+    {"name": "Adv","fun":boxscoreadvancedv3.BoxScoreAdvancedV3,},
+    {"name": "4Factor","fun":boxscorefourfactorsv3.BoxScoreFourFactorsV3,},
+    {"name": "Hustle","fun":boxscorehustlev2.BoxScoreHustleV2,},
+    {"name": "Misc","fun":boxscoremiscv3.BoxScoreMiscV3,},
+    {"name": "Track","fun":boxscoreplayertrackv3.BoxScorePlayerTrackV3,},
+    {"name": "Scoring","fun":boxscorescoringv3.BoxScoreScoringV3},
+]
 
-fun = boxscorefourfactorsv3.BoxScoreFourFactorsV3
-name = "4Factor"
-get_boxscores(seasons,fun,name)
-
-fun = boxscorehustlev2.BoxScoreHustleV2
-name = "Hustle"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
-
-fun = boxscoremiscv3.BoxScoreMiscV3
-name = "Misc"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
-
-fun = boxscoreplayertrackv3.BoxScorePlayerTrackV3
-name = "Track"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
-
-fun = boxscorescoringv3.BoxScoreScoringV3
-name = "Scoring"
-print("BoxScore " + name)
-get_boxscores(seasons,fun,name)
+for boxscore in boxscores:
+    print("BoxScore " + boxscore["name"])
+    get_boxscores(seasons,boxscore["fun"],boxscore["name"])
 
 # Update Shot Details
 print("Shot Details")
