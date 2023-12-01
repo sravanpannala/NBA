@@ -222,8 +222,8 @@ def update_shotdetails(seasons):
         team_dict = teams.get_teams()
         team_dict = get_teams(league=league)
         data = get_loc_data(games_list, player_dict, team_dict)
-        data.to_csv(
-            data_DIR_shot + f"{league}_Shot_Loc_" + season + ".csv", index=False
+        data.to_parquet(
+            data_DIR_shot + f"{league}_Shot_Loc_" + season + ".parquet"
         )
 
 
