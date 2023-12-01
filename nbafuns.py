@@ -21,53 +21,63 @@ from itertools import product
 os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.3.2\\"
 pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/"
 
-#function to get player info as dictionary using pbpstats database
-def get_players_pbp(league = 'NBA'):
+
+# function to get player info as dictionary using pbpstats database
+def get_players_pbp(league="NBA"):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    f=open(DATA_PATH.joinpath("{0}.json".format(league)))
+    f = open(DATA_PATH.joinpath("{0}.json".format(league)))
     data = json.load(f)
     data = data["players"]
-    player_dict = {int(k):v for k,v in data.items()}
+    player_dict = {int(k): v for k, v in data.items()}
     idx_bad = []
     # idx_bad = [2168,2345,2610,2794,202435,202443,202603,203606,203624,1627310,1610612745,873,1301,1371,1672,1778,1941,203152,204005,1610612746,1658,2152,1610612737,1610612741,1610612744,1610612747,1610612749,1610612750,1610612756,1610612762,1243,1256,1320,1335,1787,2719,201690,201690,202101,202105,203535,204085,1610612751,1610612752,1610612755]
     for idx in idx_bad:
-        player_dict[idx]=np.nan
+        player_dict[idx] = np.nan
     return player_dict
 
-#get player ID for player name
-def get_pID(player,league = 'NBA'):
+
+# get player ID for player name
+def get_pID(player, league="NBA"):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    f=open(DATA_PATH.joinpath("{0}.json".format(league)))
+    f = open(DATA_PATH.joinpath("{0}.json".format(league)))
     data = json.load(f)
     data = data["players"]
-    pID_dict = {v:int(k) for k,v in data.items()}
-    pID = pID_dict.get(player,np.nan)
+    pID_dict = {v: int(k) for k, v in data.items()}
+    pID = pID_dict.get(player, np.nan)
     return pID
 
-#function to get player info as dictionary using NBA database
-def get_players(league = 'NBA', from_year =2020, to_year =2020):
+
+# function to get player info as dictionary using NBA database
+def get_players(league="NBA", from_year=2020, to_year=2020):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    data = pd.read_csv(DATA_PATH.joinpath("{0}_players_database.csv".format(league)))  
+    data = pd.read_csv(DATA_PATH.joinpath("{0}_players_database.csv".format(league)))
     from_year = from_year
     to_year = to_year
-    player_data = data[(data['From']<=from_year) & (data['To']>=to_year)]
+    player_data = data[(data["From"] <= from_year) & (data["To"] >= to_year)]
     player_data = player_data.reset_index(drop=True)
     player_dict = player_data.to_dict(orient="records")
     return player_dict
 
-#function to get team info as dictionary using NBA database
-def get_teams(league = 'NBA'):
+
+# function to get team info as dictionary using NBA database
+def get_teams(league="NBA"):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    team_data = pd.read_csv(DATA_PATH.joinpath('{0}_teams_database.csv'.format(league))) 
+    team_data = pd.read_csv(DATA_PATH.joinpath("{0}_teams_database.csv".format(league)))
     team_dict = team_data.to_dict(orient="records")
     return team_dict
 
+
 # pbp function to get all games list for a season
-def pbp_season(league="nba",season_yr="2023",season_type="Regular Season",data_provider="data_nba"):
+def pbp_season(
+    league="nba",
+    season_yr="2023",
+    season_type="Regular Season",
+    data_provider="data_nba",
+):
     settings = {
         "Games": {"source": "file", "data_provider": data_provider},
         "dir": pbp_DIR + data_provider,
@@ -76,16 +86,17 @@ def pbp_season(league="nba",season_yr="2023",season_type="Regular Season",data_p
     season = client.Season(league, season_yr, season_type)
     games_id = []
     for final_game in season.games.final_games:
-        games_id.append(final_game['game_id'])
-    print('Number of games: ',len(games_id))
+        games_id.append(final_game["game_id"])
+    print("Number of games: ", len(games_id))
     return games_id
 
+
 # function to get all games pbp data for a season
-def pbp_games(games_id,data_provider="data_nba"):
+def pbp_games(games_id, data_provider="data_nba"):
     settings = {
-        "Boxscore":    {"source": "file", "data_provider": data_provider},
+        "Boxscore": {"source": "file", "data_provider": data_provider},
         "Possessions": {"source": "file", "data_provider": data_provider},
-        "dir": pbp_DIR + data_provider
+        "dir": pbp_DIR + data_provider,
     }
     client = Client(settings)
     games_list = []
@@ -96,64 +107,118 @@ def pbp_games(games_id,data_provider="data_nba"):
         except:
             bad_games_list.append(gameid)
             continue
-    print('Number of bad games: ',len(bad_games_list))
+    print("Number of bad games: ", len(bad_games_list))
 
     return games_list
 
+
 # function to rank pbp data like fouls, assists etc
-def rank_data_pbp(IDs,player_dict,team_dict,sort="Player",var="Fouls"):
+def rank_data_pbp(IDs, player_dict, team_dict, sort="Player", var="Fouls"):
     ID, items = np.unique(IDs, return_counts=True)
     if sort == "Player":
-        ppl = np.array([player_dict.get(x,np.nan) for x in ID])  
+        ppl = np.array([player_dict.get(x, np.nan) for x in ID])
     elif sort == "Team":
-        ppl = [team['full_name'] for team, tID in zip(team_dict,ID) if team['id'] ==tID]
-    df = pd.DataFrame({sort:ppl,var:items})
-    df1 = df.sort_values(by=[var],ascending=False)
+        ppl = [
+            team["full_name"] for team, tID in zip(team_dict, ID) if team["id"] == tID
+        ]
+    df = pd.DataFrame({sort: ppl, var: items})
+    df1 = df.sort_values(by=[var], ascending=False)
     df1 = df1.reset_index(drop=True)
-    df1["#"] = df1.index +1
-    df2 = df1[["#",sort,var]]
+    df1["#"] = df1.index + 1
+    df2 = df1[["#", sort, var]]
     # df3 = df2.iloc[:10]
 
     return df2
 
+
 # Function to plot table with Top 10 ranked
-def plot_table_rank(df1,var,sort="Player",n=10,title=" ",title_shift=0.05,title_font=15,footer=" ",source="nba.com/stats",col_width=15):
+def plot_table_rank(
+    df1,
+    var,
+    sort="Player",
+    n=10,
+    title=" ",
+    title_shift=0.05,
+    title_font=15,
+    footer=" ",
+    source="nba.com/stats",
+    col_width=15,
+):
     df = df1.iloc[:n]
-    fig = go.Figure(data=[go.Table(
-        columnwidth=[5,40,col_width],
-        header=dict(values=list('<b>'+df.columns+'<b>'),
-                    fill_color='blue',
-                    align=['center','left','center'],
-                    font=dict(color='snow', size=12),
-                    line_color="grey"
-                    ),
-        cells=dict(values=[df["#"],df[sort],df[var]],
-                fill_color='lavender',
-                align=['center','left','center'],
-                height=23,
-                line_color="grey",#lightgrey",
-                # font=dict(family="Cambria", size=12)
+    fig = go.Figure(
+        data=[
+            go.Table(
+                columnwidth=[5, 40, col_width],
+                header=dict(
+                    values=list("<b>" + df.columns + "<b>"),
+                    fill_color="blue",
+                    align=["center", "left", "center"],
+                    font=dict(color="snow", size=12),
+                    line_color="grey",
+                ),
+                cells=dict(
+                    values=[df["#"], df[sort], df[var]],
+                    fill_color="lavender",
+                    align=["center", "left", "center"],
+                    height=23,
+                    line_color="grey",  # lightgrey",
+                    # font=dict(family="Cambria", size=12)
                 ),
                 # height=25
-        ),
-    ])
+            ),
+        ]
+    )
     # fig.update_layout(title_text=title)
-    fig.update_layout(title=dict(text='<b>'+title+'<b>',y=0.98,x=title_shift,font=dict(size=title_font)))
+    fig.update_layout(
+        title=dict(
+            text="<b>" + title + "<b>",
+            y=0.98,
+            x=title_shift,
+            font=dict(size=title_font),
+        )
+    )
     tab_width = 250 + col_width
     tab_height = 305
-    fig.add_annotation(x=0.0, y=0.0,text="@SravanNBA",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
-    fig.add_annotation(x=1.0, y=0.0,text=f"Source: {source}",showarrow=False,xshift=1,yshift=1,font=dict(size=10))
-    if len(footer)>1:
-        fig.add_annotation(x=0.0, y=0.0,text=footer,showarrow=False,xshift=0,yshift=15,font=dict(size=10))
+    fig.add_annotation(
+        x=0.0,
+        y=0.0,
+        text="@SravanNBA",
+        showarrow=False,
+        xshift=1,
+        yshift=1,
+        font=dict(size=10),
+    )
+    fig.add_annotation(
+        x=1.0,
+        y=0.0,
+        text=f"Source: {source}",
+        showarrow=False,
+        xshift=1,
+        yshift=1,
+        font=dict(size=10),
+    )
+    if len(footer) > 1:
+        fig.add_annotation(
+            x=0.0,
+            y=0.0,
+            text=footer,
+            showarrow=False,
+            xshift=0,
+            yshift=15,
+            font=dict(size=10),
+        )
         tab_height = 318
-    fig.update_layout(width=tab_width,height=tab_height,margin=dict(t=25,b=1,l=1,r=1))
+    fig.update_layout(
+        width=tab_width, height=tab_height, margin=dict(t=25, b=1, l=1, r=1)
+    )
     # fig.update_layout(autosize=True)
     fig.show()
     return fig
 
+
 # Amazing function by Bradley Fay for plotting the nba court
 # source: https://github.com/bradleyfay/py-Goldsberry/blob/master/docs/Visualizing%20NBA%20Shots%20with%20py-Goldsberry.ipynb
-def draw_court(ax=None, color='black', lw=2, outer_lines=True, z=3):
+def draw_court(ax=None, color="black", lw=2, outer_lines=True, z=3):
     # If an axes object isn't provided to plot onto, just get current one
     if ax is None:
         ax = plt.gca()
@@ -170,48 +235,93 @@ def draw_court(ax=None, color='black', lw=2, outer_lines=True, z=3):
 
     # The paint
     # Create the outer box 0f the paint, width=16ft, height=19ft
-    outer_box = Rectangle((-80, -47.5), 160, 190, linewidth=lw, color=color,
-                          fill=False, zorder=z)
+    outer_box = Rectangle(
+        (-80, -47.5), 160, 190, linewidth=lw, color=color, fill=False, zorder=z
+    )
     # Create the inner box of the paint, widt=12ft, height=19ft
-    inner_box = Rectangle((-60, -47.5), 120, 190, linewidth=lw, color=color,
-                          fill=False, zorder=z)
+    inner_box = Rectangle(
+        (-60, -47.5), 120, 190, linewidth=lw, color=color, fill=False, zorder=z
+    )
 
     # Create free throw top arc
-    top_free_throw = Arc((0, 142.5), 120, 120, theta1=0, theta2=180,
-                         linewidth=lw, color=color, fill=False, zorder=z)
+    top_free_throw = Arc(
+        (0, 142.5),
+        120,
+        120,
+        theta1=0,
+        theta2=180,
+        linewidth=lw,
+        color=color,
+        fill=False,
+        zorder=z,
+    )
     # Create free throw bottom arc
-    bottom_free_throw = Arc((0, 142.5), 120, 120, theta1=180, theta2=0,
-                            linewidth=lw, color=color, linestyle='dashed', zorder=z)
+    bottom_free_throw = Arc(
+        (0, 142.5),
+        120,
+        120,
+        theta1=180,
+        theta2=0,
+        linewidth=lw,
+        color=color,
+        linestyle="dashed",
+        zorder=z,
+    )
     # Restricted Zone, it is an arc with 4ft radius from center of the hoop
-    restricted = Arc((0, 0), 80, 80, theta1=0, theta2=180, linewidth=lw,
-                     color=color, zorder=z)
+    restricted = Arc(
+        (0, 0), 80, 80, theta1=0, theta2=180, linewidth=lw, color=color, zorder=z
+    )
 
     # Three point line
     # Create the side 3pt lines, they are 14ft long before they begin to arc
-    corner_three_a = Rectangle((-220, -47.5), 0, 138, linewidth=lw,
-                               color=color, zorder=z)
-    corner_three_b = Rectangle((220, -47.5), 0, 138, linewidth=lw, color=color, zorder=z)
+    corner_three_a = Rectangle(
+        (-220, -47.5), 0, 138, linewidth=lw, color=color, zorder=z
+    )
+    corner_three_b = Rectangle(
+        (220, -47.5), 0, 138, linewidth=lw, color=color, zorder=z
+    )
     # 3pt arc - center of arc will be the hoop, arc is 23'9" away from hoop
-    # I just played around with the theta values until they lined up with the 
+    # I just played around with the theta values until they lined up with the
     # threes
-    three_arc = Arc((0, 0), 475, 475, theta1=22.13, theta2=157.87, linewidth=lw,
-                    color=color, zorder=z)
+    three_arc = Arc(
+        (0, 0),
+        475,
+        475,
+        theta1=22.13,
+        theta2=157.87,
+        linewidth=lw,
+        color=color,
+        zorder=z,
+    )
 
     # Center Court
-    center_outer_arc = Arc((0, 422), 120, 120, theta1=180, theta2=0,
-                           linewidth=lw, color=color, zorder=z)
-    center_inner_arc = Arc((0, 422), 40, 40, theta1=180, theta2=0,
-                           linewidth=lw, color=color, zorder=z)
+    center_outer_arc = Arc(
+        (0, 422), 120, 120, theta1=180, theta2=0, linewidth=lw, color=color, zorder=z
+    )
+    center_inner_arc = Arc(
+        (0, 422), 40, 40, theta1=180, theta2=0, linewidth=lw, color=color, zorder=z
+    )
 
     # List of the court elements to be plotted onto the axes
-    court_elements = [hoop, backboard, outer_box, inner_box, top_free_throw,
-                      bottom_free_throw, restricted, corner_three_a,
-                      corner_three_b, three_arc, center_outer_arc,
-                      center_inner_arc]
+    court_elements = [
+        hoop,
+        backboard,
+        outer_box,
+        inner_box,
+        top_free_throw,
+        bottom_free_throw,
+        restricted,
+        corner_three_a,
+        corner_three_b,
+        three_arc,
+        center_outer_arc,
+        center_inner_arc,
+    ]
     if outer_lines:
         # Draw the half court line, baseline and side out bound lines
-        outer_lines = Rectangle((-249, -48), 498, 470, linewidth=lw,
-                                color=color, fill=None)
+        outer_lines = Rectangle(
+            (-249, -48), 498, 470, linewidth=lw, color=color, fill=None
+        )
         court_elements.append(outer_lines)
 
     # Add the court elements onto the axes
@@ -220,9 +330,18 @@ def draw_court(ax=None, color='black', lw=2, outer_lines=True, z=3):
 
     return ax
 
+
 # creating bins for hex shot chart
-def create_bins(data_frame, bin_number_x = 30, bin_number_y=300 / (500.0 / 30.0), league_average = None,
-                width = 500, height = 300, norm_x = 250, norm_y = 48):
+def create_bins(
+    data_frame,
+    bin_number_x=30,
+    bin_number_y=300 / (500.0 / 30.0),
+    league_average=None,
+    width=500,
+    height=300,
+    norm_x=250,
+    norm_y=48,
+):
     """
     Method which creates bins the dataset into squared grid. This is used so that plot looks nicer than the raw
     locations plot. Along with binning the data, the percentages per zones and for each bin are calculated here
@@ -258,7 +377,6 @@ def create_bins(data_frame, bin_number_x = 30, bin_number_y=300 / (500.0 / 30.0)
     percentage_color_dict = {}
 
     for i in range(len(data_frame)):
-
         # Row from data frame
         row = data_frame.iloc[i]
 
@@ -302,7 +420,9 @@ def create_bins(data_frame, bin_number_x = 30, bin_number_y=300 / (500.0 / 30.0)
         # Counting the occurences based on both bin_key and zone_key, because of that we have dict in dict
         if key in percentage_color_dict:
             if zone_key in percentage_color_dict[key]:
-                percentage_color_dict[key][zone_key] = percentage_color_dict[key][zone_key] + 1
+                percentage_color_dict[key][zone_key] = (
+                    percentage_color_dict[key][zone_key] + 1
+                )
             else:
                 percentage_color_dict[key][zone_key] = 1
         else:
@@ -343,84 +463,111 @@ def create_bins(data_frame, bin_number_x = 30, bin_number_y=300 / (500.0 / 30.0)
             # Getting info about zone
             # We are getting that info from
             per_zone_counter_from_percentage_color_dict = percentage_color_dict[key]
-            zone_key = max(per_zone_counter_from_percentage_color_dict.items(),
-                           key=operator.itemgetter(1))[0]
+            zone_key = max(
+                per_zone_counter_from_percentage_color_dict.items(),
+                key=operator.itemgetter(1),
+            )[0]
 
             shot_zone_basic = zone_key[0]
             shot_zone_area = zone_key[1]
             distance = zone_key[2]
 
             # Calculating the percentage in current zone
-            zone_percent = 0.0 if zone_key not in zones_made else float(zones_made[zone_key]) / \
-                                                                  float(zones_counts[zone_key])
+            zone_percent = (
+                0.0
+                if zone_key not in zones_made
+                else float(zones_made[zone_key]) / float(zones_counts[zone_key])
+            )
 
             # Retrieving league average percentage for current zone
             avg_percentage = league_average.loc[
-                (league_average.SHOT_ZONE_BASIC == shot_zone_basic) &
-                (league_average.SHOT_ZONE_AREA == shot_zone_area) &
-                (league_average.SHOT_ZONE_RANGE == distance)].FG_PCT.iloc[
-                0
-            ]
+                (league_average.SHOT_ZONE_BASIC == shot_zone_basic)
+                & (league_average.SHOT_ZONE_AREA == shot_zone_area)
+                & (league_average.SHOT_ZONE_RANGE == distance)
+            ].FG_PCT.iloc[0]
             # Comparison of league average and each shot
-            shot_comparison.append(np.clip((shot_percent - avg_percentage) * 100, -10, 10))
+            shot_comparison.append(
+                np.clip((shot_percent - avg_percentage) * 100, -10, 10)
+            )
             # Comparison of zone and league average
-            per_zone_comparison.append(np.clip((zone_percent - avg_percentage) * 100, -10, 10))
+            per_zone_comparison.append(
+                np.clip((zone_percent - avg_percentage) * 100, -10, 10)
+            )
             # Percentage of shot in current zone, kinda inaccurate info, good for some other type of plot
             per_zone_percentage.append(zone_percent * 100)
 
         # Calculating value to which the markers will be scaled later on
         # The data in restricted is scaled to maximum out of restricted area, because players usually have a lot
         # more shots in restricted area
-        value_to_scale = max_out_of_restricted if location_counts[key] > max_out_of_restricted else \
-            location_counts[key]
+        value_to_scale = (
+            max_out_of_restricted
+            if location_counts[key] > max_out_of_restricted
+            else location_counts[key]
+        )
         # Storing the data into a list
-        shot_locations_counts.append((float(value_to_scale) / max_out_of_restricted) * max_size)
+        shot_locations_counts.append(
+            (float(value_to_scale) / max_out_of_restricted) * max_size
+        )
 
         # Count of shots per bin
         raw_counts.append(location_counts[key])
 
         # Middle of current and next bin is where we will place the marker in real coordinates
-        unbinned_x = ((x_bin * float(width)) / bin_number_x + (
-                (x_bin + 1) * float(width)) / bin_number_x) / 2 - norm_x
-        unbinned_y = ((y_bin * float(height)) / bin_number_y + (
-                (y_bin + 1) * float(height)) / bin_number_y) / 2 - norm_y
+        unbinned_x = (
+            (x_bin * float(width)) / bin_number_x
+            + ((x_bin + 1) * float(width)) / bin_number_x
+        ) / 2 - norm_x
+        unbinned_y = (
+            (y_bin * float(height)) / bin_number_y
+            + ((y_bin + 1) * float(height)) / bin_number_y
+        ) / 2 - norm_y
 
         # Adding binned locations
         x_bins.append(unbinned_x)
         y_bins.append(unbinned_y)
 
     # Binned locations
-    copied_df['BIN_LOC_X'] = x_bins
-    copied_df['BIN_LOC_Y'] = y_bins
+    copied_df["BIN_LOC_X"] = x_bins
+    copied_df["BIN_LOC_Y"] = y_bins
     # Percentage comparison with league averages
     if league_average is not None:
         # Comparison of each shot with league average for that zone
-        copied_df['PCT_LEAGUE_AVG_COMPARISON'] = shot_comparison
+        copied_df["PCT_LEAGUE_AVG_COMPARISON"] = shot_comparison
         # Comparison of each zone with league average for that zone
-        copied_df['PCT_LEAGUE_COMPARISON_ZONE'] = per_zone_comparison
+        copied_df["PCT_LEAGUE_COMPARISON_ZONE"] = per_zone_comparison
         # Percentage of whole zone (not in comparison with league average)
-        copied_df['LOC_ZONE_PERCENTAGE'] = per_zone_percentage
+        copied_df["LOC_ZONE_PERCENTAGE"] = per_zone_percentage
     # Percentage of shots for that location
-    copied_df['LOC_PERCENTAGE'] = shot_locations_percentage
+    copied_df["LOC_PERCENTAGE"] = shot_locations_percentage
 
     # Scaled count of shots and count of shots per bin
-    copied_df['LOC_COUNTS'] = shot_locations_counts
-    copied_df['LOC_RAW_COUNTS'] = raw_counts
+    copied_df["LOC_COUNTS"] = shot_locations_counts
+    copied_df["LOC_RAW_COUNTS"] = raw_counts
 
     return copied_df
 
+
 # Drawing NBA court using plotly
-def draw_plotly_court(fig,lw=3, lcolor='Orange', fig_width=600, margins=10):
+def draw_plotly_court(fig, lw=3, lcolor="Orange", fig_width=600, margins=10):
     # From: https://community.plot.ly/t/arc-shape-with-path/7205/5
-    def ellipse_arc(x_center=0.0, y_center=0.0, a=10.5, b=10.5, start_angle=0.0, end_angle=2 * np.pi, N=200, closed=False):
+    def ellipse_arc(
+        x_center=0.0,
+        y_center=0.0,
+        a=10.5,
+        b=10.5,
+        start_angle=0.0,
+        end_angle=2 * np.pi,
+        N=200,
+        closed=False,
+    ):
         t = np.linspace(start_angle, end_angle, N)
         x = x_center + a * np.cos(t)
         y = y_center + b * np.sin(t)
-        path = f'M {x[0]}, {y[0]}'
+        path = f"M {x[0]}, {y[0]}"
         for k in range(1, len(t)):
-            path += f'L{x[k]}, {y[k]}'
+            path += f"L{x[k]}, {y[k]}"
         if closed:
-            path += ' Z'
+            path += " Z"
         return path
 
     fig_height = fig_width * (470 + 2 * margins) / (500 + 2 * margins)
@@ -445,7 +592,7 @@ def draw_plotly_court(fig,lw=3, lcolor='Orange', fig_width=600, margins=10):
             showgrid=False,
             zeroline=False,
             showline=False,
-            ticks='',
+            ticks="",
             showticklabels=False,
             fixedrange=True,
         ),
@@ -453,148 +600,202 @@ def draw_plotly_court(fig,lw=3, lcolor='Orange', fig_width=600, margins=10):
             showgrid=False,
             zeroline=False,
             showline=False,
-            ticks='',
+            ticks="",
             showticklabels=False,
             fixedrange=True,
         ),
         shapes=[
             dict(
-                type="rect", x0=-250, y0=-52.5, x1=250, y1=417.5,
+                type="rect",
+                x0=-250,
+                y0=-52.5,
+                x1=250,
+                y1=417.5,
                 line=dict(color=lcolor, width=lw),
                 # fillcolor='#333333',
-                layer='above'
+                layer="above",
             ),
             dict(
-                type="rect", x0=-80, y0=-52.5, x1=80, y1=137.5,
+                type="rect",
+                x0=-80,
+                y0=-52.5,
+                x1=80,
+                y1=137.5,
                 line=dict(color=lcolor, width=lw),
                 # fillcolor='#333333',
-                layer='above'
+                layer="above",
             ),
             dict(
-                type="rect", x0=-60, y0=-52.5, x1=60, y1=137.5,
+                type="rect",
+                x0=-60,
+                y0=-52.5,
+                x1=60,
+                y1=137.5,
                 line=dict(color=lcolor, width=lw),
                 # fillcolor='#333333',
-                layer='above'
+                layer="above",
             ),
             dict(
-                type="circle", x0=-60, y0=77.5, x1=60, y1=197.5, xref="x", yref="y",
+                type="circle",
+                x0=-60,
+                y0=77.5,
+                x1=60,
+                y1=197.5,
+                xref="x",
+                yref="y",
                 line=dict(color=lcolor, width=lw),
                 # fillcolor='#dddddd',
-                layer='above'
+                layer="above",
             ),
             dict(
-                type="line", x0=-60, y0=137.5, x1=60, y1=137.5,
+                type="line",
+                x0=-60,
+                y0=137.5,
+                x1=60,
+                y1=137.5,
                 line=dict(color=lcolor, width=lw),
-                layer='above'
+                layer="above",
             ),
-
             dict(
-                type="rect", x0=-2, y0=-7.25, x1=2, y1=-12.5,
+                type="rect",
+                x0=-2,
+                y0=-7.25,
+                x1=2,
+                y1=-12.5,
                 line=dict(color="#ec7607", width=lw),
-                fillcolor='#ec7607',
+                fillcolor="#ec7607",
             ),
             dict(
-                type="circle", x0=-7.5, y0=-7.5, x1=7.5, y1=7.5, xref="x", yref="y",
+                type="circle",
+                x0=-7.5,
+                y0=-7.5,
+                x1=7.5,
+                y1=7.5,
+                xref="x",
+                yref="y",
                 line=dict(color="#ec7607", width=lw),
             ),
             dict(
-                type="line", x0=-30, y0=-12.5, x1=30, y1=-12.5,
+                type="line",
+                x0=-30,
+                y0=-12.5,
+                x1=30,
+                y1=-12.5,
                 line=dict(color="#ec7607", width=lw),
             ),
-
-            dict(type="path",
-                 path=ellipse_arc(a=40, b=40, start_angle=0, end_angle=np.pi),
-                 line=dict(color=lcolor, width=lw), layer='above'),
-            dict(type="path",
-                 path=ellipse_arc(a=237.5, b=237.5, start_angle=0.386283101, end_angle=np.pi - 0.386283101),
-                 line=dict(color=lcolor, width=lw), layer='above'),
             dict(
-                type="line", x0=-220, y0=-52.5, x1=-220, y1=threept_break_y,
-                line=dict(color=lcolor, width=lw), layer='above'
+                type="path",
+                path=ellipse_arc(a=40, b=40, start_angle=0, end_angle=np.pi),
+                line=dict(color=lcolor, width=lw),
+                layer="above",
             ),
             dict(
-                type="line", x0=-220, y0=-52.5, x1=-220, y1=threept_break_y,
-                line=dict(color=lcolor, width=lw), layer='above'
+                type="path",
+                path=ellipse_arc(
+                    a=237.5,
+                    b=237.5,
+                    start_angle=0.386283101,
+                    end_angle=np.pi - 0.386283101,
+                ),
+                line=dict(color=lcolor, width=lw),
+                layer="above",
             ),
             dict(
-                type="line", x0=220, y0=-52.5, x1=220, y1=threept_break_y,
-                line=dict(color=lcolor, width=lw), layer='above'
+                type="line",
+                x0=-220,
+                y0=-52.5,
+                x1=-220,
+                y1=threept_break_y,
+                line=dict(color=lcolor, width=lw),
+                layer="above",
             ),
-
-            dict(type="path",
-                 path=ellipse_arc(y_center=417.5, a=60, b=60, start_angle=-0, end_angle=-np.pi),
-                 line=dict(color=lcolor, width=lw), layer='above'),
-
-        ]
+            dict(
+                type="line",
+                x0=-220,
+                y0=-52.5,
+                x1=-220,
+                y1=threept_break_y,
+                line=dict(color=lcolor, width=lw),
+                layer="above",
+            ),
+            dict(
+                type="line",
+                x0=220,
+                y0=-52.5,
+                x1=220,
+                y1=threept_break_y,
+                line=dict(color=lcolor, width=lw),
+                layer="above",
+            ),
+            dict(
+                type="path",
+                path=ellipse_arc(
+                    y_center=417.5, a=60, b=60, start_angle=-0, end_angle=-np.pi
+                ),
+                line=dict(color=lcolor, width=lw),
+                layer="above",
+            ),
+        ],
     )
     return True
 
+
 # add annotations/text to plotly hex maps
-def layout_update_plotly(fig, player_name,season, league, season_type, bgcolor):
+def layout_update_plotly(fig, player_name, season, league, season_type, bgcolor):
     fig.update_layout(
         plot_bgcolor=bgcolor,
         paper_bgcolor=bgcolor,
         title=dict(
-            text='Shot Hex Map: {0}'.format(player_name),
+            text="Shot Hex Map: {0}".format(player_name),
             y=0.975,
             x=0.06,
-            xanchor='auto',
-            yanchor='middle'),
-        font=dict(
-            family="Arial, Tahoma, Helvetica",
-            size=15,
-            color="Orange"
+            xanchor="auto",
+            yanchor="middle",
         ),
+        font=dict(family="Arial, Tahoma, Helvetica", size=15, color="Orange"),
         annotations=[
             go.layout.Annotation(
                 x=200,
                 y=-65,
                 showarrow=False,
                 text="@SravanNBA",
-                font=dict(
-                    family="Arial, Tahoma, Helvetica",
-                    size=15,
-                    color="White"
-                    ),
+                font=dict(family="Arial, Tahoma, Helvetica", size=15, color="White"),
             ),
             go.layout.Annotation(
                 x=-225,
                 y=400,
                 showarrow=False,
-                text=season+' '+league,
-                xanchor='left',
-                font=dict(
-                    family="Arial, Tahoma, Helvetica",
-                    size=15,
-                    color="White"
-                    ),
+                text=season + " " + league,
+                xanchor="left",
+                font=dict(family="Arial, Tahoma, Helvetica", size=15, color="White"),
             ),
-                    go.layout.Annotation(
+            go.layout.Annotation(
                 x=-225,
                 y=380,
                 showarrow=False,
                 text=season_type,
-                xanchor='left',
-                font=dict(
-                    family="Arial, Tahoma, Helvetica",
-                    size=15,
-                    color="White"
-                    ),
+                xanchor="left",
+                font=dict(family="Arial, Tahoma, Helvetica", size=15, color="White"),
             ),
         ],
     )
     return True
 
+
 # Download Player image and export figure scale for plotly
-def import_image(league,player_id):
-    if league == 'NBA':
-        url_image = "https://cdn.nba.com/headshots/nba/latest/260x190/{0}.png".format(player_id)
-        sizex=104*1.2
-        sizey=76*1.2
-    elif league =='WNBA':
-        url_image = "https://ak-static.cms.nba.com/wp-content/uploads/headshots/wnba/{0}.png".format(player_id)
-        sizex=100
-        sizey=100
+def import_image(league, player_id):
+    if league == "NBA":
+        url_image = "https://cdn.nba.com/headshots/nba/latest/260x190/{0}.png".format(
+            player_id
+        )
+        sizex = 104 * 1.2
+        sizey = 76 * 1.2
+    elif league == "WNBA":
+        url_image = "https://ak-static.cms.nba.com/wp-content/uploads/headshots/wnba/{0}.png".format(
+            player_id
+        )
+        sizex = 100
+        sizey = 100
     # PATH = pathlib.Path(__file__)
     # DATA_PATH = PATH.joinpath("../player_imgs").resolve()
     # target_dir = DATA_PATH
@@ -607,27 +808,45 @@ def import_image(league,player_id):
     # return str(img_path), sizex, sizey
     return url_image, sizex, sizey
 
+
 # Obsolete: Plot Table using matplotlib
-def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
-                     header_color='#40466e', row_colors=['#f1f1f2', 'w'], edge_color='w',
-                     bbox=[0, 0, 1, 1], header_columns=0,
-                     ax=None, **kwargs):
+def render_mpl_table(
+    data,
+    col_width=3.0,
+    row_height=0.625,
+    font_size=14,
+    header_color="#40466e",
+    row_colors=["#f1f1f2", "w"],
+    edge_color="w",
+    bbox=[0, 0, 1, 1],
+    header_columns=0,
+    ax=None,
+    **kwargs,
+):
     if ax is None:
-        size = (np.array(data.shape[::-1]) + np.array([0, 1])) * np.array([col_width, row_height])
+        size = (np.array(data.shape[::-1]) + np.array([0, 1])) * np.array(
+            [col_width, row_height]
+        )
         fig, ax = plt.subplots(figsize=size)
-        ax.axis('off')
-    mpl_table = ax.table(cellText=data.values, bbox=bbox,cellLoc='center', colLabels=data.columns, **kwargs)
+        ax.axis("off")
+    mpl_table = ax.table(
+        cellText=data.values,
+        bbox=bbox,
+        cellLoc="center",
+        colLabels=data.columns,
+        **kwargs,
+    )
     mpl_table.auto_set_font_size(False)
     mpl_table.set_fontsize(font_size)
 
     for k, cell in mpl_table._cells.items():
         cell.set_edgecolor(edge_color)
         if k[0] == 0 or k[1] < header_columns:
-            cell.set_text_props(weight='bold', color='w')
+            cell.set_text_props(weight="bold", color="w")
             cell.set_facecolor(header_color)
         else:
-            cell.set_facecolor(row_colors[k[0]%len(row_colors) ])
-    fig.set_facecolor('#fc8662')
+            cell.set_facecolor(row_colors[k[0] % len(row_colors)])
+    fig.set_facecolor("#fc8662")
     return ax.get_figure(), ax
 
 
@@ -645,7 +864,7 @@ def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
 # Player_Name = []
 # a = Assist_pID
 # wrong_id = []
-# Assist_pID1, Assists = np.unique(a, return_counts=True)  
+# Assist_pID1, Assists = np.unique(a, return_counts=True)
 # for pID in Assist_pID1:
 #     abc = False
 #     for player in player_dict:
@@ -661,9 +880,9 @@ def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
 ## Code to map pID to players using old format
 # Player_Name = []
 # a = Assist_pID
-# Assist_pID1, Assists = np.unique(a, return_counts=True)  
+# Assist_pID1, Assists = np.unique(a, return_counts=True)
 # for pID in Assist_pID1:
-#     Player_Name.append([player['Name'] for player in player_dict if player['pID'] == pID]) 
+#     Player_Name.append([player['Name'] for player in player_dict if player['pID'] == pID])
 # for i in range(len(Player_Name)):
 #     if not Player_Name[i]:
 #         Player_Name[i] =['abc']
