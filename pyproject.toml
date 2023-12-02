@@ -35,6 +35,7 @@ blacken-docs = "^1.16.0"
 zstandard = "^0.22.0"
 dill = "^0.3.7"
 pyarrow = "^14.0.1"
+scikit-learn-intelex = "^2024.0.1"
 
 
 [build-system]

@@ -1,35 +1,25 @@
 # Update pbp data
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
-from itertools import product
-import time
 import os, sys
 
 sys.path.append(os.path.dirname(os.path.abspath("__file__")))
 # print(sys.path.append(os.path.dirname(os.path.abspath("__file__"))))
 from nbafuns import *
-from pbpstats.client import Client
-from nba_api.stats.endpoints import (
-    leaguegamelog,
-    boxscoreadvancedv3,
-    boxscorefourfactorsv3,
-)
-from nba_api.stats.endpoints import (
-    boxscorescoringv3,
-    boxscoreplayertrackv3,
-    boxscoremiscv3,
-    boxscorehustlev2,
-)
-from pbpstats.resources.enhanced_pbp import FieldGoal
 
-data_DIR_box = "C:/Users/pansr/Documents/NBA/team_ratings/boxscores/"
-data_DIR_shot = "C:/Users/pansr/Documents/NBA/Shot_charts/ShotLocationData/"
+from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3
+from nba_api.stats.endpoints import boxscorefourfactorsv3, boxscorescoringv3
+from nba_api.stats.endpoints import boxscoreplayertrackv3, boxscoremiscv3
+from nba_api.stats.endpoints import boxscorehustlev2
+
+
+home_DIR = "C:/Users/pansr/Documents/NBA/"
+data_DIR_box = home_DIR + "team_ratings/boxscores/"
+data_DIR_shot = home_DIR + "Shot_charts/ShotLocationData/"
+pbp_export_DIR = home_DIR + "fdata/"
+
 
 # Update PBP Data
 data_provider = "data_nba"
-pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/" + data_provider
-
+pbp_DIR = home_DIR + "pbpdata/" + data_provider
 
 def update_pbp(seasons):
     season_types = ["Regular Season"]
@@ -182,18 +172,18 @@ shot_variables = [
 
 
 def get_loc_data(games_list, player_dict, team_dict):
+    possessions = [game.possessions.items for game in games_list]
+    possession_events = list(chain(*[possession.events for possession in list(chain(*possessions))]))
     pos_store = []
-    for game in tqdm(games_list):
-        for possession in game.possessions.items:
-            for possession_event in possession.events:
-                if isinstance(possession_event, FieldGoal):
-                    poss = {}
-                    for var in shot_variables:
-                        try:
-                            poss[var] = getattr(possession_event, var)
-                        except:
-                            poss[var] = 0
-                    pos_store.append(poss)
+    for possession_event in possession_events:
+        if isinstance(possession_event, FieldGoal):
+            poss = {}
+            for var in shot_variables:
+                try:
+                    poss[var] = getattr(possession_event, var)
+                except:
+                    poss[var] = 0
+            pos_store.append(poss)
     df = pd.DataFrame(pos_store)
     df = df.rename(columns={"player1_id": "player_id", "player2_id": "player_ast_id"})
     df["player_name"] = df["player_id"].map(player_dict)
@@ -218,8 +208,11 @@ def update_shotdetails(seasons):
             data_provider=data_provider,
         )
         games_list = pbp_games(games_id, data_provider=data_provider)
+        print("Compressing PBP Data")
+        with zstd.open(pbp_export_DIR + league + "_PBPdata_" + season + ".pkl.zst","wb") as f:
+            dill.dump(games_list,f)
         player_dict = get_players_pbp(league=league)
-        team_dict = teams.get_teams()
+        team_dict = nba_teams.get_teams()
         team_dict = get_teams(league=league)
         data = get_loc_data(games_list, player_dict, team_dict)
         data.to_parquet(

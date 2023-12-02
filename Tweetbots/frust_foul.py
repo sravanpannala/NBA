@@ -51,7 +51,7 @@ print("Number of Bad Games: ",len(bad_games_list))
 
 year = int(season_yr)
 player_dict = get_players(league = 'NBA', from_year = year, to_year = year)
-team_dict = teams.get_teams() # Creating Team Dictionary
+team_dict = nba_teams.get_teams() # Creating Team Dictionary
 
 from pbpstats.resources.enhanced_pbp import Foul
 from pbpstats.resources.enhanced_pbp import Turnover

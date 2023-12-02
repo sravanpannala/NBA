@@ -1,22 +1,63 @@
+import os, sys, pathlib
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Circle, Rectangle, Arc
-import plotly.graph_objects as go
-import os, sys, pathlib
+import scipy
+
 import requests
 import time, datetime
+from time import perf_counter
 import json
 from IPython.display import clear_output
 from collections import Counter
 import operator
 from functools import reduce
-import itertools
+from itertools import product, chain
 from tqdm import tqdm
+
+import dill
+import zstandard as zstd
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Rectangle, Arc
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import plotly.graph_objects as go
+import plotly.express as px
+import seaborn as sns
+from plotnine import ggplot, aes, ggsave, themes, theme
+from plotnine import geom_point, geom_line, geom_smooth, geom_hline
+from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
+from plotnine import labs, element_rect, element_blank, element_text
+from plotnine import scale_color_manual, scale_y_continuous
+from plotnine import ylim, scale_x_date, scale_color_identity
+
 import nba_api
-from nba_api.stats.static import teams
+from nba_api.stats.static import teams as nba_teams
+from nba_api.stats.endpoints import leaguegamelog
 from pbpstats.client import Client
-from itertools import product
+from pbpstats.resources.enhanced_pbp import Foul, Turnover, FieldGoal, Rebound
+
+from numba import jit, njit
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import warnings
+
+warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+
+sns.set(style="whitegrid")
+
+theme_sra = themes.theme_538(base_size=9, base_family="Tahoma")
+theme_sra += theme(
+    # plot_background = element_rect(fill = 'ghostwhite', color = "ghostwhite"),
+    plot_title=element_text(face="bold", size=16),
+    strip_text=element_text(face="bold", size=10),
+    plot_caption=element_text(size=10),
+    plot_subtitle=element_text(size=12),
+    axis_text_x=element_text(size=8),
+    axis_text_y=element_text(size=8),
+    axis_title_x=element_text(size=12),
+    axis_title_y=element_text(size=12),
+)
+
 
 os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.3.2\\"
 pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/"
@@ -73,7 +114,7 @@ def get_teams(league="NBA"):
 
 # pbp function to get all games list for a season
 def pbp_season(
-    league="nba",
+    league="NBA",
     season_yr="2023",
     season_type="Regular Season",
     data_provider="data_nba",
