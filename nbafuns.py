@@ -4,7 +4,8 @@ import numpy as np
 import scipy
 
 import requests
-import time, datetime
+import time
+from datetime import datetime
 from time import perf_counter
 import json
 from IPython.display import clear_output
@@ -27,8 +28,8 @@ from plotnine import ggplot, aes, ggsave, themes, theme
 from plotnine import geom_point, geom_line, geom_smooth, geom_hline
 from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
 from plotnine import labs, element_rect, element_blank, element_text
-from plotnine import scale_color_manual, scale_y_continuous
-from plotnine import ylim, scale_x_date, scale_color_identity
+from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
+from plotnine import ylim, scale_x_date, scale_y_continuous
 
 import nba_api
 from nba_api.stats.static import teams as nba_teams
