@@ -34,6 +34,7 @@ pyarrow = "^14.0.1"
 scikit-learn-intelex = "^2024.0.1"
 chart-studio = "^1.1.0"
 statsmodels = "^0.14.0"
+great-tables = "^0.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
