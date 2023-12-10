@@ -144,6 +144,17 @@ def update_standard_boxscores(seasons):
         df = stats.get_data_frames()[0]
         df.to_csv(data_DIR_box + "NBA_BoxScores_" + "Standard" + "_" + season + ".csv")
 
+def update_individual_boxscores(seasons):
+    for season in seasons:
+        print(season)
+        stats = leaguegamelog.LeagueGameLog(
+            player_or_team_abbreviation="P",
+            season=season,
+            season_type_all_star="Regular Season",
+        )
+        df = stats.get_data_frames()[0]
+        df.to_parquet(pbp_export_DIR + "NBA_Player_BoxScores_" + "Indv" + "_" + season + ".parquet")
+
 
 # Import Shot Details PBP
 shot_variables = [
@@ -230,6 +241,10 @@ update_pbp(seasons)
 # Update Boxscores
 print("Update Standard Boxscores")
 update_standard_boxscores(seasons)
+
+# Update Individual Player Boxscores
+print("Update Player Indv Boxscores")
+update_individual_boxscores(seasons)
 
 boxscores = [
     {

@@ -35,6 +35,8 @@ scikit-learn-intelex = "^2024.0.1"
 chart-studio = "^1.1.0"
 statsmodels = "^0.14.0"
 great-tables = "^0.1.0"
+imgkit = "^1.2.3"
+html2image = "^2.0.4.3"
 
 
 [tool.poetry.group.dev.dependencies]

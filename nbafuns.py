@@ -30,6 +30,10 @@ from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
 from plotnine import labs, element_rect, element_blank, element_text
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
 from plotnine import ylim, scale_x_date, scale_y_continuous
+import great_tables as gt
+import imgkit
+from html2image import Html2Image
+hti = Html2Image()
 
 import nba_api
 from nba_api.stats.static import teams as nba_teams
