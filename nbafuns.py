@@ -25,11 +25,13 @@ import plotly.graph_objects as go
 import plotly.express as px
 import seaborn as sns
 from plotnine import ggplot, aes, ggsave, themes, theme
-from plotnine import geom_point, geom_line, geom_smooth, geom_hline
+from plotnine import geom_point, geom_line, geom_smooth, geom_hline, geom_bar
 from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
 from plotnine import labs, element_rect, element_blank, element_text
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
 from plotnine import ylim, scale_x_date, scale_y_continuous
+from plotnine import scale_x_continuous, scale_x_discrete
+
 import great_tables as gt
 import imgkit
 from html2image import Html2Image
@@ -61,6 +63,11 @@ theme_sra += theme(
     axis_text_y=element_text(size=8),
     axis_title_x=element_text(size=12),
     axis_title_y=element_text(size=12),
+)
+
+theme_idv = themes.theme_xkcd(base_size=12)
+theme_idv += theme(
+    plot_title=element_text(face="bold", size=16),
 )
 
 
