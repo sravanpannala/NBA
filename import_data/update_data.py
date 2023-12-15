@@ -9,6 +9,7 @@ from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3
 from nba_api.stats.endpoints import boxscorefourfactorsv3, boxscorescoringv3
 from nba_api.stats.endpoints import boxscoreplayertrackv3, boxscoremiscv3
 from nba_api.stats.endpoints import boxscorehustlev2
+from nba_api.stats.endpoints import playerdashptshots, leaguedashplayerstats, leaguedashplayerptshot
 
 
 home_DIR = "C:/Users/pansr/Documents/NBA/"
@@ -144,6 +145,20 @@ def update_standard_boxscores(seasons):
         df = stats.get_data_frames()[0]
         df.to_csv(data_DIR_box + "NBA_BoxScores_" + "Standard" + "_" + season + ".csv")
 
+def update_player_boxscores(seasons, measure = "Base", n= 32):
+    if measure == "Advanced":
+        per_mode = "Per100Possessions"
+    else:
+        per_mode = "PerGame"
+    for season in seasons:
+        season_str = season + "-" + str(int(season)+1)[-2:]
+        stats = leaguedashplayerstats.LeagueDashPlayerStats(
+            measure_type_detailed_defense=measure, per_mode_detailed=per_mode,season = season_str
+        )
+        df1 = stats.get_data_frames()[0]
+        df = df1.iloc[:,:n]
+        df.to_parquet(pbp_export_DIR + f"NBA_Player_BoxScores_{measure}_"+season+".parquet")
+
 def update_individual_boxscores(seasons):
     for season in seasons:
         print(season)
@@ -155,6 +170,53 @@ def update_individual_boxscores(seasons):
         df = stats.get_data_frames()[0]
         df.to_parquet(pbp_export_DIR + "NBA_Player_BoxScores_" + "Indv" + "_" + season + ".parquet")
 
+def update_shot_dash(seasons):
+    league, league_id = "NBA", "00"
+    dash_types = ["overall","shot_type","shot_clock","dribble","closest_def","closest_def_10","touch_time"]
+    for season in seasons:
+        print(season)
+        season_str = season + "-" + str(int(season)+1)[-2:]
+        stats = playerdashptshots.PlayerDashPtShots(league_id = league_id,team_id = 0,player_id = 0,season=season_str).get_data_frames()
+        for i,d in enumerate(dash_types):
+            df = stats[i].drop(columns=["SORT_ORDER","FGA_FREQUENCY","FG2A_FREQUENCY","FG3A_FREQUENCY"])
+            df.to_parquet(pbp_export_DIR + f"{league}_Shots_{season}_{d}.parquet")
+
+def update_shot_dash_all(seasons):
+    league, league_id = "NBA", "00"
+    general_range = ['Catch and Shoot', 'Pull Ups', 'Less than 10 ft', 'Other']
+    shot_clock = ['24-22', '22-18 Very Early', '18-15 Early', '15-7 Average', '7-4 Late', '4-0 Very Late']
+    dribbles = ['0 Dribbles', '1 Dribble', '2 Dribbles', '3-6 Dribbles', '7+ Dribbles']
+    closest_def = ['0-2 Feet - Very Tight', '2-4 Feet - Tight', '4-6 Feet - Open', '6+ Feet - Wide Open']
+    touch_time = ['Touch < 2 Seconds', 'Touch 2-6 Seconds', 'Touch 6+ Seconds']
+    for season in seasons:
+        season_str = season + "-" + str(int(season)+1)[-2:]
+        n = 0
+        for a,b,c in product(general_range,closest_def,touch_time):
+            n+=1
+        dfa = []
+        for a,b,c in tqdm(product(general_range,closest_def,touch_time),total=n):
+            for i in range(5):
+                try:
+                    stats = leaguedashplayerptshot.LeagueDashPlayerPtShot(
+                        league_id = league_id,season=season_str,
+                        general_range_nullable = a,
+                        close_def_dist_range_nullable= b,
+                        touch_time_range_nullable = c, 
+                        # dribble_range_nullable =  d,
+                    ).get_data_frames()
+                    df1 = stats[0]
+                    df1["general_range"] = a
+                    df1["closest_def"] = b
+                    df1["touch_time"] = c
+                    dfa.append(df1)
+                    break
+                except Exception as error:
+                    print(error)
+                    time.sleep(0.6)
+                    continue
+        dfa1 = [df2 for df2 in dfa if not df2.empty]
+        df = pd.concat(dfa1)
+        df.to_parquet(pbp_export_DIR + f"{league}_Shots_{season}_All.parquet")
 
 # Import Shot Details PBP
 shot_variables = [
@@ -243,8 +305,12 @@ print("Update Standard Boxscores")
 update_standard_boxscores(seasons)
 
 # Update Individual Player Boxscores
-print("Update Player Indv Boxscores")
+print("Update Player Boxscores")
 update_individual_boxscores(seasons)
+update_player_boxscores(seasons, measure = "Base", n= 32)
+update_player_boxscores(seasons, measure = "Advanced", n= 43)
+update_player_boxscores(seasons, measure = "Misc", n= 23)
+update_player_boxscores(seasons, measure = "Scoring", n= 29)
 
 boxscores = [
     {
@@ -273,6 +339,11 @@ boxscores = [
 for boxscore in boxscores:
     print("BoxScore " + boxscore["name"])
     get_boxscores(seasons, boxscore["fun"], boxscore["name"])
+
+# Update Shot Dashboard
+print("Shot Dashboard")
+update_shot_dash(seasons)
+update_shot_dash_all(seasons)
 
 # Update Shot Details
 print("Shot Details")
