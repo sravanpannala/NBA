@@ -120,8 +120,10 @@ def get_teams(league="NBA"):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
     team_data = pd.read_csv(DATA_PATH.joinpath("{0}_teams_database.csv".format(league)))
-    team_dict = team_data.to_dict(orient="records")
-    return team_dict
+    team_list = team_data["TeamID"].tolist()
+    team_dict1 = team_data.to_dict(orient="records")
+    team_dict = {team["TeamID"]: team["Team"] for team in team_dict1}
+    return team_dict, team_list
 
 
 # pbp function to get all games list for a season

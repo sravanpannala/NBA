@@ -244,7 +244,7 @@ shot_variables = [
 ]
 
 
-def get_loc_data(games_list, player_dict, team_dict):
+def get_loc_data(games_list, player_dict):
     possessions = [game.possessions.items for game in games_list]
     possession_events = list(chain(*[possession.events for possession in list(chain(*possessions))]))
     pos_store = []
@@ -285,9 +285,7 @@ def update_shotdetails(seasons):
         with zstd.open(pbp_export_DIR + league + "_PBPdata_" + season + ".pkl.zst","wb") as f:
             dill.dump(games_list,f)
         player_dict = get_players_pbp(league=league)
-        team_dict = nba_teams.get_teams()
-        team_dict = get_teams(league=league)
-        data = get_loc_data(games_list, player_dict, team_dict)
+        data = get_loc_data(games_list, player_dict)
         data.to_parquet(
             data_DIR_shot + f"{league}_Shot_Loc_" + season + ".parquet"
         )
