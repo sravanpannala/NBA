@@ -4,6 +4,7 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.abspath("__file__")))
 # print(sys.path.append(os.path.dirname(os.path.abspath("__file__"))))
 from nbafuns import *
+from tenacity import retry, stop_after_attempt, wait_fixed, Retrying
 
 from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3
 from nba_api.stats.endpoints import boxscorefourfactorsv3, boxscorescoringv3
@@ -103,28 +104,28 @@ def get_gameids(season, name):
     return game_ids, dfr
 
 
-def get_game_box(game_ids, fun, it=5):
+@retry(stop=stop_after_attempt(5), wait=wait_fixed(0.6))
+def get_game_box(game_id, fun):
+    try:
+        stats = fun(game_id=game_id)
+        df = stats.get_data_frames()[1]
+    except Exception as error:
+        print(error)
+    return df
+
+def get_games_box(game_ids, fun):
     df_ap = []
     for game_id in tqdm(game_ids):
-        for ii in range(it):
-            try:
-                stats = fun(game_id=game_id)
-                df1 = stats.get_data_frames()[1]
-                df_ap.append(df1)
-                break
-            except:
-                print(game_id)
-                time.sleep(0.6)
-                continue
+        df = get_game_box(game_id,fun)
+        df_ap.append(df)
     return df_ap
-
 
 def get_boxscores(seasons, fun, name):
     for season in seasons:
         print(season)
         game_ids, dfr = get_gameids(season, name)
         try:
-            df_ap = get_game_box(game_ids, fun)
+            df_ap = get_games_box(game_ids, fun)
             df1 = pd.concat(df_ap)
             df = pd.concat([dfr, df1])
             df["gameId"] = df["gameId"].astype(int)
@@ -195,7 +196,7 @@ def update_shot_dash_all(seasons):
             n+=1
         dfa = []
         for a,b,c in tqdm(product(general_range,closest_def,touch_time),total=n):
-            for i in range(5):
+            for i in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(0.6)):
                 try:
                     stats = leaguedashplayerptshot.LeagueDashPlayerPtShot(
                         league_id = league_id,season=season_str,
@@ -212,7 +213,6 @@ def update_shot_dash_all(seasons):
                     break
                 except Exception as error:
                     print(error)
-                    time.sleep(0.6)
                     continue
         dfa1 = [df2 for df2 in dfa if not df2.empty]
         df = pd.concat(dfa1)
