@@ -39,6 +39,8 @@ imgkit = "^1.2.3"
 html2image = "^2.0.4.3"
 tabulate = "^0.9.0"
 tenacity = "^8.2.3"
+gspread = "^5.12.3"
+lxml = "^4.9.3"
 
 
 [tool.poetry.group.dev.dependencies]
