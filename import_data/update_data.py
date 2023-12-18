@@ -5,6 +5,8 @@ sys.path.append(os.path.dirname(os.path.abspath("__file__")))
 # print(sys.path.append(os.path.dirname(os.path.abspath("__file__"))))
 from nbafuns import *
 from tenacity import retry, stop_after_attempt, wait_fixed, Retrying
+from bs4 import BeautifulSoup
+from thefuzz import fuzz, process
 
 from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3
 from nba_api.stats.endpoints import boxscorefourfactorsv3, boxscorescoringv3
@@ -18,6 +20,7 @@ data_DIR_box = home_DIR + "team_ratings/boxscores/"
 data_DIR_shot = home_DIR + "Shot_charts/ShotLocationData/"
 pbp_export_DIR = home_DIR + "fdata/"
 
+csv_export_DIR = "C:/Users/pansr/Documents/repos/csv/"
 
 # Update PBP Data
 data_provider = "data_nba"
@@ -35,9 +38,7 @@ def update_pbp(seasons):
         client = Client(settings)
         season = client.Season(league, season_yr, season_type)
         games_id = []
-        k = 0
         for final_game in season.games.final_games:
-            k += 1
             games_id.append(final_game["game_id"])
         print("Number of games: ", len(games_id))
         settings = {
@@ -290,6 +291,85 @@ def update_shotdetails(seasons):
             data_DIR_shot + f"{league}_Shot_Loc_" + season + ".parquet"
         )
 
+def get_missing_pId(player,player_dict):
+    pId = process.extract(player,player_dict,limit=1)[0][2]
+    return pId
+
+def update_injury_data():
+
+    header = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
+    "X-Requested-With": "XMLHttpRequest"
+    }
+
+    player_dict = get_players_pbp()
+    pID_dict = get_pID_pbp()
+
+    try:
+        df0 = pd.read_parquet(pbp_export_DIR + 'NBA_prosptran_injuries_2023.parquet')
+        start_date = (df0["Date"].iloc[-1] + dt.timedelta(days=-1)).strftime("%Y-%m-%d")
+    except:
+        df0 = pd.DataFrame()
+        start_date = "2023-06-01"
+        
+    print(start_date)
+    url = f"https://www.prosportstransactions.com/basketball/Search/SearchResults.php?Player=&Team=&BeginDate={start_date}&EndDate=&ILChkBx=yes&InjuriesChkBx=yes&PersonalChkBx=yes&Submit=Search"
+
+    response = requests.get(url)
+    print(response) # Response [200] means it went through
+    soup = BeautifulSoup(response.text, "html.parser")
+    df_first_page = pd.read_html(url,storage_options=header)
+    df_first_page = df_first_page[0]
+    df_first_page.drop([0], inplace = True)
+    df_first_page[2]=df_first_page[2].str[2:] # "Acquired" column
+    df_first_page[3]=df_first_page[3].str[2:] # "Relinquished" column
+    df_first_page.columns = ['Date','Team','Acquired','Relinquished','Notes']
+    dfa = []
+    dfa.append(df_first_page)
+    for i in tqdm(range(4,len(soup.findAll('a'))-4)): #'a' tags are for links
+        one_a_tag = soup.findAll('a')[i]
+        link = one_a_tag['href']
+        download_url = 'https://www.prosportstransactions.com/basketball/Search/'+ link
+        dfs = pd.read_html(download_url, storage_options=header)
+        df = dfs[0]
+        df.drop([0], inplace = True)
+        df[2]=df[2].str[2:] # "Acquired" column
+        df[3]=df[3].str[2:] # "Relinquished" column
+        df.columns = ['Date','Team','Acquired','Relinquished','Notes']
+        time.sleep(0.5)
+        dfa.append(df)
+
+    df1 = pd.concat(dfa)
+    df = df1.copy()
+    acq = df['Acquired']
+    rel = df['Relinquished']
+    df['Acquired'] = np.where(
+        acq.str.contains('/'), acq.str.split('/ ').str[1], acq)
+    df['Relinquished'] = np.where(
+        rel.str.contains('/'), rel.str.split('/ ').str[1], rel)
+
+    # Remove instances where value is like "(some text)"
+    df['Acquired'] = df.Acquired.str.replace(
+        r"[\(\[].*?[\)\]]", "")
+    df['Relinquished'] = df.Relinquished.str.replace(
+        r"[\(\[].*?[\)\]]", "")
+    df["In"] = ~df["Acquired"].isna()
+    df["Out"] = ~df["Relinquished"].isna()
+    df["Player"] =  (df["Acquired"]*~df["Acquired"].isna()).fillna("") +\
+                    (df["Relinquished"]*~df["Relinquished"].isna()).fillna("")
+    df = df[["Date","Team","Player","In","Out","Notes"]]
+    df = df[df["Player"].str.istitle()].reset_index(drop=True)
+    df["playerID"] = df["Player"].map(pID_dict)
+    df1 = df.copy()
+    df1["playerID"][df["playerID"].isna()] = df["Player"][df["playerID"].isna()].apply(lambda x: get_missing_pId(x,player_dict))
+    df1["playerID"] = df1["playerID"].astype(int)
+    df1["Date"] = pd.to_datetime(df1["Date"], format="%Y-%m-%d")
+    df1.insert(2,"playerID",df1.pop("playerID"))
+    df2 = pd.concat([df0,df1]).reset_index(drop=True)
+    df3 =df2[~df2.duplicated(keep='last')].reset_index(drop=True)
+    df3.to_csv(pbp_export_DIR + 'NBA_prosptran_injuries_2023.csv', index=False)
+    df3.to_parquet(pbp_export_DIR + 'NBA_prosptran_injuries_2023.parquet')
+    df3.to_csv(csv_export_DIR + 'NBA_prosptran_injuries_2023.csv', index=False)
 
 season_start = 2023
 season_end = 2023
@@ -346,3 +426,5 @@ update_shot_dash_all(seasons)
 # Update Shot Details
 print("Shot Details")
 update_shotdetails(seasons)
+
+update_injury_data()

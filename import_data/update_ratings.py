@@ -1,19 +1,15 @@
-from sklearn.linear_model import RidgeCV
-
-# import os, sys
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath("__file__"))))
-# from nbafuns import *
 import pandas as pd
 import scipy
 import numpy as np
+from sklearn.linear_model import RidgeCV
 from nba_api.stats.endpoints import leaguegamelog
 import subprocess
 
-data_DIR = "C:\\Users\\pansr\\Documents\\NBA\\data\\"
+data_DIR = "C:/Users/pansr/Documents/NBA/data/"
 
-box_DIR = "C:\\Users\\pansr\\Documents\\NBA\\team_ratings\\boxscores\\"
+box_DIR = "C:/Users/pansr/Documents/NBA/team_ratings/boxscores/"
 
-export_DIR = "C:\\Users\\pansr\\Documents\\repos\\csv\\"
+export_DIR = "C:/Users/pansr/Documents/repos/csv/"
 
 team_data = pd.read_csv(data_DIR + "NBA_teams_database.csv")
 teams_list = team_data["TeamID"].tolist()
@@ -190,5 +186,5 @@ results["aNET_R"] = results["aNET"].rank(ascending=False).astype(int)
 results.to_csv(export_DIR + "NBA_Adj_Ratings_2023_2024.csv", index=False)
 
 subprocess.run(["git", "add", "."], cwd=export_DIR)
-subprocess.run(["git", "commit", "-m", "update NBA Adj Ratings"], cwd=export_DIR)
+subprocess.run(["git", "commit", "-m", "update csv adj rating and injury db"], cwd=export_DIR)
 subprocess.run(["git", "push"], cwd=export_DIR)

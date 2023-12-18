@@ -5,6 +5,7 @@ import scipy
 
 import requests
 import time
+import datetime as dt
 from datetime import datetime
 from time import perf_counter
 import json
@@ -50,6 +51,8 @@ import warnings
 warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
+pd.options.mode.chained_assignment =  None
+
 sns.set(style="whitegrid")
 
 theme_sra = themes.theme_538(base_size=9, base_family="Tahoma")
@@ -89,6 +92,14 @@ def get_players_pbp(league="NBA"):
         player_dict[idx] = np.nan
     return player_dict
 
+def get_pID_pbp(league="NBA"):
+    PATH = pathlib.Path(__file__)
+    DATA_PATH = PATH.joinpath("../data").resolve()
+    f = open(DATA_PATH.joinpath("{0}.json".format(league)))
+    data = json.load(f)
+    data = data["players"]
+    pID_dict = {v: int(k) for k, v in data.items()}
+    return pID_dict
 
 # get player ID for player name
 def get_pID(player, league="NBA"):
