@@ -25,7 +25,7 @@ df1 <- bref_players_stats(
   return_message = TRUE
 )
 
-path <- paste0("./fdata/NBA_bbref_Player_Adv_",season-1,".csv")
+path <- paste0("./fdata/bbref/NBA_bbref_Player_Adv_",season-1,".csv")
 write.csv(df1, path)
 
 ## Multiple Seasons
