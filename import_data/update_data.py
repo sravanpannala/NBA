@@ -16,9 +16,9 @@ from nba_api.stats.endpoints import playerdashptshots, leaguedashplayerstats, le
 
 
 home_DIR = "C:/Users/pansr/Documents/NBA/"
-data_DIR_box = home_DIR + "team_ratings/boxscores/"
-data_DIR_shot = home_DIR + "Shot_charts/ShotLocationData/"
-pbp_export_DIR = home_DIR + "fdata/"
+data_DIR_box = home_DIR + "fdata/boxscores_team/"
+data_DIR_shot = home_DIR + "fdata/ShotLocationData/"
+export_DIR = home_DIR + "fdata/"
 
 csv_export_DIR = "C:/Users/pansr/Documents/repos/csv/"
 
@@ -159,7 +159,7 @@ def update_player_boxscores(seasons, measure = "Base", n= 32):
         )
         df1 = stats.get_data_frames()[0]
         df = df1.iloc[:,:n]
-        df.to_parquet(pbp_export_DIR + f"NBA_Player_BoxScores_{measure}_"+season+".parquet")
+        df.to_parquet(export_DIR + "boxscores_player/" + f"NBA_Player_BoxScores_{measure}_"+season+".parquet")
 
 def update_individual_boxscores(seasons):
     for season in seasons:
@@ -170,7 +170,7 @@ def update_individual_boxscores(seasons):
             season_type_all_star="Regular Season",
         )
         df = stats.get_data_frames()[0]
-        df.to_parquet(pbp_export_DIR + "NBA_Player_BoxScores_" + "Indv" + "_" + season + ".parquet")
+        df.to_parquet(export_DIR + "boxscores_player/" + "NBA_Player_BoxScores_" + "Indv" + "_" + season + ".parquet")
 
 def update_shot_dash(seasons):
     league, league_id = "NBA", "00"
@@ -181,7 +181,7 @@ def update_shot_dash(seasons):
         stats = playerdashptshots.PlayerDashPtShots(league_id = league_id,team_id = 0,player_id = 0,season=season_str).get_data_frames()
         for i,d in enumerate(dash_types):
             df = stats[i].drop(columns=["SORT_ORDER","FGA_FREQUENCY","FG2A_FREQUENCY","FG3A_FREQUENCY"])
-            df.to_parquet(pbp_export_DIR + f"{league}_Shots_{season}_{d}.parquet")
+            df.to_parquet(export_DIR + "shots/" + f"{league}_Shots_{season}_{d}.parquet")
 
 def update_shot_dash_all(seasons):
     league, league_id = "NBA", "00"
@@ -217,7 +217,7 @@ def update_shot_dash_all(seasons):
                     continue
         dfa1 = [df2 for df2 in dfa if not df2.empty]
         df = pd.concat(dfa1)
-        df.to_parquet(pbp_export_DIR + f"{league}_Shots_{season}_All.parquet")
+        df.to_parquet(export_DIR + "shots/" + f"{league}_Shots_{season}_All.parquet")
 
 # Import Shot Details PBP
 shot_variables = [
@@ -283,7 +283,7 @@ def update_shotdetails(seasons):
         )
         games_list = pbp_games(games_id, data_provider=data_provider)
         print("Compressing PBP Data")
-        with zstd.open(pbp_export_DIR + league + "_PBPdata_" + season + ".pkl.zst","wb") as f:
+        with zstd.open(export_DIR + "pbpdata/" + league + "_PBPdata_" + season + ".pkl.zst","wb") as f:
             dill.dump(games_list,f)
         player_dict = get_players_pbp(league=league)
         data = get_loc_data(games_list, player_dict)
@@ -306,11 +306,11 @@ def update_injury_data():
     pID_dict = get_pID_pbp()
 
     try:
-        df0 = pd.read_parquet(pbp_export_DIR + 'NBA_prosptran_injuries_2023.parquet')
+        df0 = pd.read_parquet(export_DIR + "injuries/" + 'NBA_prosptran_injuries_2023.parquet')
         start_date = (df0["Date"].iloc[-1] + dt.timedelta(days=-1)).strftime("%Y-%m-%d")
     except:
         df0 = pd.DataFrame()
-        start_date = "2023-06-01"
+        start_date = "2023-07-01"
         
     print(start_date)
     url = f"https://www.prosportstransactions.com/basketball/Search/SearchResults.php?Player=&Team=&BeginDate={start_date}&EndDate=&ILChkBx=yes&InjuriesChkBx=yes&PersonalChkBx=yes&Submit=Search"
@@ -367,8 +367,8 @@ def update_injury_data():
     df1.insert(2,"playerID",df1.pop("playerID"))
     df2 = pd.concat([df0,df1]).reset_index(drop=True)
     df3 =df2[~df2.duplicated(keep='last')].reset_index(drop=True)
-    df3.to_csv(pbp_export_DIR + 'NBA_prosptran_injuries_2023.csv', index=False)
-    df3.to_parquet(pbp_export_DIR + 'NBA_prosptran_injuries_2023.parquet')
+    df3.to_csv(export_DIR + "injuries/" + 'NBA_prosptran_injuries_2023.csv', index=False)
+    df3.to_parquet(export_DIR + "injuries/" + 'NBA_prosptran_injuries_2023.parquet')
     df3.to_csv(csv_export_DIR + 'NBA_prosptran_injuries_2023.csv', index=False)
 
 season_start = 2023

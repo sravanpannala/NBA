@@ -82,8 +82,8 @@ pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/"
 def get_players_pbp(league="NBA"):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    f = open(DATA_PATH.joinpath("{0}.json".format(league)))
-    data = json.load(f)
+    with open(DATA_PATH.joinpath("{0}.json".format(league))) as f:
+        data = json.load(f)
     data = data["players"]
     player_dict = {int(k): v for k, v in data.items()}
     idx_bad = []
@@ -95,8 +95,8 @@ def get_players_pbp(league="NBA"):
 def get_pID_pbp(league="NBA"):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    f = open(DATA_PATH.joinpath("{0}.json".format(league)))
-    data = json.load(f)
+    with open(DATA_PATH.joinpath("{0}.json".format(league))) as f:
+        data = json.load(f)
     data = data["players"]
     pID_dict = {v: int(k) for k, v in data.items()}
     return pID_dict
@@ -105,8 +105,8 @@ def get_pID_pbp(league="NBA"):
 def get_pID(player, league="NBA"):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    f = open(DATA_PATH.joinpath("{0}.json".format(league)))
-    data = json.load(f)
+    with open(DATA_PATH.joinpath("{0}.json".format(league))) as f:
+        data = json.load(f)
     data = data["players"]
     pID_dict = {v: int(k) for k, v in data.items()}
     pID = pID_dict.get(player, np.nan)
