@@ -1,17 +1,27 @@
 # Update pbp data
-import os, sys
+from itertools import product, chain
+import time
+import datetime as dt
 
-sys.path.append(os.path.dirname(os.path.abspath("__file__")))
-# print(sys.path.append(os.path.dirname(os.path.abspath("__file__"))))
-from nbafuns import *
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
 from tenacity import retry, stop_after_attempt, wait_fixed, Retrying
 from thefuzz import fuzz, process
+import zstandard as zstd
+import dill
+from bs4 import BeautifulSoup
+import requests
+import json
 
 from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3
 from nba_api.stats.endpoints import boxscorefourfactorsv3, boxscorescoringv3
 from nba_api.stats.endpoints import boxscoreplayertrackv3, boxscoremiscv3
 from nba_api.stats.endpoints import boxscorehustlev2
 from nba_api.stats.endpoints import playerdashptshots, leaguedashplayerstats, leaguedashplayerptshot
+
+from pbpstats.client import Client
+from pbpstats.resources.enhanced_pbp import FieldGoal
 
 from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
@@ -27,6 +37,12 @@ csv_export_DIR = "C:/Users/pansr/Documents/repos/csv/"
 # Update PBP Data
 data_provider = "data_nba"
 pbp_DIR = home_DIR + "pbpdata/" + data_provider
+
+
+with open("../data/NBA.json") as f:
+    data = json.load(f)
+pID_dict = {v: int(k) for k, v in data.items()}
+player_dict = {int(k): v for k, v in data.items()}
 
 def update_pbp(seasons):
     season_types = ["Regular Season"]
@@ -266,6 +282,45 @@ def get_loc_data(games_list, player_dict):
     df["player_ast_name"] = df["player_ast_id"].map(player_dict)
     return df
 
+# pbp function to get all games list for a season
+def pbp_season(
+    league="NBA",
+    season_yr="2023",
+    season_type="Regular Season",
+    data_provider="data_nba",
+):
+    settings = {
+        "Games": {"source": "file", "data_provider": data_provider},
+        "dir": pbp_DIR + data_provider,
+    }
+    client = Client(settings)
+    season = client.Season(league, season_yr, season_type)
+    games_id = []
+    for final_game in season.games.final_games:
+        games_id.append(final_game["game_id"])
+    print("Number of games: ", len(games_id))
+    return games_id
+
+
+# function to get all games pbp data for a season
+def pbp_games(games_id, data_provider="data_nba"):
+    settings = {
+        "Boxscore": {"source": "file", "data_provider": data_provider},
+        "Possessions": {"source": "file", "data_provider": data_provider},
+        "dir": pbp_DIR + data_provider,
+    }
+    client = Client(settings)
+    games_list = []
+    bad_games_list = []
+    for gameid in tqdm(games_id):
+        try:
+            games_list.append(client.Game(gameid))
+        except:
+            bad_games_list.append(gameid)
+            continue
+    print("Number of bad games: ", len(bad_games_list))
+
+    return games_list
 
 def update_shotdetails(seasons):
     data_provider = "data_nba"
@@ -287,7 +342,6 @@ def update_shotdetails(seasons):
         print("Compressing PBP Data")
         with zstd.open(export_DIR + "pbpdata/" + league + "_PBPdata_" + season + ".pkl.zst","wb") as f:
             dill.dump(games_list,f)
-        player_dict = get_players_pbp(league=league)
         data = get_loc_data(games_list, player_dict)
         data.to_parquet(
             data_DIR_shot + f"{league}_Shot_Loc_" + season + ".parquet"
@@ -303,9 +357,6 @@ def update_injury_data():
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
     "X-Requested-With": "XMLHttpRequest"
     }
-
-    player_dict = get_players_pbp()
-    pID_dict = get_pID_pbp()
 
     try:
         df0 = pd.read_parquet(export_DIR + "injuries/" + 'NBA_prosptran_injuries_2023.parquet')
