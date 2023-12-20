@@ -5,7 +5,6 @@ sys.path.append(os.path.dirname(os.path.abspath("__file__")))
 # print(sys.path.append(os.path.dirname(os.path.abspath("__file__"))))
 from nbafuns import *
 from tenacity import retry, stop_after_attempt, wait_fixed, Retrying
-from bs4 import BeautifulSoup
 from thefuzz import fuzz, process
 
 from nba_api.stats.endpoints import leaguegamelog, boxscoreadvancedv3
@@ -14,6 +13,9 @@ from nba_api.stats.endpoints import boxscoreplayertrackv3, boxscoremiscv3
 from nba_api.stats.endpoints import boxscorehustlev2
 from nba_api.stats.endpoints import playerdashptshots, leaguedashplayerstats, leaguedashplayerptshot
 
+from rpy2.robjects.packages import importr
+import rpy2.robjects as robjects
+from rpy2.robjects import pandas2ri
 
 home_DIR = "C:/Users/pansr/Documents/NBA/"
 data_DIR_box = home_DIR + "fdata/boxscores_team/"
@@ -371,12 +373,69 @@ def update_injury_data():
     df3.to_parquet(export_DIR + "injuries/" + 'NBA_prosptran_injuries_2023.parquet')
     df3.to_csv(csv_export_DIR + 'NBA_prosptran_injuries_2023.csv', index=False)
 
+def update_DARKO():
+    sheet = "1mhwOLqPu2F9026EQiVxFPIN1t9RGafGpl-dokaIsm9c"
+    sheet_ids = [1064086941, 142925152, 284274620, 923517192 , 1503564342]
+    dfa = []
+    for sheet_id in sheet_ids:
+        url = f'https://docs.google.com/spreadsheets/d/{sheet}/gviz/tq?tqx=out:csv&gid={sheet_id}'
+        df = pd.read_csv(url)
+        dfa.append(df)
+        time.sleep(0.5)
+    df1 = dfa[0]
+    df1.columns = ["idPlayerNBA","namePlayer","position","age","dpm","o_dpm","d_dpm","box_odpm","box_ddpm","on_off_odpm","on_off_ddpm"]
+    df1.to_csv(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_Current.csv")
+    df1.to_parquet(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_Current.parquet")
+    df2 = dfa[1]
+    df2 = df2.rename(columns={"nba_id":"idPlayerNBA", "player_name":"namePlayer"})
+    df2.to_csv(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_History.csv")
+    df2.to_parquet(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_History.parquet")
+    df3 = dfa[2]
+    df3 = df3.rename(columns={"nba_id":"idPlayerNBA", "player_name":"namePlayer"})
+    df3.to_csv(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_BoxScore_Talent.csv")
+    df3.to_parquet(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_BoxScore_Talent.parquet")
+    df4 = dfa[3]
+    df4 = df4.rename(columns={"nba_id":"idPlayerNBA", "player_name":"namePlayer"})
+    df4.to_csv(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_Time_Decay_RAPM.csv")
+    df4.to_parquet(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_Time_Decay_RAPM.parquet")
+    df5 = dfa[4]
+    df5 = df5.rename(columns={"nba_id":"idPlayerNBA", "player_name":"namePlayer"})
+    df5.to_csv(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_Time_Decay_RAPM_Pace.csv")
+    df5.to_parquet(export_DIR + "all_in_one_metrics/" + "NBA_DARKO_Time_Decay_RAPM_Pace.parquet")
+
+def update_bbref(seasons):
+    for season in seasons:
+        season1 = str(int(season)-1)
+        nbastatR = importr('nbastatR')
+        robjects.r('''
+                        Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
+                ''')
+        r_df = nbastatR.bref_players_stats(
+                seasons = season1,
+                tables = "advanced",
+                include_all_nba = False,
+                only_totals = False,
+                nest_data = False,
+                assign_to_environment = True,
+                widen_data = True,
+                join_data = True,
+                return_message = True
+        )
+        with (robjects.default_converter + pandas2ri.converter).context():
+            bpm = robjects.conversion.get_conversion().rpy2py(r_df)
+        vars = ['urlPlayerThumbnail','urlPlayerHeadshot', 'urlPlayerPhoto', 'urlPlayerStats','urlPlayerActionPhoto']
+        bpm[vars] = bpm[vars].astype(str)
+        bpm.to_csv(export_DIR + "bbref/" + f"NBA_bbref_Player_Adv_{season}.csv")
+        bpm.to_parquet(export_DIR + "bbref/" + f"NBA_bbref_Player_Adv_{season}.parquet")
+        time.sleep(5)
+
+
 season_start = 2023
-season_end = 2023
-seasons = np.arange(season_start, season_end + 1, 1).astype(str)
+season_end = 2024
+seasons = np.arange(season_start, season_end, 1).astype(str)
 
 # Update pbp Data
-update_pbp(seasons)
+# update_pbp(seasons)
 
 # Update Boxscores
 print("Update Standard Boxscores")
@@ -416,15 +475,21 @@ boxscores = [
 
 for boxscore in boxscores:
     print("BoxScore " + boxscore["name"])
-    get_boxscores(seasons, boxscore["fun"], boxscore["name"])
+    # get_boxscores(seasons, boxscore["fun"], boxscore["name"])
 
 # Update Shot Dashboard
 print("Shot Dashboard")
-update_shot_dash(seasons)
-update_shot_dash_all(seasons)
+# update_shot_dash(seasons)
+# update_shot_dash_all(seasons)
 
 # Update Shot Details
 print("Shot Details")
-update_shotdetails(seasons)
-
+# update_shotdetails(seasons)
+print("Update Injury Data")
 update_injury_data()
+
+print("Update DARKO")
+# update_DARKO()
+
+print("Update bbref")
+update_bbref(seasons)

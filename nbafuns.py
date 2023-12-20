@@ -4,6 +4,7 @@ import numpy as np
 import scipy
 
 import requests
+from bs4 import BeautifulSoup
 import time
 import datetime as dt
 from datetime import datetime
