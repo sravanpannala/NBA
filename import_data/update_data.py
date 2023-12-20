@@ -28,9 +28,9 @@ import rpy2.robjects as robjects
 from rpy2.robjects import pandas2ri
 
 home_DIR = "C:/Users/pansr/Documents/NBA/"
-data_DIR_box = home_DIR + "fdata/boxscores_team/"
-data_DIR_shot = home_DIR + "fdata/ShotLocationData/"
-export_DIR = home_DIR + "fdata/"
+data_DIR_box = home_DIR + "data/boxscores_team/"
+data_DIR_shot = home_DIR + "data/ShotLocationData/"
+export_DIR = home_DIR + "data/"
 
 csv_export_DIR = "C:/Users/pansr/Documents/repos/csv/"
 
