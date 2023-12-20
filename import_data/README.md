@@ -32,3 +32,7 @@ Run the above scripts first to generate database needed for running scripts belo
 ## Injury Data
 - Scrapes NBA injury data
 - [Notebook](./get_injury_data.ipynb)
+
+## BoxScores
+- [Team BoxScores](./get_BoxScores_team.ipynb)
+- [Player BoxScores](./get_BoxScores_player.ipynb)
