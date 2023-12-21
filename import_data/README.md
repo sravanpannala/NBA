@@ -11,6 +11,11 @@
 ## Note: 
 Run the above scripts first to generate database needed for running scripts below
 
+## Update PBP data
+- Update PBP data using pbpstats API
+- Read installation instructions [here](https://pbpstats.readthedocs.io/en/latest/quickstart.html) to setup the data directories.
+- Run this [notebook](./get_PBP_data.ipynb) to update data.
+
 ## Shot Location Data
 - [Using nba API](./get_shot_data.ipynb)
 - [Using pbpstats API](./get_shot_data_PBP.ipynb)
