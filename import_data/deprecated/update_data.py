@@ -32,7 +32,7 @@ from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
 from rpy2.robjects import pandas2ri
 
-pd.options.mode.chained_assignment =  None
+pd.options.mode.chained_assignment = None
 
 home_DIR = "C:/Users/pansr/Documents/NBA/"
 data_DIR_box = home_DIR + "data/boxscores_team/"
@@ -42,8 +42,7 @@ export_DIR = home_DIR + "data/"
 csv_export_DIR = "C:/Users/pansr/Documents/repos/csv/"
 
 # Update PBP Data
-data_provider = "data_nba"
-pbp_DIR = home_DIR + "pbpdata/" + data_provider
+pbp_DIR = home_DIR + "pbpdata/"
 
 
 with open(export_DIR + "NBA.json") as f:
@@ -57,9 +56,13 @@ def update_pbp(seasons):
     leagues = ["nba"]
     for season_yr, league, season_type in product(seasons, leagues, season_types):
         print(f"{season_yr},{league},{season_type}")
+        if int(season_yr) > 2021:
+            data_provider = "data_nba"
+        else:
+            data_provider = "stats_nba"
         settings = {
             "Games": {"source": "web", "data_provider": data_provider},
-            "dir": pbp_DIR,
+            "dir": pbp_DIR + data_provider,
         }
         client = Client(settings)
         season = client.Season(league, season_yr, season_type)
@@ -70,7 +73,7 @@ def update_pbp(seasons):
         settings = {
             "Boxscore": {"source": "file", "data_provider": data_provider},
             "Possessions": {"source": "file", "data_provider": data_provider},
-            "dir": pbp_DIR,
+            "dir": pbp_DIR + data_provider,
         }
         client = Client(settings)
         games_list_online = []
@@ -111,16 +114,14 @@ def update_pbp(seasons):
 
 # Update BoxScores
 def get_gameids(season, name):
-    df = pd.read_csv(
-        data_DIR_box + "NBA_BoxScores_" + "Standard" + "_" + season + ".csv"
+    df = pd.read_parquet(
+        export_DIR + "boxscores_team/" + "NBA_BoxScores_" + "Standard" + "_" + season + ".parquet"
     )
     game_ids1 = df["GAME_ID"].tolist()
     game_ids1 = np.unique(game_ids1)
     try:
-        dfr = pd.read_csv(
-            data_DIR_box + "NBA_BoxScores_" + name + "_" + season + ".csv"
-        )
-        dfr = dfr.drop(dfr.columns[0], axis=1)
+        dfr1 = pd.read_parquet(export_DIR + "boxscores_team/"+ "NBA_BoxScores_" + name + "_" + season + ".parquet")
+        dfr2 = pd.read_parquet(export_DIR + "boxscores_player/"+ "NBA_Player_BoxScores_Indv_" + name + "_" + season + ".parquet")
         game_ids3 = dfr["gameId"].tolist()
         game_ids2 = np.unique(game_ids3)
         game_ids = list(set(game_ids1).difference(game_ids2))
@@ -128,38 +129,68 @@ def get_gameids(season, name):
         game_ids = game_ids1
         dfr = pd.DataFrame()
     game_ids = ["00" + str(s) for s in game_ids]
-    return game_ids, dfr
+    return game_ids, dfr1,dfr2
+
+# def get_gameids(season, name):
+#     stats = leaguegamelog.LeagueGameLog(
+#         player_or_team_abbreviation="T",
+#         season=season,
+#         season_type_all_star="Regular Season",
+#     )
+#     df = stats.get_data_frames()[0]
+#     game_ids1 = df["GAME_ID"].tolist()
+#     game_ids1 = np.unique(game_ids1)
+#     try:
+#         dfr1 = pd.read_parquet(export_DIR + "boxscores_team/"+ "NBA_BoxScores_" + name + "_" + season + ".parquet")
+#         # dfr1 = dfr1.drop(dfr1.columns[0], axis=1)
+#         dfr2 = pd.read_parquet(export_DIR + "boxscores_player/"+ "NBA_Player_BoxScores_Indv_" + name + "_" + season + ".parquet")
+#         # dfr2 = dfr1.drop(dfr1.columns[0], axis=1)
+#         game_ids3 = dfr1["gameId"].astype(str).tolist()
+#         game_ids2 = ["00" + s for s in game_ids3]
+#         game_ids2 = np.unique(game_ids2)
+#         game_ids = list(set(game_ids1).difference(game_ids2))
+#     except:
+#         game_ids = game_ids1
+#         dfr1 = pd.DataFrame()
+#         dfr2 = pd.DataFrame()
+#     return game_ids, dfr1,dfr2
 
 
 @retry(stop=stop_after_attempt(5), wait=wait_fixed(0.6))
 def get_game_box(game_id, fun):
     try:
         stats = fun(game_id=game_id)
-        df = stats.get_data_frames()[1]
+        df = stats.get_data_frames()
     except Exception as error:
         print(error)
     return df
 
 
 def get_games_box(game_ids, fun):
-    df_ap = []
+    df_ap1, df_ap2 = [], []
     for game_id in tqdm(game_ids):
-        df = get_game_box(game_id, fun)
-        df_ap.append(df)
-    return df_ap
-
+        df = get_game_box(game_id,fun)
+        df_ap1.append(df[1])
+        df_ap2.append(df[0])
+    return df_ap1,df_ap2
 
 def get_boxscores(seasons, fun, name):
     for season in seasons:
-        print(season)
-        game_ids, dfr = get_gameids(season, name)
+        game_ids, dfr1,dfr2 = get_gameids(season, name)
         try:
-            df_ap = get_games_box(game_ids, fun)
-            df1 = pd.concat(df_ap)
-            df = pd.concat([dfr, df1])
-            df["gameId"] = df["gameId"].astype(int)
-            df = df.sort_values(by=["gameId"]).reset_index(drop=True)
-            df.to_csv(data_DIR_box + "NBA_BoxScores_" + name + "_" + season + ".csv")
+            df_ap1,df_ap2 = get_games_box(game_ids, fun)
+            df1 = pd.concat(df_ap1)
+            df2 = pd.concat(df_ap2)
+            df3 = pd.concat([dfr1, df1])
+            df3["gameId"] = df3["gameId"].astype(int)
+            df3 = df3.sort_values(by=["gameId"]).reset_index(drop=True)
+            # df3.to_csv(data_DIR_box + "NBA_BoxScores_" + name + "_" + season + ".csv")
+            df3.to_parquet(export_DIR + "boxscores_team/" + "NBA_BoxScores_" + name + "_" + season + ".parquet")
+            df4 = pd.concat([dfr2, df2])
+            df4["gameId"] = df4["gameId"].astype(int)
+            df4 = df4.sort_values(by=["gameId"]).reset_index(drop=True)
+            # df4.to_csv(data_DIR_box + "NBA_Player_BoxScores_Indv_" + name + "_" + season + ".csv")
+            df4.to_parquet(export_DIR + "boxscores_player/"+ "NBA_Player_BoxScores_Indv_" + name + "_" + season + ".parquet")
         except:
             continue
 
@@ -173,7 +204,8 @@ def update_standard_boxscores(seasons):
             season_type_all_star="Regular Season",
         )
         df = stats.get_data_frames()[0]
-        df.to_csv(data_DIR_box + "NBA_BoxScores_" + "Standard" + "_" + season + ".csv")
+        # df.to_csv(data_DIR_box + "NBA_BoxScores_" + "Standard" + "_" + season + ".csv")
+        df.to_parquet(data_DIR_box + "NBA_BoxScores_" + "Standard" + "_" + season + ".parquet")
 
 
 def update_player_boxscores(seasons, measure="Base", n=32):
@@ -325,17 +357,19 @@ shot_variables = [
     "seconds_since_previous_event",
 ]
 
+
 def set_dtypes(df):
     for col in df.columns:
         if "is_" in col:
             df[col] = df[col].astype(bool)
         elif "_id" in col:
             df[col] = df[col].astype(int)
-    if df["clock"].dtype == 'O':
-        mask = ~df["clock"].str.contains('\.')
-        df.loc[mask,"clock"] = df.loc[mask,"clock"].apply(lambda x: x + ".0")
-        df["clock"] = pd.to_datetime(df["clock"],format="%M:%S.%f").dt.time
+    if df["clock"].dtype == "O":
+        mask = ~df["clock"].str.contains("\.")
+        df.loc[mask, "clock"] = df.loc[mask, "clock"].apply(lambda x: x + ".0")
+        df["clock"] = pd.to_datetime(df["clock"], format="%M:%S.%f").dt.time
     return df
+
 
 def get_loc_data(games_list, player_dict):
     possessions = [game.possessions.items for game in games_list]
@@ -368,7 +402,7 @@ def pbp_season(
 ):
     settings = {
         "Games": {"source": "file", "data_provider": data_provider},
-        "dir": pbp_DIR ,
+        "dir": pbp_DIR + data_provider,
     }
     client = Client(settings)
     season = client.Season(league, season_yr, season_type)
@@ -384,7 +418,7 @@ def pbp_games(games_id, data_provider="data_nba"):
     settings = {
         "Boxscore": {"source": "file", "data_provider": data_provider},
         "Possessions": {"source": "file", "data_provider": data_provider},
-        "dir": pbp_DIR ,
+        "dir": pbp_DIR + data_provider,
     }
     client = Client(settings)
     games_list = []
@@ -401,10 +435,13 @@ def pbp_games(games_id, data_provider="data_nba"):
 
 
 def update_shotdetails_pbp(seasons):
-    data_provider = "data_nba"
     league = "NBA"
     season_type = "Regular Season"
     for season in seasons:
+        if int(season) > 2021:
+            data_provider = "data_nba"
+        else:
+            data_provider = "stats_nba"
         games_id = pbp_season(
             league=league,
             season_yr=season,
@@ -434,7 +471,9 @@ def update_shotdetails_nba(seasons):
         )
         shots = player_shotchart.get_data_frames()[0]
         shots["LOC_X"] = -shots["LOC_X"]
-        shots.to_parquet(export_DIR + "ShotLocationData/" + f"NBA_Shot_Details_{season}.parquet")
+        shots.to_parquet(
+            export_DIR + "ShotLocationData/" + f"NBA_Shot_Details_{season}.parquet"
+        )
         time.sleep(0.6)
 
 
@@ -443,82 +482,104 @@ def get_missing_pId(player, player_dict):
     return pId
 
 
-def update_injury_data():
-    header = {
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
-        "X-Requested-With": "XMLHttpRequest",
-    }
+def update_injury_data(seasons):
+    for season in seasons:
+        year = int(season)
+        header = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
+            "X-Requested-With": "XMLHttpRequest",
+        }
+        start_date = f"{year}-07-01"
+        end_date = f"{year+1}-06-30"
+        try:
+            # raise Exception
+            df0 = pd.read_parquet(
+                export_DIR + "injuries/" + f"NBA_prosptran_injuries_{year}.parquet"
+            )
+            start_date = (df0["Date"].iloc[-1] + dt.timedelta(days=-1)).strftime(
+                "%Y-%m-%d"
+            )
+        except:
+            df0 = pd.DataFrame()
 
-    try:
-        df0 = pd.read_parquet(
-            export_DIR + "injuries/" + "NBA_prosptran_injuries_2023.parquet"
+        print(start_date)
+        url = f"https://www.prosportstransactions.com/basketball/Search/SearchResults.php?Player=&Team=&BeginDate={start_date}&EndDate={end_date}&ILChkBx=yes&InjuriesChkBx=yes&PersonalChkBx=yes&Submit=Search"
+
+        response = requests.get(url)
+        # print(response) # Response [200] means it went through
+        soup = BeautifulSoup(response.text, "html.parser")
+        df_first_page = pd.read_html(url, storage_options=header)
+        df_first_page = df_first_page[0]
+        df_first_page.drop([0], inplace=True)
+        df_first_page[2] = df_first_page[2].str[2:]  # "Acquired" column
+        df_first_page[3] = df_first_page[3].str[2:]  # "Relinquished" column
+        df_first_page.columns = ["Date", "Team", "Acquired", "Relinquished", "Notes"]
+        dfa = []
+        dfa.append(df_first_page)
+        for i in tqdm(range(4, len(soup.findAll("a")) - 4)):  #'a' tags are for links
+            for kk in Retrying(wait=wait_fixed(5)):
+                try:
+                    tic = time.perf_counter()
+                    one_a_tag = soup.findAll("a")[i]
+                    link = one_a_tag["href"]
+                    download_url = (
+                        "https://www.prosportstransactions.com/basketball/Search/"
+                        + link
+                    )
+                    # print(download_url)
+                    dfs = pd.read_html(download_url, storage_options=header)
+                    df = dfs[0]
+                    df.drop([0], inplace=True)
+                    df[2] = df[2].str[2:]  # "Acquired" column
+                    df[3] = df[3].str[2:]  # "Relinquished" column
+                    df.columns = ["Date", "Team", "Acquired", "Relinquished", "Notes"]
+                    toc = time.perf_counter()
+                    if (toc - tic) > 10:
+                        raise Exception("Website Timeout")
+                    time.sleep(0.2)
+                    dfa.append(df)
+                    break
+                except Exception as error:
+                    print(download_url)
+                    print(error)
+                    continue
+
+        df1 = pd.concat(dfa)
+        df = df1.copy()
+        acq = df["Acquired"]
+        rel = df["Relinquished"]
+        df["Acquired"] = np.where(
+            acq.str.contains("/"), acq.str.split("/ ").str[1], acq
         )
-        start_date = (df0["Date"].iloc[-1] + dt.timedelta(days=-1)).strftime("%Y-%m-%d")
-    except:
-        df0 = pd.DataFrame()
-        start_date = "2023-07-01"
+        df["Relinquished"] = np.where(
+            rel.str.contains("/"), rel.str.split("/ ").str[1], rel
+        )
 
-    print(start_date)
-    url = f"https://www.prosportstransactions.com/basketball/Search/SearchResults.php?Player=&Team=&BeginDate={start_date}&EndDate=&ILChkBx=yes&InjuriesChkBx=yes&PersonalChkBx=yes&Submit=Search"
-
-    response = requests.get(url)
-    print(response)  # Response [200] means it went through
-    soup = BeautifulSoup(response.text, "html.parser")
-    df_first_page = pd.read_html(url, storage_options=header)
-    df_first_page = df_first_page[0]
-    df_first_page.drop([0], inplace=True)
-    df_first_page[2] = df_first_page[2].str[2:]  # "Acquired" column
-    df_first_page[3] = df_first_page[3].str[2:]  # "Relinquished" column
-    df_first_page.columns = ["Date", "Team", "Acquired", "Relinquished", "Notes"]
-    dfa = []
-    dfa.append(df_first_page)
-    for i in tqdm(range(4, len(soup.findAll("a")) - 4)):  #'a' tags are for links
-        one_a_tag = soup.findAll("a")[i]
-        link = one_a_tag["href"]
-        download_url = "https://www.prosportstransactions.com/basketball/Search/" + link
-        dfs = pd.read_html(download_url, storage_options=header)
-        df = dfs[0]
-        df.drop([0], inplace=True)
-        df[2] = df[2].str[2:]  # "Acquired" column
-        df[3] = df[3].str[2:]  # "Relinquished" column
-        df.columns = ["Date", "Team", "Acquired", "Relinquished", "Notes"]
-        time.sleep(0.5)
-        dfa.append(df)
-
-    df1 = pd.concat(dfa)
-    df = df1.copy()
-    acq = df["Acquired"]
-    rel = df["Relinquished"]
-    df["Acquired"] = np.where(acq.str.contains("/"), acq.str.split("/ ").str[1], acq)
-    df["Relinquished"] = np.where(
-        rel.str.contains("/"), rel.str.split("/ ").str[1], rel
-    )
-
-    # Remove instances where value is like "(some text)"
-    df["Acquired"] = df.Acquired.str.replace(r"[\(\[].*?[\)\]]", "")
-    df["Relinquished"] = df.Relinquished.str.replace(r"[\(\[].*?[\)\]]", "")
-    df["In"] = ~df["Acquired"].isna()
-    df["Out"] = ~df["Relinquished"].isna()
-    df["Player"] = (df["Acquired"] * ~df["Acquired"].isna()).fillna("") + (
-        df["Relinquished"] * ~df["Relinquished"].isna()
-    ).fillna("")
-    df = df[["Date", "Team", "Player", "In", "Out", "Notes"]]
-    df = df[df["Player"].str.istitle()].reset_index(drop=True)
-    df["playerID"] = df["Player"].map(pID_dict)
-    df1 = df.copy()
-    df1["playerID"][df["playerID"].isna()] = df["Player"][df["playerID"].isna()].apply(
-        lambda x: get_missing_pId(x, player_dict)
-    )
-    df1["playerID"] = df1["playerID"].astype(int)
-    df1["Date"] = pd.to_datetime(df1["Date"], format="%Y-%m-%d")
-    df1.insert(2, "playerID", df1.pop("playerID"))
-    df2 = pd.concat([df0, df1]).reset_index(drop=True)
-    df3 = df2[~df2.duplicated(keep="last")].reset_index(drop=True)
-    df3.to_csv(
-        export_DIR + "injuries/" + "NBA_prosptran_injuries_2023.csv", index=False
-    )
-    df3.to_parquet(export_DIR + "injuries/" + "NBA_prosptran_injuries_2023.parquet")
-    df3.to_csv(csv_export_DIR + "NBA_prosptran_injuries_2023.csv", index=False)
+        # Remove instances where value is like "(some text)"
+        df["Acquired"] = df.Acquired.str.replace(r"[\(\[].*?[\)\]]", "")
+        df["Relinquished"] = df.Relinquished.str.replace(r"[\(\[].*?[\)\]]", "")
+        df["In"] = ~df["Acquired"].isna()
+        df["Out"] = ~df["Relinquished"].isna()
+        df["Player"] = (df["Acquired"] * ~df["Acquired"].isna()).fillna("") + (
+            df["Relinquished"] * ~df["Relinquished"].isna()
+        ).fillna("")
+        df = df[["Date", "Team", "Player", "In", "Out", "Notes"]]
+        df = df[df["Player"].str.istitle()].reset_index(drop=True)
+        df["Player"].loc[df["Player"].str.contains("Enes")] = "Enes Kanter"
+        df["playerID"] = df["Player"].map(pID_dict)
+        df1 = df.copy()
+        df1["playerID"][df["playerID"].isna()] = df["Player"][
+            df["playerID"].isna()
+        ].apply(lambda x: get_missing_pId(x, player_dict))
+        df1["playerID"] = df1["playerID"].astype(int)
+        df1["Date"] = pd.to_datetime(df1["Date"], format="%Y-%m-%d")
+        df1.insert(2, "playerID", df1.pop("playerID"))
+        df2 = pd.concat([df0, df1]).reset_index(drop=True)
+        df3 = df2[~df2.duplicated(keep="last")].reset_index(drop=True)
+        df3.to_csv(csv_export_DIR + f"NBA_prosptran_injuries_{year}.csv", index=False)
+        df3.to_parquet(
+            export_DIR + "injuries/" + f"NBA_prosptran_injuries_{year}.parquet"
+        )
 
 
 def update_DARKO():
@@ -667,7 +728,7 @@ update_shotdetails_nba(seasons)
 
 # Update Injury Data
 print("Update Injury Data")
-update_injury_data()
+update_injury_data(seasons)
 
 # Update DARKO
 print("Update DARKO")
