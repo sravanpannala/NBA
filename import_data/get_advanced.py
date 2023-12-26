@@ -184,7 +184,7 @@ def update_bbref(seasons):
             assign_to_environment=True,
             widen_data=True,
             join_data=True,
-            return_message=True,
+            return_message=False,
         )
         with (robjects.default_converter + pandas2ri.converter).context():
             bpm = robjects.conversion.get_conversion().rpy2py(r_df)
@@ -196,6 +196,6 @@ def update_bbref(seasons):
             "urlPlayerActionPhoto",
         ]
         bpm[vars] = bpm[vars].astype(str)
-        bpm.to_csv(bbref_DIR + f"NBA_bbref_Player_Adv_{season}.csv")
-        bpm.to_parquet(bbref_DIR + f"NBA_bbref_Player_Adv_{season}.parquet")
+        # bpm.to_csv(bbref_DIR + f"NBA_bbref_P_Adv_{season}.csv")
+        bpm.to_parquet(bbref_DIR + f"NBA_bbref_P_Adv_{season}.parquet")
         time.sleep(5)

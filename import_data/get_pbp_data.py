@@ -7,8 +7,6 @@ from pbpstats.client import Client
 from update_data_V1 import pbp_DIR
 
 
-
-
 def update_pbp(seasons):
     season_types = ["Regular Season"]
     leagues = ["nba"]
@@ -56,7 +54,7 @@ def update_pbp(seasons):
         settings = {
             "Boxscore": {"source": "web", "data_provider": data_provider},
             "Possessions": {"source": "web", "data_provider": data_provider},
-            "dir": pbp_DIR,
+            "dir": pbp_DIR  + data_provider,
         }
         client = Client(settings)
         # error_list = []

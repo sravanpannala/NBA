@@ -7,7 +7,7 @@ import subprocess
 
 data_DIR = "C:/Users/pansr/Documents/NBA/data/"
 
-box_DIR = data_DIR + "boxscores_team/"
+box_DIR = data_DIR + "box/"
 
 export_DIR = "C:/Users/pansr/Documents/repos/csv/"
 
@@ -18,7 +18,7 @@ teams_dict = {team["TeamID"]: team["Team"] for team in team_dict1}
 
 
 def get_ratings(season=2023):
-    df1 = pd.read_csv(box_DIR + f"NBA_BoxScores_Adv_{season}.csv")
+    df1 = pd.read_parquet(box_DIR + f"NBA_Box_T_Adv_{season}.parquet")
     cols = [
         "gameId",
         "teamName",
