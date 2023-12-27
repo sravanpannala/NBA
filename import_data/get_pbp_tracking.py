@@ -3,13 +3,15 @@ import pandas as pd
 import numpy as np
 import time
 from io import StringIO
+import json
 
 from update_data_V1 import data_DIR
 
 track_DIR = data_DIR + "tracking/"
 
 token_headers = {"Content-Type": "application/json"}
-payload = {"username": "tracking_read_only", "password": "0YfUDRfUYb2Tr8dS"}
+with open("pbp-credentials.json") as f:
+        payload = json.load(f)
 token_request = requests.post("https://tracking.pbpstats.com/auth", headers=token_headers, json=payload)
 access_token = token_request.json()["access_token"]
 headers = {"Authorization": f"JWT {access_token}"}
