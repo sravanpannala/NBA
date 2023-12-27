@@ -107,6 +107,7 @@ def update_box_base_t(seasons):
                 season_type_all_star="Regular Season",
             )
             df = stats.get_data_frames()[0]
+            df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], format="%Y-%m-%d")
             df.to_parquet(box_DIR + "NBA_Box_T_" + "Base" + "_" + season + ".parquet")
             time.sleep(0.6)
         except Exception as error:
@@ -121,6 +122,7 @@ def update_box_base_p(seasons):
                 season_type_all_star="Regular Season",
             )
             df = stats.get_data_frames()[0]
+            df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], format="%Y-%m-%d")
             df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + season + ".parquet")
             time.sleep(0.6)
         except Exception as error:

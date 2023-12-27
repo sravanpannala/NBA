@@ -24,6 +24,8 @@ from get_pbp_data import *
 from get_boxscores import *
 from get_shot_data import *
 from get_advanced import *
+from get_shiny_data import *
+from get_pbp_tracking import *
 
 
 def parse_function():
@@ -34,6 +36,8 @@ def parse_function():
     global bool_idv
     global bool_shot
     global bool_adv
+    global bool_shiny
+    global bool_track
 
     parser = argparse.ArgumentParser(
         description="Update NBA Data",
@@ -57,31 +61,43 @@ def parse_function():
         "--pbp",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Update PBP data",
+        help="Update PBP Data",
     )
     parser.add_argument(
         "--box",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Update BoxScores data",
+        help="Update BoxScores Data",
     )
     parser.add_argument(
         "--idv",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Update Individual Game BoxScores data",
+        help="Update Individual Game BoxScores Data",
     )
     parser.add_argument(
         "--shot",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Update Shot data",
+        help="Update Shot Data",
     )
     parser.add_argument(
         "--adv",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Update Adv data",
+        help="Update Adv Data",
+    )
+    parser.add_argument(
+        "--shiny",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Update Shiny Data",
+    )
+    parser.add_argument(
+        "--track",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Update PBP Tracking Data",
     )
 
     args = parser.parse_args()
@@ -93,6 +109,8 @@ def parse_function():
     bool_idv  = args.idv
     bool_shot = args.shot
     bool_adv  = args.adv
+    bool_shiny = args.shiny
+    bool_track = args.track
 
 def main():
     parse_function()
@@ -136,6 +154,12 @@ def main():
         # Update bbref advanced stats
         print("Update bbref")
         update_bbref(seasons)
+
+    if bool_shiny:
+        update_shiny_data(seasons)
+
+    if bool_track:
+        update_pbp_tracking(seasons)
 
 if __name__ == "__main__":
     main()
