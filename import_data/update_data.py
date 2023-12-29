@@ -26,6 +26,7 @@ from get_shot_data import *
 from get_advanced import *
 from get_shiny_data import *
 from get_pbp_tracking import *
+from get_player_database import *
 
 
 def parse_function():
@@ -40,6 +41,7 @@ def parse_function():
     global bool_adv
     global bool_shiny
     global bool_track
+    global bool_db
 
     parser = argparse.ArgumentParser(
         description="Update NBA Data",
@@ -113,6 +115,12 @@ def parse_function():
         default=False,
         help="Update PBP Tracking Data",
     )
+    parser.add_argument(
+        "--db",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Update Player Database",
+    )
 
     args = parser.parse_args()
 
@@ -127,6 +135,7 @@ def parse_function():
     bool_adv  = args.adv
     bool_shiny = args.shiny
     bool_track = args.track
+    bool_db = args.db
 
 def main():
     parse_function()
@@ -183,6 +192,9 @@ def main():
 
     if bool_track:
         update_pbp_tracking(seasons)
+    
+    if bool_db:
+        update_player_database()
 
 if __name__ == "__main__":
     main()

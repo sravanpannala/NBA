@@ -12,7 +12,7 @@ from nba_api.stats.endpoints import playerdashptshots, leaguedashplayerptshot, s
 from pbpstats.client import Client
 from pbpstats.resources.enhanced_pbp import FieldGoal
 
-from update_data_V1 import data_DIR, pbp_DIR, player_dict
+from update_data import data_DIR, pbp_DIR, player_dict
 
 shot_DIR = data_DIR + "shots/"
 shotloc_DIR = data_DIR + "ShotLocationData/"

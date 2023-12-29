@@ -4,8 +4,7 @@ from tqdm import tqdm
 
 from pbpstats.client import Client
 
-from update_data_V1 import pbp_DIR
-
+from update_data import pbp_DIR
 
 def update_pbp(seasons):
     season_types = ["Regular Season"]

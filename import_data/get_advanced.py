@@ -13,7 +13,7 @@ from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
 from rpy2.robjects import pandas2ri
 
-from update_data_V1 import data_DIR, player_dict, pID_dict, csv_export_DIR
+from update_data import data_DIR, player_dict, pID_dict, csv_export_DIR
 
 injury_DIR = data_DIR + "injuries/"
 aio_DIR = data_DIR + "all_in_one_metrics/"

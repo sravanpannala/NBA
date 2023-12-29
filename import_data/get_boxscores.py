@@ -15,7 +15,7 @@ from nba_api.stats.endpoints import (
 from tenacity import retry, stop_after_attempt, wait_fixed
 from tqdm import tqdm
 
-from update_data_V1 import data_DIR
+from update_data import data_DIR
 
 box_DIR = data_DIR + "box/"
 

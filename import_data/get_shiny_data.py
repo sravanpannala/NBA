@@ -1,11 +1,13 @@
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
-from update_data_V1 import data_DIR
+from update_data import data_DIR
 
 box_DIR = data_DIR + "box/"
 shiny_DIR = data_DIR + "shiny/"
 track_DIR = data_DIR + "tracking/"
+shiny_export_DIR = "C:/Users/pansr/Documents/shinyNBA-export/"
 
 cols1 = ['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'TEAM_ABBREVIATION', 'GAME_ID', 'GAME_DATE','MIN', 'FGM',
        'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT',
@@ -44,27 +46,30 @@ def export_player_distribution(seasons):
     dfa = []
     # for season in seasons:
     #     year = int(season)
-    for year in range(2013,2024):
+    for year in tqdm(range(2004,2024)):
         season = str(year)
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + ".parquet", columns = cols1)
         df1["GAME_ID"] = df1["GAME_ID"].astype(int)
         df2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Adv_"  + season + ".parquet", columns = cols2)
-        dfm1 = pd.merge(df1,df2,left_on=['PLAYER_ID','TEAM_ID','GAME_ID'], right_on=['personId', 'teamId','gameId'])
+        dfm1 = pd.merge(df1,df2,left_on=['PLAYER_ID','TEAM_ID','GAME_ID'], right_on=['personId', 'teamId','gameId'], how="left")
         df3 = pd.read_parquet(track_DIR + "NBA_PBP_" + "Tracking_"  + season + ".parquet", columns = cols3)
-        dfm = pd.merge(dfm1,df3,left_on=['PLAYER_ID','TEAM_ID','GAME_ID'], right_on=['player_id', 'team_id','game_id'])
+        dfm = pd.merge(dfm1,df3,left_on=['PLAYER_ID','TEAM_ID','GAME_ID'], right_on=['player_id', 'team_id','game_id'], how="left")
+        dfm = dfm.fillna(0)
         dfm = dfm.drop(columns=['player_id', 'team_id','game_id'])
         dfm["Season"] = year +1
         dfg = dfm.groupby("PLAYER_ID")
         keys = list(dfg.groups)
-        dfb = []
         for key in keys:
             dfgg = dfg.get_group(key)
             dfgg = dfgg.reset_index(drop=True).reset_index()
             dfgg = dfgg.rename(columns={"index":"Games Played"})
             dfgg["Games Played"] +=1
             dfa.append(dfgg)
-    df = pd.concat(dfa)
-
+    dfa1 = [df2 for df2 in dfa if not df2.empty]
+    df = pd.concat(dfa1)
+    df = df.reset_index(drop=True)
+    df[df.columns[53:76]]  = df[df.columns[53:76]].astype(int)
+    df[df.columns[79:118]] = df[df.columns[79:118]].astype(int)
     df1 = df.copy()
     df1 = df1.rename(columns=str.title)
     df1 = df1.rename(columns={"Player_Name":"Player"})
@@ -107,9 +112,9 @@ def export_player_distribution(seasons):
     df1 = df1.drop( columns = cols[cols.str.contains("Estimated")])
     df1 = df1.fillna(0)
     df1 = df1[df1["Pace"] > 60]
-    df1 = df1.reset_index(drop=True)
-    df1.columns
+    df1 = df1.sort_values(by="Player").reset_index(drop=True)
     df1.to_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
+    df1.to_parquet(shiny_export_DIR + "NBA-Distributions/" + "NBA_Player_Distribution.parquet")
     # df2 = pd.read_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
     # df3 = pd.concat([df2,df1])
     # df4 = df3[~df3.duplicated(keep="last")].reset_index(drop=True)
@@ -123,7 +128,8 @@ def get_scorigami_data():
         df2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + "_PS.parquet", columns = cols1)
         dfa.append(df1)
         dfa.append(df2)
-    df = pd.concat(dfa)
+    dfa1 = [df2 for df2 in dfa if not df2.empty]
+    df = pd.concat(dfa1)
     df = df.rename(columns=str.title)
     df = df.rename(columns={"Player_Name":"Player",'Player_Id':'Player ID'})
     df = df.reset_index(drop=True)
@@ -195,6 +201,7 @@ def get_scorigami_data():
     df1["Stl_cat"] = df1["Stl_cat"].cat.rename_categories(Stl_cat)
     Blk_cat = ["0", "1 to 2", "3 to 4", "4 to 6", "7+"]
     df1["Blk_cat"] = df1["Blk_cat"].cat.rename_categories(Blk_cat)
+    df1 = df1.sort_values(by="Player").reset_index(drop=True)
     df1.to_parquet(shiny_DIR + "NBA_Player_Scorigami.parquet")
 
 

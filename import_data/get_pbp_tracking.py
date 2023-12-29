@@ -5,7 +5,7 @@ import time
 from io import StringIO
 import json
 
-from update_data_V1 import data_DIR, home_DIR
+from update_data import data_DIR, home_DIR
 
 cur_DIR = home_DIR + "import_data/"
 
