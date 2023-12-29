@@ -46,6 +46,7 @@ shiny = "^0.6.1.1"
 pygsheets = "^2.0.6"
 gsheets = "^0.6.1"
 pydrive2 = "^1.18.1"
+colormaps = "^0.4.1"
 
 
 [tool.poetry.group.dev.dependencies]

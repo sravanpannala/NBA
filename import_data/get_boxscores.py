@@ -110,6 +110,15 @@ def update_box_base_t(seasons):
             df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], format="%Y-%m-%d")
             df.to_parquet(box_DIR + "NBA_Box_T_" + "Base" + "_" + season + ".parquet")
             time.sleep(0.6)
+            stats = leaguegamelog.LeagueGameLog(
+                player_or_team_abbreviation="T",
+                season=season,
+                season_type_all_star="Playoffs",
+            )
+            df = stats.get_data_frames()[0]
+            df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], format="%Y-%m-%d")
+            df.to_parquet(box_DIR + "NBA_Box_T_" + "Base" + "_" + season + "_PS.parquet")
+            time.sleep(0.6)
         except Exception as error:
             continue
 
@@ -125,6 +134,14 @@ def update_box_base_p(seasons):
             df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], format="%Y-%m-%d")
             df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + season + ".parquet")
             time.sleep(0.6)
+            stats = leaguegamelog.LeagueGameLog(
+                player_or_team_abbreviation="P",
+                season=season,
+                season_type_all_star="Playoffs",
+            )
+            df = stats.get_data_frames()[0]
+            df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], format="%Y-%m-%d")
+            df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + season + "_PS.parquet")
         except Exception as error:
             continue
 

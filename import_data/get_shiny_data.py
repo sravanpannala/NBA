@@ -45,7 +45,7 @@ def export_player_distribution(seasons):
     # for season in seasons:
     #     year = int(season)
     for year in range(2013,2024):
-        season = int(year)
+        season = str(year)
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + ".parquet", columns = cols1)
         df1["GAME_ID"] = df1["GAME_ID"].astype(int)
         df2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Adv_"  + season + ".parquet", columns = cols2)
@@ -102,6 +102,7 @@ def export_player_distribution(seasons):
     )
     df1 = df1.drop(columns=['Gameid', 'Teamid', 'Personid','Position', 'Paceper40'])
     df1["Extra Possessions"] = df1["OReb"] - (df1["FGA"]-df1["FGM"]) - df1["Tov"]
+    df1["TSA"] = df1["FGA"] + 0.44*df1["FTA"]
     cols = df1.columns
     df1 = df1.drop( columns = cols[cols.str.contains("Estimated")])
     df1 = df1.fillna(0)
@@ -114,5 +115,89 @@ def export_player_distribution(seasons):
     # df4 = df3[~df3.duplicated(keep="last")].reset_index(drop=True)
     # df4.to_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
 
+def get_scorigami_data():
+    dfa = []
+    for year in range(1996,2024):
+        season = str(year)
+        df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + ".parquet", columns = cols1)
+        df2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + "_PS.parquet", columns = cols1)
+        dfa.append(df1)
+        dfa.append(df2)
+    df = pd.concat(dfa)
+    df = df.rename(columns=str.title)
+    df = df.rename(columns={"Player_Name":"Player",'Player_Id':'Player ID'})
+    df = df.reset_index(drop=True)
+
+    df1 = df.copy()
+    df1["Pts_cat"] = 0
+    idx = df1.index[((df1["Pts"] >= 10) & (df1["Pts"] < 20))].tolist()
+    df1["Pts_cat"].loc[idx] = 1
+    idx = df1.index[((df1["Pts"] >= 20) & (df1["Pts"] < 30))].tolist()
+    df1["Pts_cat"].loc[idx] = 2
+    idx = df1.index[((df1["Pts"] >= 30) & (df1["Pts"] < 40))].tolist()
+    df1["Pts_cat"].loc[idx] = 3
+    idx = df1.index[(df1["Pts"] >= 40)].tolist()
+    df1["Pts_cat"].loc[idx] = 4
+
+    df1["Ast_cat"] = 0
+    idx = df1.index[((df1["Ast"] > 0) & (df1["Ast"] < 5))].tolist()
+    df1["Ast_cat"].loc[idx] = 1
+    idx = df1.index[((df1["Ast"] >= 5) & (df1["Ast"] < 10))].tolist()
+    df1["Ast_cat"].loc[idx] = 2
+    idx = df1.index[((df1["Ast"] >= 10) & (df1["Ast"] < 15))].tolist()
+    df1["Ast_cat"].loc[idx] = 3
+    idx = df1.index[(df1["Ast"] >= 15)].tolist()
+    df1["Ast_cat"].loc[idx] = 4
+
+    df1["Reb_cat"] = 0
+    idx = df1.index[((df1["Reb"] > 0) & (df1["Reb"] < 5))].tolist()
+    df1["Reb_cat"].loc[idx] = 1
+    idx = df1.index[((df1["Reb"] >= 5) & (df1["Reb"] < 10))].tolist()
+    df1["Reb_cat"].loc[idx] = 2
+    idx = df1.index[((df1["Reb"] >= 10) & (df1["Reb"] < 15))].tolist()
+    df1["Reb_cat"].loc[idx] = 3
+    idx = df1.index[(df1["Reb"] >= 15)].tolist()
+    df1["Reb_cat"].loc[idx] = 4
+
+    df1["Stl_cat"] = 0
+    idx = df1.index[((df1["Stl"] > 0) & (df1["Stl"] < 3))].tolist()
+    df1["Stl_cat"].loc[idx] = 1
+    idx = df1.index[((df1["Stl"] >= 3) & (df1["Stl"] < 5))].tolist()
+    df1["Stl_cat"].loc[idx] = 2
+    idx = df1.index[((df1["Stl"] >= 5) & (df1["Stl"] < 7))].tolist()
+    df1["Stl_cat"].loc[idx] = 3
+    idx = df1.index[(df1["Stl"] >= 7)].tolist()
+    df1["Stl_cat"].loc[idx] = 4
+
+    df1["Blk_cat"] = 0
+    idx = df1.index[((df1["Blk"] > 0) & (df1["Blk"] < 3))].tolist()
+    df1["Blk_cat"].loc[idx] = 1
+    idx = df1.index[((df1["Blk"] >= 3) & (df1["Blk"] < 5))].tolist()
+    df1["Blk_cat"].loc[idx] = 2
+    idx = df1.index[((df1["Blk"] >= 5) & (df1["Blk"] < 7))].tolist()
+    df1["Blk_cat"].loc[idx] = 3
+    idx = df1.index[(df1["Blk"] >= 6)].tolist()
+    df1["Blk_cat"].loc[idx] = 4
+
+    df1["Pts_cat"] = df1["Pts_cat"].astype("category")
+    df1["Ast_cat"] = df1["Ast_cat"].astype("category")
+    df1["Reb_cat"] = df1["Reb_cat"].astype("category")
+    df1["Stl_cat"] = df1["Stl_cat"].astype("category")
+    df1["Blk_cat"] = df1["Blk_cat"].astype("category")
+
+    Pts_cat = ["0 to 9", "10 to 19", "20 to 29", "30 to 39", "40+"]
+    df1["Pts_cat"] = df1["Pts_cat"].cat.rename_categories(Pts_cat)
+    Ast_cat = ["0", "1 to 4", "5 to 9", "10 to 14", "15+"]
+    df1["Ast_cat"] = df1["Ast_cat"].cat.rename_categories(Ast_cat)
+    Reb_cat = ["0", "1 to 4", "5 to 9", "10 to 14", "15+"]
+    df1["Reb_cat"] = df1["Reb_cat"].cat.rename_categories(Reb_cat)
+    Stl_cat = ["0", "1 to 2", "3 to 4", "4 to 6", "7+"]
+    df1["Stl_cat"] = df1["Stl_cat"].cat.rename_categories(Stl_cat)
+    Blk_cat = ["0", "1 to 2", "3 to 4", "4 to 6", "7+"]
+    df1["Blk_cat"] = df1["Blk_cat"].cat.rename_categories(Blk_cat)
+    df1.to_parquet(shiny_DIR + "NBA_Player_Scorigami.parquet")
+
+
 def update_shiny_data(seasons):
     export_player_distribution(seasons)
+    get_scorigami_data()

@@ -33,7 +33,9 @@ def parse_function():
     global season_end
     global bool_pbp
     global bool_box
+    global bool_cum
     global bool_idv
+    global bool_hus
     global bool_shot
     global bool_adv
     global bool_shiny
@@ -70,10 +72,22 @@ def parse_function():
         help="Update BoxScores Data",
     )
     parser.add_argument(
+        "--cum",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Update Cumulative BoxScores Data",
+    )
+    parser.add_argument(
         "--idv",
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Update Individual Game BoxScores Data",
+    )
+    parser.add_argument(
+        "--hus",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Update Individual Game Tracking Hustle BoxScores Data",
     )
     parser.add_argument(
         "--shot",
@@ -106,7 +120,9 @@ def parse_function():
     season_end = args.season2
     bool_pbp  = args.pbp
     bool_box  = args.box
+    bool_cum  = args.cum
     bool_idv  = args.idv
+    bool_hus  = args.hus
     bool_shot = args.shot
     bool_adv  = args.adv
     bool_shiny = args.shiny
@@ -124,13 +140,20 @@ def main():
     # Update Boxscores
     if bool_box:
         print("Update Boxscores")
-        update_box_base_t(seasons)
-        update_box_base_p(seasons)
-        update_box_p_cum(seasons)
+        if bool_cum:
+            update_box_base_t(seasons)
+            update_box_base_p(seasons)
+            update_box_p_cum(seasons)
         if bool_idv:
             for season in seasons:
                 print(season)
-                for boxscore in boxscores:
+                for boxscore in boxscores[:-2]:
+                    print("BoxScore " + boxscore["name"])
+                    update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
+        if bool_hus:
+            for season in seasons:
+                print(season)
+                for boxscore in boxscores[-2:]:
                     print("BoxScore " + boxscore["name"])
                     update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
 

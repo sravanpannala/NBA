@@ -5,12 +5,14 @@ import time
 from io import StringIO
 import json
 
-from update_data_V1 import data_DIR
+from update_data_V1 import data_DIR, home_DIR
+
+cur_DIR = home_DIR + "import_data/"
 
 track_DIR = data_DIR + "tracking/"
 
 token_headers = {"Content-Type": "application/json"}
-with open("pbp-credentials.json") as f:
+with open(cur_DIR + "pbp-credentials.json") as f:
         payload = json.load(f)
 token_request = requests.post("https://tracking.pbpstats.com/auth", headers=token_headers, json=payload)
 access_token = token_request.json()["access_token"]
