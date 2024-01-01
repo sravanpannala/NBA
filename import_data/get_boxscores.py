@@ -192,7 +192,10 @@ boxscores = [
         "name": "Misc",
         "fun": boxscoremiscv3.BoxScoreMiscV3,
     },
-    {"name": "Scoring", "fun": boxscorescoringv3.BoxScoreScoringV3},
+    {
+        "name": "Scoring", 
+        "fun": boxscorescoringv3.BoxScoreScoringV3
+    },
     {
         "name": "Track",
         "fun": boxscoreplayertrackv3.BoxScorePlayerTrackV3,

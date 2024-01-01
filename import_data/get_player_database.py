@@ -3,8 +3,6 @@ import json
 import requests
 import numpy as np
 import pandas as pd
-from IPython.display import clear_output
-
 from nba_api.stats.endpoints import commonallplayers, playerindex
 
 from update_data import data_DIR
