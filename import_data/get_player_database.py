@@ -5,8 +5,7 @@ import numpy as np
 import pandas as pd
 from IPython.display import clear_output
 
-from nba_api.stats.endpoints import commonallplayers
-from nba_api.stats.endpoints import commonallplayers
+from nba_api.stats.endpoints import commonallplayers, playerindex
 
 from update_data import data_DIR
 
@@ -14,6 +13,7 @@ roster_DIR = data_DIR + "rosters/"
 
 def update_player_database():
     season = "2023"
+    season_str = season + "-" + str(int(season)+1)[-2:]
     league_id = "00"
     league = "NBA"
     stats = commonallplayers.CommonAllPlayers( league_id=league_id, season=season, is_only_current_season=False)
@@ -33,9 +33,10 @@ def update_player_database():
     data.to_csv(data_DIR + f"{league}_players_database.csv", index=False)
 
 
-    stats = commonallplayers.CommonAllPlayers(league_id = league_id, season =season, is_only_current_season=True)
+    stats = playerindex.PlayerIndex(league_id = "00", season =season_str)
     df = stats.get_data_frames()[0]
-    df = df.query("ROSTERSTATUS == 1").reset_index(drop=True)
+    print(df.columns)
+    df = df.query("ROSTER_STATUS == 1").reset_index(drop=True)
     df.to_parquet(roster_DIR + "NBA_Team_Rosters" + "_" + season + ".parquet")
 
     players_response = requests.get(

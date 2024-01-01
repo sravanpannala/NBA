@@ -20,6 +20,11 @@ with open(data_DIR + "NBA.json") as f:
 pID_dict = {v: int(k) for k, v in data.items()}
 player_dict = {int(k): v for k, v in data.items()}
 
+team_data = pd.read_csv(data_DIR + "NBA_teams_database.csv")
+teams_list = team_data["TeamID"].tolist()
+team_dict1 = team_data.to_dict(orient="records")
+teams_dict = {team["TeamID"]: team["Team"] for team in team_dict1}
+
 from get_pbp_data import *
 from get_boxscores import *
 from get_shot_data import *
@@ -27,6 +32,7 @@ from get_advanced import *
 from get_shiny_data import *
 from get_pbp_tracking import *
 from get_player_database import *
+
 
 
 def parse_function():
@@ -152,17 +158,17 @@ def main():
         if bool_cum:
             update_box_base_t(seasons)
             update_box_base_p(seasons)
-            update_box_p_cum(seasons)
+            # update_box_p_cum(seasons)
         if bool_idv:
             for season in seasons:
                 print(season)
-                for boxscore in boxscores[:-2]:
+                for boxscore in boxscores[:3]:
                     print("BoxScore " + boxscore["name"])
                     update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
         if bool_hus:
             for season in seasons:
                 print(season)
-                for boxscore in boxscores[-2:]:
+                for boxscore in boxscores[3:]:
                     print("BoxScore " + boxscore["name"])
                     update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
 
@@ -187,13 +193,16 @@ def main():
         print("Update bbref")
         update_bbref(seasons)
 
+    if bool_track:
+        print("Update PBP Tracking")
+        update_pbp_tracking(seasons)
+
     if bool_shiny:
+        print("Update Shiny Data")
         update_shiny_data(seasons)
 
-    if bool_track:
-        update_pbp_tracking(seasons)
-    
     if bool_db:
+        print("Update Player DB")
         update_player_database()
 
 if __name__ == "__main__":
