@@ -10,6 +10,7 @@ pbpdata.zip
 twitter_keys.json
 *.data.gz
 pbp-credentials.json
+secret*
 
 # Ignore png files
 *.png

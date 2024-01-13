@@ -46,6 +46,7 @@ def update_shot_dash(seasons):
             df.to_parquet(
                 shot_DIR + f"{league}_Shots_{season}_{d}.parquet"
             )
+        time.sleep(0.6)
 
 
 def update_shot_dash_all(seasons):
@@ -89,6 +90,7 @@ def update_shot_dash_all(seasons):
                     df1["closest_def"] = b
                     df1["touch_time"] = c
                     dfa.append(df1)
+                    time.sleep(0.6)
                     break
                 except Exception as error:
                     print(error)

@@ -1,3 +1,6 @@
+import json
+import requests
+import time
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -362,8 +365,41 @@ def get_scorigami_data():
     df1 = df1.sort_values(by="Player").reset_index(drop=True)
     df1.to_parquet(shiny_DIR + "NBA_Player_Scorigami.parquet")
 
+def export_lineups():
+    teams_response = requests.get("https://api.pbpstats.com/get-teams/nba")
+    teams = teams_response.json()
+    teams_dict = teams["teams"]
+    df_teams = pd.DataFrame(teams_dict)
+    df_teams = df_teams.rename(columns={"text":"team"})
+    teams_list = df_teams["id"].to_list()
+    dfa = []
+    for year in range(2023,2024):
+        season = str(year) + '-' + str(year+1)[-2:]
+        for team in tqdm(teams_list):
+            url = "https://api.pbpstats.com/get-team-players-for-season?S"
+            params = {
+                "Season": season, # To get for multiple seasons, separate seasons by comma
+                "SeasonType": "Regular Season",
+                "TeamId": team,
+            }
+            response = requests.get(url, params=params)
+            response_json = response.json()
+            players = response_json["players"]
+            df_players1 = pd.DataFrame.from_dict(players,orient="index",columns=["player"]).reset_index()
+            df_players1 = df_players1.rename(columns={"index":"id"})
+            df_players1["team"] = team
+            df_players1["season"] = season
+            time.sleep(0.5)
+            dfa.append(df_players1)
+    df_players = pd.concat(dfa)
+    df_players = pd.merge(df_players,df_teams,left_on="team", right_on="id")
+    df_players = df_players.rename(columns={"id_x":"pid","id_y":"tid","team_y":"team"})
+    df_players = df_players.drop(columns=["team_x"]) 
+    df_players.to_parquet(shiny_DIR + "lineup_data.parquet")
+    df_players.to_parquet(shiny_export_DIR1 + "lineup_data.parquet")
 
 def update_shiny_data(seasons):
     export_player_distribution(seasons)
     export_team_distribution(seasons)
     get_scorigami_data()
+    export_lineups()
