@@ -1,6 +1,7 @@
 
 import time
 import datetime as dt
+import json
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -13,8 +14,9 @@ from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
 from rpy2.robjects import pandas2ri
 
-from update_data import data_DIR, player_dict, pID_dict, csv_export_DIR
+from update_data import data_DIR, player_dict, pID_dict, csv_export_DIR, home_DIR
 
+cur_DIR = home_DIR + "import_data/"
 injury_DIR = data_DIR + "injuries/"
 aio_DIR = data_DIR + "all_in_one_metrics/"
 bbref_DIR = data_DIR + "bbref/"
@@ -164,6 +166,12 @@ def update_DARKO():
     df5 = dfa[4]
     df5 = df5.rename(columns={"nba_id": "idPlayerNBA", "player_name": "namePlayer"})
     df5.to_parquet(aio_DIR + "NBA_DARKO_Time_Decay_RAPM_Pace.parquet")
+    with open(cur_DIR + "secret-data.json") as f:
+        secret = json.load(f)
+    url = secret["darko_parquet"]
+    response = requests.get(url)
+    with open(aio_DIR + "NBA_DARKO_FULL.parquet", 'wb') as f:
+        f.write(response.content)
 
 
 def update_bbref(seasons):

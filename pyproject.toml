@@ -47,6 +47,7 @@ pygsheets = "^2.0.6"
 gsheets = "^0.6.1"
 pydrive2 = "^1.18.1"
 colormaps = "^0.4.1"
+openai = "^1.7.2"
 
 
 [tool.poetry.group.dev.dependencies]
