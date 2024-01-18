@@ -26,14 +26,18 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import plotly.graph_objects as go
 import plotly.express as px
 import seaborn as sns
-from plotnine import ggplot, aes, ggsave, themes, theme
+from plotnine import ggplot, aes, ggsave, themes, theme, labs
 from plotnine import geom_point, geom_line, geom_smooth, geom_hline, geom_bar
 from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
-from plotnine import geom_text, geom_jitter
-from plotnine import labs, element_rect, element_blank, element_text
+from plotnine import geom_jitter, geom_dotplot, geom_segment
+from plotnine import geom_text, annotate
+from plotnine import element_rect, element_blank, element_text
+from plotnine import coord_flip, lims, guides, coord_cartesian
+from plotnine import ylim, scale_y_continuous, scale_y_reverse
+from plotnine import xlim, scale_x_continuous, scale_x_discrete, scale_x_date
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
-from plotnine import ylim, scale_x_date, scale_y_continuous
-from plotnine import scale_x_continuous, scale_x_discrete, scale_fill_manual
+from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
+from plotnine import scale_fill_manual
 
 import great_tables as gt
 import imgkit
