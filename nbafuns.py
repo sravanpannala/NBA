@@ -27,7 +27,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 import seaborn as sns
 from plotnine import ggplot, aes, ggsave, themes, theme, labs
-from plotnine import geom_point, geom_line, geom_smooth, geom_hline, geom_bar
+from plotnine import geom_point, geom_line, geom_hline, geom_vline
+from plotnine import geom_bar, geom_smooth
 from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
 from plotnine import geom_jitter, geom_dotplot, geom_segment
 from plotnine import geom_text, annotate

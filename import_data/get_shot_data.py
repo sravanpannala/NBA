@@ -51,7 +51,7 @@ def update_shot_dash(seasons):
 
 def update_shot_dash_all(seasons):
     league, league_id = "NBA", "00"
-    general_range = ["Catch and Shoot", "Pull Ups", "Less than 10 ft", "Other"]
+    general_range = ['Catch and Shoot', 'Pullups', 'Less Than 10 ft']
     shot_clock = [
         "24-22",
         "22-18 Very Early",
@@ -75,7 +75,7 @@ def update_shot_dash_all(seasons):
             n += 1
         dfa = []
         for a, b, c in tqdm(product(general_range, closest_def, touch_time), total=n):
-            for i in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(0.6)):
+            # for i in Retrying(stop=stop_after_attempt(2), wait=wait_fixed(0.6)):
                 try:
                     stats = leaguedashplayerptshot.LeagueDashPlayerPtShot(
                         league_id=league_id,
@@ -91,11 +91,11 @@ def update_shot_dash_all(seasons):
                     df1["touch_time"] = c
                     dfa.append(df1)
                     time.sleep(0.6)
-                    break
+                    # break
                 except Exception as error:
                     print(error)
-                    continue
-        dfa1 = [df2 for df2 in dfa if not df2.empty]
+                    # continue
+        dfa1 = [df2.fillna(0) for df2 in dfa if not df2.empty]
         df = pd.concat(dfa1)
         df.to_parquet(shot_DIR + f"{league}_Shots_{season}_All.parquet")
 

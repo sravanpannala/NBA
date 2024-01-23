@@ -144,6 +144,15 @@ def update_box_base_p(seasons):
             df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + season + "_PS.parquet")
         except Exception as error:
             continue
+    df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
+    df2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "2023" + ".parquet")
+    df2["season"] = 2024
+    df33 = df1.query("season != 2024")
+    df3 = df1.query("season == 2024")
+    df4 = pd.concat([df2,df3])
+    df5 = df4[~df4.duplicated(keep="last")].reset_index(drop=True)
+    df6 = pd.concat([df33,df5]).reset_index(drop=True)
+    df6.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
 
 def get_box_p_cum(seasons, measure="Base", n=32):
     if measure == "Advanced":
