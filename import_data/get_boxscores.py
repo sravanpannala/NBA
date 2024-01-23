@@ -18,6 +18,7 @@ from tqdm import tqdm
 from update_data import data_DIR
 
 box_DIR = data_DIR + "box/"
+shiny_DIR = data_DIR + "shiny/"
 
 # Update BoxScores
 def get_gameids(season, name):
@@ -153,6 +154,8 @@ def update_box_base_p(seasons):
     df5 = df4[~df4.duplicated(keep="last")].reset_index(drop=True)
     df6 = pd.concat([df33,df5]).reset_index(drop=True)
     df6.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
+    df6.to_parquet(shiny_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
+    
 
 def get_box_p_cum(seasons, measure="Base", n=32):
     if measure == "Advanced":
