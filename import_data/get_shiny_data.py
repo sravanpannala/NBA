@@ -5,11 +5,13 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from update_data import data_DIR, teams_dict
+from update_data import data_DIR, teams_dict, player_dict
 
 box_DIR = data_DIR + "box/"
 shiny_DIR = data_DIR + "shiny/"
 track_DIR = data_DIR + "tracking/"
+injury_DIR = data_DIR + "injuries/"
+aio_DIR = data_DIR + "all_in_one_metrics/"
 shiny_export_DIR1 = "C:/Users/pansr/Documents/shinyNBA/data/"
 shiny_export_DIR2 = "C:/Users/pansr/Documents/shinyNBA-export/"
 
@@ -46,7 +48,7 @@ cols3 = ['game_id', 'player_id', 'team_id',
        'miles_off', 'miles_def', 'avg_speed', 'avg_speed_off',
        'avg_speed_def']
 
-def export_player_distribution(seasons):
+def export_player_distribution():
     dfa = []
     # for season in seasons:
     #     year = int(season)
@@ -158,7 +160,7 @@ cols3t = ['game_id', 'player_id', 'team_id',
        'miles_off', 'miles_def', 'avg_speed', 'avg_speed_off',
        'avg_speed_def']
 
-def export_team_distribution(seasons):
+def export_team_distribution():
     dfa = []
     # for season in seasons:
     #     year = int(season)
@@ -398,8 +400,113 @@ def export_lineups():
     df_players.to_parquet(shiny_DIR + "lineup_data.parquet")
     df_players.to_parquet(shiny_export_DIR1 + "lineup_data.parquet")
 
+def export_stat_query():
+    dfa = []
+    for year in range(1946,2024):
+        df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + str(year) + ".parquet")
+        df1[df1["WL"] == 0]["WL"] = "L"
+        df1["season"] = year+1
+        df1 = df1.fillna(0)
+        dfa.append(df1)
+    df = pd.concat(dfa)
+    df.loc[df[df["WL"] == 0].index,"WL"] = "L"
+    df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
+    df.to_parquet(shiny_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
+
+def is_injured(dfinj, pId_missed, game_date):
+    missed_games = np.array([False] * len(pId_missed))
+    for i,pId in enumerate(pId_missed):
+        df_p = dfinj.query(f'playerID == {pId}').reset_index(drop=True)
+        if len(df_p) > 0:
+            df_p["Comp"] = df_p["Date"] <= game_date
+            idxi = df_p[df_p["Comp"]].index
+            if len(idxi) > 0:
+                idx = idxi[-1]
+                missed_game = df_p["Out"].loc[idx]
+                missed_games[i] = missed_game
+    gp = missed_games*pId_missed
+    pId_m = gp[gp !=0 ]
+    # pId_m = list(pId_m)
+    return pId_m
+
+def export_Games_Missed():
+    year = 2023
+    season_str = str(year) + "-" + str(year+1)[-2:]
+    df0 = pd.read_parquet(box_DIR + f"NBA_BOX_T_Base_{year}.parquet")
+    df0= df0[["GAME_ID","TEAM_ID","GAME_DATE","MATCHUP","WL","PLUS_MINUS"]]
+    df0["GAME_ID"] = df0["GAME_ID"].astype(int)
+    # load player indvidual game boxscores
+    df1 = pd.read_parquet(box_DIR + "NBA_BOX_P_" + "Base" + "_" + str(year) + ".parquet")
+    df1["GAME_DATE"] = pd.to_datetime(df1["GAME_DATE"], format="%Y-%m-%d")
+    dfinj = pd.read_parquet(injury_DIR + f'NBA_prosptran_injuries_{year}.parquet')
+    player_list = df1["PLAYER_ID"].unique()
+    dfr = df1[["TEAM_ID","PLAYER_ID"]]
+    dfrt = dfr.groupby("TEAM_ID")
+    df2 = df1.groupby(["GAME_ID","TEAM_ID"])
+    # loop through all groups and get injured players 
+    keys = list(df2.groups)
+    dfma = []
+    for key in tqdm(keys):
+        p_played =  df2["PLAYER_ID"].get_group(key).to_numpy()
+        p_roster = dfrt["PLAYER_ID"].get_group(key[1]).to_numpy()
+        pId_missed = np.setdiff1d(p_roster,p_played)
+        game_date = df2["GAME_DATE"].get_group(key).iloc[0]
+        players_missed = is_injured(dfinj,pId_missed,game_date)
+        dfm1 = pd.DataFrame({"PLAYER_ID":players_missed})
+        dfm1["TEAM_ID"] = key[1]
+        dfm1["GAME_ID"] = key[0]
+        dfm1["GAME_DATE"] = game_date
+        dfma.append(dfm1)
+    dfm1 = pd.concat(dfma)
+    dfm1["PLAYER_ID"] = dfm1["PLAYER_ID"].astype(int)
+    dfm1["PLAYER_NAME"] = dfm1["PLAYER_ID"].map(player_dict)
+    dfm1["TEAM_NAME"] = dfm1["TEAM_ID"].map(teams_dict)
+    dflb = pd.read_csv(aio_DIR + f"NBA_LEBRON_{year}.csv")
+    dflb = dflb.rename(columns={"LEBRON_WinsAdded":"LEBRON_WAR"})
+    dflb = dflb[["PLAYER_ID","LEBRON_WAR"]]
+    dfgp = pd.read_parquet(box_DIR + f"NBA_BOX_P_Cum_Base_{year}.parquet")
+    dfgp = dfgp[["PLAYER_ID","GP","MIN"]]
+    dflm = pd.merge(dflb,dfgp,on="PLAYER_ID")
+    dflm["LBWAR_PG"] = round(dflm["LEBRON_WAR"]/dflm["GP"],4)
+    dflm = dflm[["PLAYER_ID","LBWAR_PG","MIN"]]
+    dfm = pd.merge(dfm1,dflm,on="PLAYER_ID")
+    dfmg =  (
+        dfm
+        .groupby(["GAME_ID","TEAM_ID"])[["PLAYER_ID","LBWAR_PG","MIN"]]
+        .agg({"PLAYER_ID":["count"],"MIN":["sum"],"LBWAR_PG":["sum"]})
+    )
+    dfmg.columns = ["Games_Missed","Minutes_Missed","LEBRON_WAR_Missed"]
+    dfmg = dfmg.reset_index()
+    dfmg["GAME_ID"] = dfmg["GAME_ID"].astype(int)
+    # merge team boxscores to get game details like date and matchup
+    dfmf = pd.merge(df0,dfmg,on=["GAME_ID","TEAM_ID"])
+    dfmf["Team"] = dfmf["TEAM_ID"].map(teams_dict)
+    dfmf = dfmf.drop(columns=["GAME_ID","TEAM_ID"])
+    dfmf.insert(1,"Team",dfmf.pop("Team"))
+    df_x = dfmf.groupby("Team").agg({"Games_Missed":["sum"],"Minutes_Missed":["sum"],"LEBRON_WAR_Missed":["sum"]})
+    df_x.columns = ["Games_Missed","Minutes_Missed","LEBRON_WAR_Missed"]
+    df_x = (df_x
+            .reset_index()
+            .sort_values("LEBRON_WAR_Missed",ascending=False)
+            .reset_index(drop=True)
+            .reset_index()
+        )
+    df_x["LEBRON_WAR_Missed"] = df_x["LEBRON_WAR_Missed"].round(2)
+    df_teams = pd.read_csv(data_DIR + "NBA_teams_colors_logos.csv")
+    df_teams["Team"] = df_teams["nameTeam"]
+    df_teams = df_teams[["Team","colorsTeam"]]
+    df_y = pd.merge(df_x, df_teams, on="Team")
+    teams = df_y["Team"].to_list()
+    teams.reverse()
+    df_y["Team"] = pd.Categorical(df_y['Team'], categories=teams)
+    df_y.to_parquet(shiny_DIR + "NBA_games_minutes_war_missed.parquet")
+    df_y.to_parquet(shiny_export_DIR2 + "NBA-Games-Missed/" + "NBA_games_minutes_war_missed.parquet")
+
+
 def update_shiny_data(seasons):
-    export_player_distribution(seasons)
-    export_team_distribution(seasons)
+    export_player_distribution()
+    export_team_distribution()
     get_scorigami_data()
     export_lineups()
+    export_stat_query()
+    export_Games_Missed()
