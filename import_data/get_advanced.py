@@ -20,6 +20,7 @@ cur_DIR = home_DIR + "import_data/"
 injury_DIR = data_DIR + "injuries/"
 aio_DIR = data_DIR + "all_in_one_metrics/"
 bbref_DIR = data_DIR + "bbref/"
+shiny_export_DIR2 = "C:/Users/pansr/Documents/shinyNBA-export/"
 
 def get_missing_pId(player, player_dict):
     pId = process.extract(player, player_dict, scorer=fuzz.partial_ratio, limit=1)[0][2]
@@ -108,7 +109,7 @@ def update_injury_data(seasons):
             df["Relinquished"] * ~df["Relinquished"].isna()
         ).fillna("")
         df = df[["Date", "Team", "Player", "In", "Out", "Notes"]]
-        df = df[df["Player"].str.istitle()].reset_index(drop=True)
+        # df = df[df["Player"].str.istitle()].reset_index(drop=True)
         df["Player"].loc[df["Player"].str.contains("Enes")] = "Enes Kanter"
         df["playerID"] = df["Player"].map(pID_dict)
         df1 = df.copy()
@@ -123,6 +124,9 @@ def update_injury_data(seasons):
         df3.to_csv(csv_export_DIR + f"NBA_prosptran_injuries_{year}.csv", index=False)
         df3.to_parquet(
             injury_DIR + f"NBA_prosptran_injuries_{year}.parquet"
+        )
+        df3.to_parquet(
+            shiny_export_DIR2 + "NBA-Games-Missed/" + f"NBA_prosptran_injuries_{year}.parquet"
         )
 
 

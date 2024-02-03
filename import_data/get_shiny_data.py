@@ -412,6 +412,17 @@ def export_stat_query():
     df.loc[df[df["WL"] == 0].index,"WL"] = "L"
     df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
     df.to_parquet(shiny_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
+    dfa = []
+    for year in range(1946,2024):
+        df1 = pd.read_parquet(box_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + str(year) + ".parquet")
+        df1["season"] = year+1
+        df1 = df1.fillna(0)
+        dfa.append(df1)
+    dfa1 = [df2 for df2 in dfa if not df2.empty]
+    df = pd.concat(dfa1)
+    df.to_parquet(box_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
+    df.to_parquet(shiny_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
+    df.to_parquet(shiny_export_DIR1 + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
 
 def is_injured(dfinj, pId_missed, game_date):
     missed_games = np.array([False] * len(pId_missed))
@@ -462,7 +473,7 @@ def export_Games_Missed():
     dfm1["PLAYER_NAME"] = dfm1["PLAYER_ID"].map(player_dict)
     dfm1["TEAM_NAME"] = dfm1["TEAM_ID"].map(teams_dict)
     dflb = pd.read_csv(aio_DIR + f"NBA_LEBRON_{year}.csv")
-    dflb = dflb.rename(columns={"LEBRON_WinsAdded":"LEBRON_WAR"})
+    dflb = dflb.rename(columns={"LEBRON WAR":"LEBRON_WAR"})
     dflb = dflb[["PLAYER_ID","LEBRON_WAR"]]
     dfgp = pd.read_parquet(box_DIR + f"NBA_BOX_P_Cum_Base_{year}.parquet")
     dfgp = dfgp[["PLAYER_ID","GP","MIN"]]
@@ -489,18 +500,25 @@ def export_Games_Missed():
             .reset_index()
             .sort_values("LEBRON_WAR_Missed",ascending=False)
             .reset_index(drop=True)
-            .reset_index()
         )
     df_x["LEBRON_WAR_Missed"] = df_x["LEBRON_WAR_Missed"].round(2)
     df_teams = pd.read_csv(data_DIR + "NBA_teams_colors_logos.csv")
     df_teams["Team"] = df_teams["nameTeam"]
     df_teams = df_teams[["Team","colorsTeam"]]
     df_y = pd.merge(df_x, df_teams, on="Team")
-    teams = df_y["Team"].to_list()
+    df_avg = df_y.iloc[:,1:-1].mean()
+    df_avg = pd.DataFrame(df_avg).T
+    df_avg["Games_Missed"] = df_avg["Games_Missed"].round(0)
+    df_avg["Minutes_Missed"] = df_avg["Minutes_Missed"].round(1)
+    df_avg["LEBRON_WAR_Missed"] = df_avg["LEBRON_WAR_Missed"].round(2)
+    df_avg["Team"] = "League Average"
+    df_avg["colorsTeam"]  = "#000000"
+    df_z = pd.concat([df_y,df_avg]).sort_values("LEBRON_WAR_Missed",ascending=False).reset_index(drop=True)
+    teams = df_z["Team"].to_list()
     teams.reverse()
-    df_y["Team"] = pd.Categorical(df_y['Team'], categories=teams)
-    df_y.to_parquet(shiny_DIR + "NBA_games_minutes_war_missed.parquet")
-    df_y.to_parquet(shiny_export_DIR2 + "NBA-Games-Missed/" + "NBA_games_minutes_war_missed.parquet")
+    df_z["Team"] = pd.Categorical(df_z['Team'], categories=teams)
+    df_z.to_parquet(shiny_DIR + "NBA_games_minutes_war_missed.parquet")
+    df_z.to_parquet(shiny_export_DIR2 + "NBA-Games-Missed/" + "NBA_games_minutes_war_missed.parquet")
 
 
 def update_shiny_data(seasons):
