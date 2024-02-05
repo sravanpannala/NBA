@@ -50,9 +50,9 @@ cols3 = ['game_id', 'player_id', 'team_id',
 
 def export_player_distribution():
     dfa = []
-    # for season in seasons:
-    #     year = int(season)
-    for year in tqdm(range(2004,2024)):
+    for season in [2023]:
+        year = int(season)
+    # for year in tqdm(range(2004,2024)):
         season = str(year)
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + ".parquet", columns = cols1)
         df1["GAME_ID"] = df1["GAME_ID"].astype(int)
@@ -119,13 +119,15 @@ def export_player_distribution():
     df1 = df1.fillna(0)
     df1 = df1[df1["Pace"] > 60]
     df1 = df1.sort_values(by=["Player","Game Date"]).reset_index(drop=True)
-    df1.to_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
-    df1.to_parquet(shiny_export_DIR1 + "NBA_Player_Distribution.parquet")
-    df1.to_parquet(shiny_export_DIR2 + "NBA-Distributions/" + "NBA_Player_Distribution.parquet")
-    # df2 = pd.read_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
-    # df3 = pd.concat([df2,df1])
-    # df4 = df3[~df3.duplicated(keep="last")].reset_index(drop=True)
-    # df4.to_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
+    # df1.to_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
+    # df1.to_parquet(shiny_export_DIR1 + "NBA_Player_Distribution.parquet")
+    # df1.to_parquet(shiny_export_DIR2 + "NBA-Distributions/" + "NBA_Player_Distribution.parquet")
+    df2 = pd.read_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
+    df3 = pd.concat([df2,df1])
+    df4 = df3[~df3.duplicated(subset=["Player ID","Team ID","Game ID"],keep="last")].reset_index(drop=True)
+    df4.to_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
+    df4.to_parquet(shiny_export_DIR1 + "NBA_Player_Distribution.parquet")
+    df4.to_parquet(shiny_export_DIR2 + "NBA-Distributions/" + "NBA_Player_Distribution.parquet")
 
 cols1t = ['TEAM_ID', 'TEAM_ABBREVIATION', 'TEAM_NAME', 'GAME_ID', 'GAME_DATE','MIN', 'FGM',
        'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT',
@@ -162,9 +164,9 @@ cols3t = ['game_id', 'player_id', 'team_id',
 
 def export_team_distribution():
     dfa = []
-    # for season in seasons:
-    #     year = int(season)
-    for year in tqdm(range(2004,2024)):
+    for season in [2023]:
+        year = int(season)
+    # for year in tqdm(range(2004,2024)):
         season = str(year)
         df1 = pd.read_parquet(box_DIR + "NBA_Box_T_" + "Base_"  + season + ".parquet", columns=cols1t)
         df1["GAME_ID"] = df1["GAME_ID"].astype(int)
@@ -236,13 +238,14 @@ def export_team_distribution():
     df1 = df1[df1["Pace"] > 60]
     df1["Team"] = df1["Team ID"].map(teams_dict)
     df1 = df1.sort_values(by=["Team","Game Date"]).reset_index(drop=True)
-    df1.to_parquet(shiny_DIR + "NBA_Team_Distribution.parquet")
-    df1.to_parquet(shiny_export_DIR1 + "NBA_Team_Distribution.parquet")
+    # df1.to_parquet(shiny_DIR + "NBA_Team_Distribution.parquet")
+    # df1.to_parquet(shiny_export_DIR1 + "NBA_Team_Distribution.parquet")
     # df1.to_parquet(shiny_export_DIR2 + "NBA-Distributions/" + "NBA_Team_Distribution.parquet")
-    # df2 = pd.read_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
-    # df3 = pd.concat([df2,df1])
-    # df4 = df3[~df3.duplicated(keep="last")].reset_index(drop=True)
-    # df4.to_parquet(shiny_DIR + "NBA_Player_Distribution.parquet")
+    df2 = pd.read_parquet(shiny_DIR + "NBA_Team_Distribution.parquet")
+    df3 = pd.concat([df2,df1])
+    df4 = df3[~df3.duplicated(subset=["Team ID","Game ID"],keep="last")].reset_index(drop=True)
+    df4.to_parquet(shiny_DIR + "NBA_Team_Distribution.parquet")
+    df4.to_parquet(shiny_export_DIR1 + "NBA_Team_Distribution.parquet")
 
 def get_scorigami_data():
     dfa = []
@@ -391,7 +394,7 @@ def export_lineups():
             df_players1 = df_players1.rename(columns={"index":"id"})
             df_players1["team"] = team
             df_players1["season"] = season
-            time.sleep(0.5)
+            time.sleep(0.1)
             dfa.append(df_players1)
     df_players = pd.concat(dfa)
     df_players = pd.merge(df_players,df_teams,left_on="team", right_on="id")
@@ -412,17 +415,54 @@ def export_stat_query():
     df.loc[df[df["WL"] == 0].index,"WL"] = "L"
     df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
     df.to_parquet(shiny_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
+    # dfa = []
+    # for year in range(1946,2024):
+    #     df1 = pd.read_parquet(box_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + str(year) + ".parquet")
+    #     df1["season"] = year+1
+    #     df1 = df1.fillna(0)
+    #     dfa.append(df1)
+    # dfa1 = [df2 for df2 in dfa if not df2.empty]
+    # df = pd.concat(dfa1)
+    # df.to_parquet(box_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
+    # df.to_parquet(shiny_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
+    # df.to_parquet(shiny_export_DIR1 + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
+    cols_i = ['GP', 'W', 'L', 'MIN', 'FGM', 'FGA', 'FG_PCT', 
+        'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT','OREB', 'DREB', 'REB', 
+        'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS','PLUS_MINUS']
     dfa = []
-    for year in range(1946,2024):
-        df1 = pd.read_parquet(box_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + str(year) + ".parquet")
-        df1["season"] = year+1
+    for year in [2023]:
+        df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + str(year) + ".parquet")
         df1 = df1.fillna(0)
-        dfa.append(df1)
-    dfa1 = [df2 for df2 in dfa if not df2.empty]
-    df = pd.concat(dfa1)
-    df.to_parquet(box_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
-    df.to_parquet(shiny_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
-    df.to_parquet(shiny_export_DIR1 + "NBA_Box_P_Lead_" + "Base" + "_" + "All" + ".parquet")
+        df1[df1["WL"] == 0]["WL"] = "L"
+        df1g = df1.groupby(["PLAYER_ID","PLAYER_NAME","TEAM_ID","TEAM_NAME"])
+        keys = list(df1g.groups)
+        dfb = []
+        for key in keys:
+            dfi = df1g.get_group(key)
+            dfi["GP"] = 1
+            dfi["W"] = np.where(dfi["WL"] == "W",1,0)
+            dfi["L"] = np.where(dfi["WL"] == "L",1,0)
+            dfi1 = dfi[cols_i]
+            dfii = pd.DataFrame(dfi1.sum()).T
+            dfii.iloc[:,3:] = dfii.iloc[:,3:]/dfii["GP"][0]
+            dfii.iloc[:,3:] = dfii.iloc[:,3:].round(2)
+            dfii["FG_PCT"] = round(dfii["FGM"]/dfii["FGA"],3)
+            dfii["FG3_PCT"] = round(dfii["FG3M"]/dfii["FG3A"],3)
+            dfii["FT_PCT"] = round(dfii["FTM"]/dfii["FTA"],3)
+            dfii[["PLAYER_ID", "PLAYER_NAME", "TEAM_ID", "TEAM_NAME"]] = list(key)
+            dfb.append(dfii)
+        dfb = pd.concat(dfb)
+        dfb["season"] = year + 1
+        dfa.append(dfb)
+    dfa = pd.concat(dfa)
+    df1 = dfa.replace([np.inf, -np.inf], np.nan)
+    df1 = df1.fillna(0).reset_index(drop=True)
+    df2 = pd.read_parquet(shiny_DIR + "NBA_Box_P_Cum_Base_All.parquet")
+    df3 = pd.concat([df2,df1])
+    df4 = df3[~df3.duplicated(subset=["PLAYER_ID","TEAM_ID","season"],keep="last")].reset_index(drop=True)
+    df4.to_parquet(shiny_DIR + "NBA_Box_P_Cum_Base_All.parquet")
+    df4.to_parquet(shiny_export_DIR1 + "NBA_Box_P_Cum_Base_All.parquet")
+    
 
 def is_injured(dfinj, pId_missed, game_date):
     missed_games = np.array([False] * len(pId_missed))

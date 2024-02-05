@@ -116,6 +116,9 @@ def get_pID(player, league="NBA"):
     pID = pID_dict.get(player, np.nan)
     return pID
 
+def get_ss(year):
+    season_str = str(year) + "-" + str(year+1)[-2:]
+    return season_str
 
 # function to get player info as dictionary using NBA database
 def get_players(league="NBA", from_year=2020, to_year=2020):

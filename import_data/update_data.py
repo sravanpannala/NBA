@@ -175,12 +175,12 @@ def main():
     if bool_shot:
         # Update Shot Dashboard
         print("Shot Dashboard")
-        update_shot_dash(seasons)
+        # update_shot_dash(seasons)
         update_shot_dash_all(seasons)
         # Update Shot Details
         print("Shot Details PBP")
-        update_shotdetails_pbp(seasons)
-        update_shotdetails_nba(seasons)
+        # update_shotdetails_pbp(seasons)
+        # update_shotdetails_nba(seasons)
 
     if bool_adv:
         # Update Injury Data
