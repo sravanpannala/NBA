@@ -39,6 +39,7 @@ from plotnine import xlim, scale_x_continuous, scale_x_discrete, scale_x_date
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
 from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
 from plotnine import scale_fill_manual
+from plotnine import theme_xkcd
 
 import great_tables as gt
 import imgkit
@@ -75,7 +76,7 @@ theme_sra += theme(
     axis_title_y=element_text(size=12),
 )
 
-theme_idv = themes.theme_xkcd(base_size=12)
+theme_idv = theme_xkcd(base_size=12)
 theme_idv += theme(
     plot_title=element_text(face="bold", size=16),
 )
