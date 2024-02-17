@@ -158,7 +158,7 @@ def main():
         if bool_cum:
             update_box_base_t(seasons)
             update_box_base_p(seasons)
-            # update_box_p_cum(seasons)
+            update_box_p_cum(seasons)
         if bool_idv:
             for season in seasons:
                 print(season)

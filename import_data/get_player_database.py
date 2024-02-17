@@ -14,7 +14,7 @@ def update_player_database():
     season_str = season + "-" + str(int(season)+1)[-2:]
     league_id = "00"
     league = "NBA"
-    stats = commonallplayers.CommonAllPlayers( league_id=league_id, season=season, is_only_current_season=False)
+    stats = commonallplayers.CommonAllPlayers(league_id=league_id, season=season, is_only_current_season=["0"])
     df = stats.get_data_frames()[0]
     df["PERSON_ID"] = df["PERSON_ID"].astype(int)
     df["FROM_YEAR"] = df["FROM_YEAR"].astype(int)
@@ -30,10 +30,8 @@ def update_player_database():
     data = df[["pID", "Name", "From", "To"]]
     data.to_csv(data_DIR + f"{league}_players_database.csv", index=False)
 
-
     stats = playerindex.PlayerIndex(league_id = "00", season =season_str)
     df = stats.get_data_frames()[0]
-    print(df.columns)
     df = df.query("ROSTER_STATUS == 1").reset_index(drop=True)
     df.to_parquet(roster_DIR + "NBA_Team_Rosters" + "_" + season + ".parquet")
 

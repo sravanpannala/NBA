@@ -1281,6 +1281,7 @@ pID,Name,From,To
 76686,Mike Evans,1979,1987
 2501,Reggie Evans,2002,2014
 201936,Tyreke Evans,2009,2018
+1641787,Tosan Evbuomwan,2023,2023
 101137,Daniel Ewing,2005,2006
 121,Patrick Ewing,1985,2001
 201607,Patrick Ewing,2010,2010
@@ -1346,6 +1347,7 @@ pID,Name,From,To
 76720,Bob Fitzgerald,1946,1948
 76719,Dick Fitzgerald,1946,1947
 2033,Marcus Fizer,2000,2005
+1641745,Adam Flagler,2023,2023
 76721,Jerry Fleishman,1946,1952
 76722,Al Fleming,1977,1977
 76723,Ed Fleming,1955,1959
@@ -1674,6 +1676,7 @@ pID,Name,From,To
 76901,Petur Gudmundsson,1981,1988
 1629741,Marko Guduric,2019,2019
 76902,Richie Guerin,1956,1969
+1631338,Mouhamadou Gueye,2023,2023
 1631243,Mouhamed Gueye,2023,2023
 339,Tom Gugliotta,1992,2004
 76903,Andres Guibert,1993,1994
@@ -1693,7 +1696,7 @@ pID,Name,From,To
 76911,Scott Haffner,1989,1990
 76912,Cliff Hagan,1956,1965
 76913,Glenn Hagan,1981,1981
-1630204,Ashton Hagans,2020,2020
+1630204,Ashton Hagans,2020,2023
 76914,Bob Hahn,1949,1949
 76915,Al Hairston,1968,1969
 76916,Happy Hairston,1964,1974
@@ -2036,6 +2039,7 @@ pID,Name,From,To
 1626205,Vincent Hunter,2017,2017
 310,Bobby Hurley,1993,1997
 77086,Roy Hurley,1946,1946
+1630562,Matt Hurt,2023,2023
 77087,Geoff Huston,1979,1986
 77088,Paul Huston,1947,1947
 77089,Mel Hutchins,1951,1957
@@ -2137,6 +2141,7 @@ pID,Name,From,To
 2210,Richard Jefferson,2001,2017
 1629610,DaQuan Jeffries,2019,2023
 2407,Jared Jeffries,2002,2012
+1641998,Trey Jemison,2023,2023
 202724,Charles Jenkins,2011,2012
 2798,Horace Jenkins,2004,2004
 203098,John Jenkins,2012,2018
@@ -2268,7 +2273,7 @@ pID,Name,From,To
 77189,Major Jones,1979,1984
 2891,Mark Jones,1983,2004
 90000,Mark Jones,1983,1983
-1630222,Mason Jones,2020,2021
+1630222,Mason Jones,2020,2023
 77195,Nick Jones,1967,1971
 77191,Ozell Jones,1984,1985
 461,Popeye Jones,1993,2003
@@ -2422,7 +2427,7 @@ pID,Name,From,To
 1628995,Kevin Knox II,2018,2023
 77294,Bart Kofoed,1987,1992
 77295,Don Kojis,1963,1974
-1631132,Christian Koloko,2022,2023
+1631132,Christian Koloko,2022,2022
 77296,Milo Komenich,1949,1949
 77297,Howard Komives,1964,1973
 402,Jon Koncak,1985,1995
@@ -3044,6 +3049,7 @@ pID,Name,From,To
 1630,Mikki Moore,1998,2011
 77636,Otto Moore,1968,1976
 77637,Ron Moore,1987,1987
+1631386,Taze Moore,2023,2023
 929,Tracy Moore,1991,1996
 1631111,Wendell Moore Jr.,2022,2023
 1629630,Ja Morant,2019,2023
@@ -3138,6 +3144,7 @@ pID,Name,From,To
 1924,Lee Nailon,2000,2005
 2059,Eduardo Najera,2000,2011
 77685,Larry Nance,1981,1993
+1631250,Pete Nance,2023,2023
 1626204,Larry Nance Jr.,2015,2023
 203894,Shabazz Napier,2014,2019
 77686,Paul Napolitano,1948,1948
@@ -3275,7 +3282,7 @@ pID,Name,From,To
 1630171,Isaac Okoro,2020,2023
 1629644,KZ Okpala,2019,2022
 2246,Mehmet Okur,2002,2011
-203506,Victor Oladipo,2013,2023
+203506,Victor Oladipo,2013,2022
 165,Hakeem Olajuwon,1984,2002
 77756,Mark Olberding,1976,1986
 77757,Jawann Oldham,1980,1990
@@ -4075,7 +4082,7 @@ pID,Name,From,To
 2604,Theron Smith,2003,2004
 380,Tony Smith,1990,2000
 78208,Willie Smith,1976,1979
-1629015,Zhaire Smith,2018,2019
+1629015,Zhaire Smith,2018,2023
 1628372,Dennis Smith Jr.,2017,2023
 1631095,Jabari Smith Jr.,2022,2023
 1641733,Nick Smith Jr.,2023,2023
@@ -4692,7 +4699,7 @@ pID,Name,From,To
 2366,Mike Wilks,2002,2009
 1425,Aaron Williams,1993,2007
 1626210,Alan Williams,2015,2018
-1631214,Alondes Williams,2022,2022
+1631214,Alondes Williams,2022,2023
 1541,Alvin Williams,1997,2006
 78539,Arthur Williams,1967,1973
 78540,Bernie Williams,1969,1970
@@ -4803,7 +4810,7 @@ pID,Name,From,To
 112,Dontonio Wingfield,1994,1997
 78596,Harthorne Wingo,1972,1975
 78597,Marv Winkler,1970,1970
-1626159,Justise Winslow,2015,2022
+1626159,Justise Winslow,2015,2023
 1984,Rickie Winslow,1987,1987
 1630216,Cassius Winston,2020,2021
 1868,Trevor Winter,1998,1998

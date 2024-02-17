@@ -260,7 +260,7 @@ def get_scorigami_data():
     df = df.rename(columns=str.title)
     df = df.rename(columns={"Player_Name":"Player",'Player_Id':'Player ID'})
     df = df.reset_index(drop=True)
-
+    df["Game_Date"] = pd.to_datetime(df["Game_Date"], format="%Y-%m-%d")
     df1 = df.copy()
     df1["Pts_cat"] = 0
     idx = df1.index[((df1["Pts"] >= 10) & (df1["Pts"] < 20))].tolist()
@@ -413,6 +413,7 @@ def export_stat_query():
         dfa.append(df1)
     df = pd.concat(dfa)
     df.loc[df[df["WL"] == 0].index,"WL"] = "L"
+    df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], format="%Y-%m-%d")
     df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
     df.to_parquet(shiny_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
     # dfa = []
