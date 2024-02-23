@@ -16,6 +16,7 @@ from update_data import data_DIR, pbp_DIR, player_dict
 
 shot_DIR = data_DIR + "shots/"
 shotloc_DIR = data_DIR + "ShotLocationData/"
+pbp_loc_DIR = data_DIR + "pbpdata/"
 
 def update_shot_dash(seasons):
     league, league_id = "NBA", "00"
@@ -217,7 +218,7 @@ def update_shotdetails_pbp(seasons):
         )
         games_list = pbp_games(games_id, data_provider=data_provider)
         print("Compressing PBP Data")
-        filename = pbp_DIR + league + "_PBPdata_" + season + ".pkl.zst"
+        filename = pbp_loc_DIR + league + "_PBPdata_" + season + ".pkl.zst"
         print(filename)
         with zstd.open(filename, "wb") as f:
             dill.dump(games_list, f)

@@ -147,6 +147,11 @@ def main():
     parse_function()
 
     seasons = np.arange(season_start, season_end, 1).astype(str)
+
+    if bool_db:
+        print("Update Player DB")
+        update_player_database()
+
     # Update pbp Data
     if bool_pbp:
         print("Update PBP Data")
@@ -201,9 +206,7 @@ def main():
         print("Update Shiny Data")
         update_shiny_data(seasons)
 
-    if bool_db:
-        print("Update Player DB")
-        update_player_database()
+    
 
 if __name__ == "__main__":
     main()
