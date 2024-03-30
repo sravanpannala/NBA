@@ -61,7 +61,7 @@ warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
 pd.options.mode.chained_assignment =  None
 
-sns.set(style="whitegrid")
+sns.set_theme(style="whitegrid")
 
 theme_sra = themes.theme_538(base_size=9, base_family="Tahoma")
 theme_sra += theme(

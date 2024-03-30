@@ -1,5 +1,6 @@
 import pandas as pd
 import scipy
+import json
 import numpy as np
 from sklearn.linear_model import RidgeCV
 from nba_api.stats.endpoints import leaguegamelog
@@ -8,6 +9,7 @@ import subprocess
 data_DIR = "C:/Users/pansr/Documents/NBA/data/"
 
 box_DIR = data_DIR + "box/"
+shot_DIR = data_DIR + "shots/"
 
 export_DIR = "C:/Users/pansr/Documents/repos/csv/"
 
@@ -16,6 +18,10 @@ teams_list = team_data["TeamID"].tolist()
 team_dict1 = team_data.to_dict(orient="records")
 teams_dict = {team["TeamID"]: team["Team"] for team in team_dict1}
 
+with open(data_DIR + "NBA.json") as f:
+    data = json.load(f)
+pID_dict = {v: int(k) for k, v in data.items()}
+player_dict = {int(k): v for k, v in data.items()}
 
 def get_ratings(season=2023):
     df1 = pd.read_parquet(box_DIR + f"NBA_Box_T_Adv_{season}.parquet")
@@ -185,6 +191,72 @@ results["aNET_R"] = results["aNET"].rank(ascending=False).astype(int)
 
 results.to_csv(export_DIR + "NBA_Adj_Ratings_2023_2024.csv", index=False)
 
+season = "2023"
+dft = pd.read_parquet(box_DIR + f"NBA_Box_P_Cum_Base_"+season+".parquet", columns = ["PLAYER_ID","TEAM_ID"])
+df = pd.read_parquet(shot_DIR + f"NBA_Shots_{season}_All.parquet")
+
+df = df[["PLAYER_ID","PLAYER_NAME","PLAYER_LAST_TEAM_ID","FGM","FGA","FG2M","FG2A","FG3M","FG3A", 'general_range', 'closest_def', 'touch_time']]
+df = df.query("general_range != 'Other'")
+df_avg = df.groupby(['general_range', 'closest_def', 'touch_time']).sum()
+df_avg = df_avg.drop(columns= ["PLAYER_ID","PLAYER_NAME","PLAYER_LAST_TEAM_ID"])
+df_avg["xFG2"] = df_avg["FG2M"]/df_avg["FG2A"]
+df_avg["xFG3"] = df_avg["FG3M"]/df_avg["FG3A"]
+df_avg = df_avg.drop(columns =["FGM","FGA","FG2M","FG2A","FG3M","FG3A"])
+df_avg = df_avg.reset_index()
+
+shots = pd.merge(df,df_avg,on=['general_range', 'closest_def', 'touch_time'])
+shots["FG2_PCT"] = shots["FG2M"]/shots["FG2A"]
+shots["FG3_PCT"] = shots["FG3M"]/shots["FG3A"]
+shots = shots.replace([np.inf, -np.inf], np.nan)
+shots = shots.fillna(0)
+shots["PTS2"] =  (2*shots["FG2A"]*shots["FG2_PCT"]).round(2)
+shots["PTS3"] =  (3*shots["FG3A"]*shots["FG3_PCT"]).round(2)
+shots["PTS"] =  (2*shots["FG2A"]*shots["FG2_PCT"] + 3*shots["FG3A"]*shots["FG3_PCT"]).round(2)
+shots["xPTS2"] = (2*shots["FG2A"]*shots["xFG2"]).round(2)
+shots["xPTS3"] = (3*shots["FG3A"]*shots["xFG3"]).round(2)
+shots["xPTS"] = (2*shots["FG2A"]*shots["xFG2"] + 3*shots["FG3A"]*shots["xFG3"]).round(2)
+
+fg = (
+    shots
+    .groupby(['PLAYER_ID'])[['FG2M', 'FG2A', 'FG3M', 'FG3A', 'FGM', 'FGA', 'PTS2', 'PTS3', 'PTS', 'xPTS2', 'xPTS3', 'xPTS']]
+    .sum()
+)
+fg.columns = ['FG2M', 'FG2A', 'FG3M', 'FG3A','FGM', 'FGA', 'PTS2', 'PTS3', 'PTS', 'xPTS2', 'xPTS3', 'xPTS']
+fg['FG2_PCT'] = np.round(fg['FG2M']/fg['FG2A'], 3)
+fg['FG3_PCT'] = np.round(fg['FG3M']/fg['FG3A'], 3)
+fg['eFG'] = np.round(fg['PTS']/fg['FGA']/2, 3)
+fg['xeFG'] = np.round(fg['xPTS']/fg['FGA']/2, 3)
+fg['Shot_Making2'] = np.round((fg['PTS2'] - fg['xPTS2'])/fg['FG2A'], 3)
+fg['Shot_Making3'] = np.round((fg['PTS3'] - fg['xPTS3'])/fg['FG3A'], 3)
+fg['Shot_Making'] = np.round((fg['PTS'] - fg['xPTS'])/fg['FGA'], 3)
+# fg = fg.drop(columns=['FGM', 'FGA'])
+fg = fg.fillna(0)
+# fg = pd.merge(dfd,fg,on=["PLAYER_ID"])
+fg["Points_Added2"] = fg['PTS2'] - fg['xPTS2']
+fg["Points_Added3"] = fg['PTS3'] - fg['xPTS3']
+fg["Points_Added"] = fg['PTS'] - fg['xPTS']
+fg["PTS"] = fg["PTS"].astype(int)
+fg = fg.reset_index()
+fg["Player"] = fg["PLAYER_ID"].map(player_dict)
+fg.insert(1,"Player",fg.pop("Player"))
+fg = pd.merge(fg,dft,on="PLAYER_ID")
+fg["Team"] = fg["TEAM_ID"].map(teams_dict)
+fg.insert(2,"Team",fg.pop("Team"))
+fg[['Points_Added']] = fg[['Points_Added']].round(1)
+fg[['Shot_Making']] = fg[['Shot_Making']].round(3)
+fg1 = fg.drop(columns=["TEAM_ID",'FGM', 'FGA', 'FG2M', 'FG2A',
+       'FG3M', 'FG3A',])
+fg1 = fg1[['Player', 'Team', 'PLAYER_ID', 
+            'PTS2', 'xPTS2', 'FG2_PCT', 'Shot_Making2', 'Points_Added2', 
+            'PTS3', 'xPTS3', 'FG3_PCT', 'Shot_Making3', 'Points_Added3', 
+            'PTS', 'xPTS', 'eFG', 'xeFG', 'Shot_Making', 'Points_Added'
+       ]]
+fg1[['xPTS2','Points_Added2','xPTS3','Points_Added3',]] = fg1[['xPTS2','Points_Added2','xPTS3','Points_Added3',]].round(2)
+fg1[['xPTS','Points_Added',]] = fg1[['xPTS','Points_Added']].round(2)
+fg1 = fg1.query("PTS >= 100").reset_index(drop=True)
+fg1.to_csv(export_DIR + "NBA_Shot_Quality_V2.csv")
+
+
 subprocess.run(["git", "add", "."], cwd=export_DIR)
-subprocess.run(["git", "commit", "-m", "update csv adj rating and injury db"], cwd=export_DIR)
+subprocess.run(["git", "commit", "-m", "update adj rat, injury & SSQM"], cwd=export_DIR)
 subprocess.run(["git", "push"], cwd=export_DIR)

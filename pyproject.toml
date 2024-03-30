@@ -50,6 +50,8 @@ colormaps = "^0.4.1"
 openai = "^1.7.2"
 sportypy = "^1.0.0"
 sportsdataverse = "^0.0.39"
+boto3 = "^1.34.49"
+lets-plot = "^4.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
