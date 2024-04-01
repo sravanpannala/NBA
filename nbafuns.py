@@ -28,7 +28,7 @@ import plotly.express as px
 import seaborn as sns
 from plotnine import ggplot, aes, ggsave, themes, theme, labs
 from plotnine import geom_point, geom_line, geom_hline, geom_vline
-from plotnine import geom_bar, geom_smooth
+from plotnine import geom_bar, geom_smooth, geom_abline
 from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
 from plotnine import geom_jitter, geom_dotplot, geom_segment
 from plotnine import geom_text, annotate
@@ -40,6 +40,9 @@ from plotnine import scale_color_manual, scale_color_discrete, scale_color_ident
 from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
 from plotnine import scale_fill_manual
 from plotnine import theme_xkcd
+from plotnine.geoms.geom import geom
+from plotnine.doctools import document
+from mizani.formatters import percent_format
 
 import great_tables as gt
 import imgkit
@@ -48,7 +51,7 @@ hti = Html2Image()
 
 import nba_api
 from nba_api.stats.static import teams as nba_teams
-from nba_api.stats.endpoints import leaguegamelog
+from nba_api.stats.endpoints import leaguegamelog, leaguedashteamstats
 from pbpstats.client import Client
 from pbpstats.resources.enhanced_pbp import Foul, Turnover, FieldGoal, Rebound
 
@@ -920,6 +923,49 @@ def render_mpl_table(
             cell.set_facecolor(row_colors[k[0] % len(row_colors)])
     fig.set_facecolor("#fc8662")
     return ax.get_figure(), ax
+
+@document
+class geom_image(geom):
+    """
+    Plot Images with plotnine
+    Based on geom_point 
+    Instead of points, plots images at those points
+
+    Args:
+        geom : ggplot geom
+    """    
+    DEFAULT_AES = {"zoom": 0.1}#, "color": None, "fill": "#333333",
+                   #"linetype": "solid", "size": 0.5 }
+    DEFAULT_PARAMS = {"stat": "identity", "position": "identity",
+                      "na_rm": False} # no idea if I need this
+    REQUIRED_AES = {"x", "y","image"} # just need an image column
+
+    def draw_panel(self, data, panel_params, coord, ax, **params):
+        """
+        assume only one image per panel,
+        """
+        self.draw_unit(data, panel_params, coord, ax, **params)
+    
+    @staticmethod
+    def draw_group(data, panel_params, coord, ax, **params):
+        data = coord.transform(data, panel_params)
+        units = "shape"
+        for _, udata in data.groupby(units, dropna=False):
+            udata.reset_index(inplace=True, drop=True)
+            geom_image.draw_unit(udata, panel_params, coord, ax, **params)
+    
+    @staticmethod
+    def draw_unit(data, panel_params, coord, ax, **params):
+        for i in range(len(data)):
+            img = data["image"].iloc[i]
+            zoom = data["zoom"].iloc[i]
+            ab = AnnotationBbox(
+                OffsetImage(plt.imread(img), zoom=zoom),
+                (data["x"].iloc[i], data["y"].iloc[i]),
+                frameon=False,
+            )
+            ax.add_artist(ab)
+
 
 
 # Obsolete code from other places
