@@ -11,6 +11,7 @@ from datetime import datetime
 from time import perf_counter
 import json
 from IPython.display import clear_output
+from IPython.core.display import HTML
 from collections import Counter
 import operator
 from functools import reduce
@@ -32,7 +33,7 @@ from plotnine import geom_bar, geom_smooth, geom_abline
 from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
 from plotnine import geom_jitter, geom_dotplot, geom_segment
 from plotnine import geom_text, annotate
-from plotnine import element_rect, element_blank, element_text
+from plotnine import element_rect, element_blank, element_text, element_line
 from plotnine import coord_flip, lims, guides, coord_cartesian
 from plotnine import ylim, scale_y_continuous, scale_y_reverse
 from plotnine import xlim, scale_x_continuous, scale_x_discrete, scale_x_date
@@ -967,6 +968,11 @@ class geom_image(geom):
             ax.add_artist(ab)
 
 
+def path_to_image_html(path,width=60):
+    str1 = '<img src="'
+    str2 = path
+    str3 = f'" width="' + f'{width}' + '" >'
+    return str1 + str2 + str3
 
 # Obsolete code from other places
 
