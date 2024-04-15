@@ -264,83 +264,83 @@ def get_scorigami_data():
     df1 = df.copy()
     df1["Pts_cat"] = 0
     idx = df1.index[((df1["Pts"] >= 10) & (df1["Pts"] < 20))].tolist()
-    df1["Pts_cat"].loc[idx] = 1
+    df1.loc["Pts_cat",idx] = 1
     idx = df1.index[((df1["Pts"] >= 20) & (df1["Pts"] < 30))].tolist()
-    df1["Pts_cat"].loc[idx] = 2
+    df1.loc["Pts_cat",idx] = 2
     idx = df1.index[((df1["Pts"] >= 30) & (df1["Pts"] < 40))].tolist()
-    df1["Pts_cat"].loc[idx] = 3
+    df1.loc["Pts_cat",idx] = 3
     idx = df1.index[(df1["Pts"] >= 40)].tolist()
-    df1["Pts_cat"].loc[idx] = 4
+    df1.loc["Pts_cat",idx] = 4
 
     df1["Ast_cat"] = 0
     idx = df1.index[((df1["Ast"] > 0) & (df1["Ast"] < 5))].tolist()
-    df1["Ast_cat"].loc[idx] = 1
+    df1.loc["Ast_cat",idx] = 1
     idx = df1.index[((df1["Ast"] >= 5) & (df1["Ast"] < 10))].tolist()
-    df1["Ast_cat"].loc[idx] = 2
+    df1.loc["Ast_cat",idx] = 2
     idx = df1.index[((df1["Ast"] >= 10) & (df1["Ast"] < 15))].tolist()
-    df1["Ast_cat"].loc[idx] = 3
+    df1.loc["Ast_cat",idx] = 3
     idx = df1.index[(df1["Ast"] >= 15)].tolist()
-    df1["Ast_cat"].loc[idx] = 4
+    df1.loc["Ast_cat",idx] = 4
 
     df1["Reb_cat"] = 0
     idx = df1.index[((df1["Reb"] > 0) & (df1["Reb"] < 5))].tolist()
-    df1["Reb_cat"].loc[idx] = 1
+    df1.loc["Reb_cat",idx] = 1
     idx = df1.index[((df1["Reb"] >= 5) & (df1["Reb"] < 10))].tolist()
-    df1["Reb_cat"].loc[idx] = 2
+    df1.loc["Reb_cat",idx] = 2
     idx = df1.index[((df1["Reb"] >= 10) & (df1["Reb"] < 15))].tolist()
-    df1["Reb_cat"].loc[idx] = 3
+    df1.loc["Reb_cat",idx] = 3
     idx = df1.index[(df1["Reb"] >= 15)].tolist()
-    df1["Reb_cat"].loc[idx] = 4
+    df1.loc["Reb_cat",idx] = 4
 
     df1["Stl_cat"] = 0
     idx = df1.index[((df1["Stl"] > 0) & (df1["Stl"] < 3))].tolist()
-    df1["Stl_cat"].loc[idx] = 1
+    df1.loc["Stl_cat",idx] = 1
     idx = df1.index[((df1["Stl"] >= 3) & (df1["Stl"] < 5))].tolist()
-    df1["Stl_cat"].loc[idx] = 2
+    df1.loc["Stl_cat",idx] = 2
     idx = df1.index[((df1["Stl"] >= 5) & (df1["Stl"] < 7))].tolist()
-    df1["Stl_cat"].loc[idx] = 3
+    df1.loc["Stl_cat",idx] = 3
     idx = df1.index[(df1["Stl"] >= 7)].tolist()
-    df1["Stl_cat"].loc[idx] = 4
+    df1.loc["Stl_cat",idx] = 4
 
     df1["Blk_cat"] = 0
     idx = df1.index[((df1["Blk"] > 0) & (df1["Blk"] < 3))].tolist()
-    df1["Blk_cat"].loc[idx] = 1
+    df1.loc["Blk_cat",idx] = 1
     idx = df1.index[((df1["Blk"] >= 3) & (df1["Blk"] < 5))].tolist()
-    df1["Blk_cat"].loc[idx] = 2
+    df1.loc["Blk_cat",idx] = 2
     idx = df1.index[((df1["Blk"] >= 5) & (df1["Blk"] < 7))].tolist()
-    df1["Blk_cat"].loc[idx] = 3
+    df1.loc["Blk_cat",idx] = 3
     idx = df1.index[(df1["Blk"] >= 7)].tolist()
-    df1["Blk_cat"].loc[idx] = 4
+    df1.loc["Blk_cat",idx] = 4
 
     df1["Tov_cat"] = 0
     idx = df1.index[((df1["Tov"] > 0) & (df1["Tov"] < 3))].tolist()
-    df1["Tov_cat"].loc[idx] = 1
+    df1.loc["Tov_cat",idx] = 1
     idx = df1.index[((df1["Tov"] >= 3) & (df1["Tov"] < 5))].tolist()
-    df1["Tov_cat"].loc[idx] = 2
+    df1.loc["Tov_cat",idx] = 2
     idx = df1.index[((df1["Tov"] >= 5) & (df1["Tov"] < 7))].tolist()
-    df1["Tov_cat"].loc[idx] = 3
+    df1.loc["Tov_cat",idx] = 3
     idx = df1.index[(df1["Tov"] >= 7)].tolist()
-    df1["Tov_cat"].loc[idx] = 4
+    df1.loc["Tov_cat",idx] = 4
 
     df1["Fg3M_cat"] = 0
     idx = df1.index[((df1["Fg3M"] > 0) & (df1["Fg3M"] < 4))].tolist()
-    df1["Fg3M_cat"].loc[idx] = 1
+    df1.loc["Fg3M_cat",idx] = 1
     idx = df1.index[((df1["Fg3M"] >= 4) & (df1["Fg3M"] < 7))].tolist()
-    df1["Fg3M_cat"].loc[idx] = 2
+    df1.loc["Fg3M_cat",idx] = 2
     idx = df1.index[((df1["Fg3M"] >= 7) & (df1["Fg3M"] < 10))].tolist()
-    df1["Fg3M_cat"].loc[idx] = 3
+    df1.loc["Fg3M_cat",idx] = 3
     idx = df1.index[(df1["Fg3M"] >= 10)].tolist()
-    df1["Fg3M_cat"].loc[idx] = 4
+    df1.loc["Fg3M_cat",idx] = 4
 
     df1["Ftm_cat"] = 0
     idx = df1.index[((df1["Ftm"] > 0) & (df1["Ftm"] < 5))].tolist()
-    df1["Ftm_cat"].loc[idx] = 1
+    df1.loc["Ftm_cat",idx] = 1
     idx = df1.index[((df1["Ftm"] >= 5) & (df1["Ftm"] < 10))].tolist()
-    df1["Ftm_cat"].loc[idx] = 2
+    df1.loc["Ftm_cat",idx] = 2
     idx = df1.index[((df1["Ftm"] >= 10) & (df1["Ftm"] < 15))].tolist()
-    df1["Ftm_cat"].loc[idx] = 3
+    df1.loc["Ftm_cat",idx] = 3
     idx = df1.index[(df1["Ftm"] >= 15)].tolist()
-    df1["Ftm_cat"].loc[idx] = 4
+    df1.loc["Ftm_cat",idx] = 4
 
     df1["Pts_cat"] = df1["Pts_cat"].astype("category")
     df1["Ast_cat"] = df1["Ast_cat"].astype("category")
@@ -409,7 +409,7 @@ def export_stat_query():
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + str(year) + ".parquet")
         df1[df1["WL"] == 0]["WL"] = "L"
         df1["season"] = year+1
-        df1 = df1.fillna(0)
+        df1 = df1.fillna(0).infer_objects(copy=False)
         dfa.append(df1)
     df = pd.concat(dfa)
     df.loc[df[df["WL"] == 0].index,"WL"] = "L"

@@ -113,9 +113,7 @@ def update_injury_data(seasons):
         df["Player"].loc[df["Player"].str.contains("Enes")] = "Enes Kanter"
         df["playerID"] = df["Player"].map(pID_dict)
         df1 = df.copy()
-        df1["playerID"][df["playerID"].isna()] = df["Player"][
-            df["playerID"].isna()
-        ].apply(lambda x: get_missing_pId(x, player_dict))
+        df1.loc["playerID",df["playerID"].isna()] = df1.loc["playerID",df["playerID"].isna()].apply(lambda x: get_missing_pId(x, player_dict))
         df1["playerID"] = df1["playerID"].astype(int)
         df1["Date"] = pd.to_datetime(df1["Date"], format="%Y-%m-%d")
         df1.insert(2, "playerID", df1.pop("playerID"))

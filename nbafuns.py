@@ -45,7 +45,8 @@ from plotnine.geoms.geom import geom
 from plotnine.doctools import document
 from mizani.formatters import percent_format
 
-import great_tables as gt
+from great_tables import GT, md, html
+
 import imgkit
 from html2image import Html2Image
 hti = Html2Image()
