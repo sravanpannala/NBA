@@ -23,7 +23,7 @@ with open(data_DIR + "NBA.json") as f:
 pID_dict = {v: int(k) for k, v in data.items()}
 player_dict = {int(k): v for k, v in data.items()}
 
-def get_ratings(season=2023):
+def get_ratings(season=2024):
     df1 = pd.read_parquet(box_DIR + f"NBA_Box_T_Adv_{season}.parquet")
     cols = [
         "gameId",
@@ -174,7 +174,7 @@ def calculate_netrtg(train_x, train_y, lambdas, teams_list):
     return results, model, intercept
 
 
-data = get_ratings(2023)
+data = get_ratings(2024)
 train_x, train_y = convert_to_matricies(data, "ORtg1", teams_list, scale=1 / 2)
 n = 1.5
 lambdas_net = [0.01 * n, 0.05 * n, 0.1 * n]
@@ -189,9 +189,9 @@ results["aOFF_R"] = results["aOFF"].rank(ascending=False).astype(int)
 results["aDEF_R"] = results["aDEF"].rank(ascending=True).astype(int)
 results["aNET_R"] = results["aNET"].rank(ascending=False).astype(int)
 
-results.to_csv(export_DIR + "NBA_Adj_Ratings_2023_2024.csv", index=False)
+results.to_csv(export_DIR + "NBA_Adj_Ratings_2024_2024.csv", index=False)
 
-season = "2023"
+season = "2024"
 dft = pd.read_parquet(box_DIR + f"NBA_Box_P_Cum_Base_"+season+".parquet", columns = ["PLAYER_ID","TEAM_ID"])
 df = pd.read_parquet(shot_DIR + f"NBA_Shots_{season}_All.parquet")
 

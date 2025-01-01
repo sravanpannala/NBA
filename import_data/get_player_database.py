@@ -10,7 +10,7 @@ from update_data import data_DIR
 roster_DIR = data_DIR + "rosters/"
 
 def update_player_database():
-    season = "2023"
+    season = "2024"
     season_str = season + "-" + str(int(season)+1)[-2:]
     league_id = "00"
     league = "NBA"

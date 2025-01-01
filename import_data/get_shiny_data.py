@@ -50,9 +50,9 @@ cols3 = ['game_id', 'player_id', 'team_id',
 
 def export_player_distribution():
     dfa = []
-    for season in [2023]:
+    for season in [2024]:
         year = int(season)
-    # for year in tqdm(range(2004,2024)):
+    # for year in tqdm(range(2004,2025)):
         season = str(year)
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + ".parquet", columns = cols1)
         df1["GAME_ID"] = df1["GAME_ID"].astype(int)
@@ -164,9 +164,9 @@ cols3t = ['game_id', 'player_id', 'team_id',
 
 def export_team_distribution():
     dfa = []
-    for season in [2023]:
+    for season in [2024]:
         year = int(season)
-    # for year in tqdm(range(2004,2024)):
+    # for year in tqdm(range(2004,2025)):
         season = str(year)
         df1 = pd.read_parquet(box_DIR + "NBA_Box_T_" + "Base_"  + season + ".parquet", columns=cols1t)
         df1["GAME_ID"] = df1["GAME_ID"].astype(int)
@@ -249,12 +249,19 @@ def export_team_distribution():
 
 def get_scorigami_data():
     dfa = []
-    for year in range(1996,2024):
+    for year in range(1996,2025):
         season = str(year)
-        df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + ".parquet", columns = cols1)
-        df2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + "_PS.parquet", columns = cols1)
-        dfa.append(df1)
-        dfa.append(df2)
+        try:
+            df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + ".parquet", columns = cols1)
+            dfa.append(df1)
+        except:
+            pass
+        try:
+            df2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + "_PS.parquet", columns = cols1)
+            dfa.append(df2)
+        except:
+            pass
+        
     dfa1 = [df2 for df2 in dfa if not df2.empty]
     df = pd.concat(dfa1)
     df = df.rename(columns=str.title)
@@ -264,83 +271,83 @@ def get_scorigami_data():
     df1 = df.copy()
     df1["Pts_cat"] = 0
     idx = df1.index[((df1["Pts"] >= 10) & (df1["Pts"] < 20))].tolist()
-    df1.loc["Pts_cat",idx] = 1
+    df1.loc[idx,"Pts_cat"] = 1
     idx = df1.index[((df1["Pts"] >= 20) & (df1["Pts"] < 30))].tolist()
-    df1.loc["Pts_cat",idx] = 2
+    df1.loc[idx,"Pts_cat"] = 2
     idx = df1.index[((df1["Pts"] >= 30) & (df1["Pts"] < 40))].tolist()
-    df1.loc["Pts_cat",idx] = 3
+    df1.loc[idx,"Pts_cat"] = 3
     idx = df1.index[(df1["Pts"] >= 40)].tolist()
-    df1.loc["Pts_cat",idx] = 4
+    df1.loc[idx,"Pts_cat"] = 4
 
     df1["Ast_cat"] = 0
     idx = df1.index[((df1["Ast"] > 0) & (df1["Ast"] < 5))].tolist()
-    df1.loc["Ast_cat",idx] = 1
+    df1.loc[idx,"Ast_cat"] = 1
     idx = df1.index[((df1["Ast"] >= 5) & (df1["Ast"] < 10))].tolist()
-    df1.loc["Ast_cat",idx] = 2
+    df1.loc[idx,"Ast_cat"] = 2
     idx = df1.index[((df1["Ast"] >= 10) & (df1["Ast"] < 15))].tolist()
-    df1.loc["Ast_cat",idx] = 3
+    df1.loc[idx,"Ast_cat"] = 3
     idx = df1.index[(df1["Ast"] >= 15)].tolist()
-    df1.loc["Ast_cat",idx] = 4
+    df1.loc[idx,"Ast_cat"] = 4
 
     df1["Reb_cat"] = 0
     idx = df1.index[((df1["Reb"] > 0) & (df1["Reb"] < 5))].tolist()
-    df1.loc["Reb_cat",idx] = 1
+    df1.loc[idx,"Reb_cat"] = 1
     idx = df1.index[((df1["Reb"] >= 5) & (df1["Reb"] < 10))].tolist()
-    df1.loc["Reb_cat",idx] = 2
+    df1.loc[idx,"Reb_cat"] = 2
     idx = df1.index[((df1["Reb"] >= 10) & (df1["Reb"] < 15))].tolist()
-    df1.loc["Reb_cat",idx] = 3
+    df1.loc[idx,"Reb_cat"] = 3
     idx = df1.index[(df1["Reb"] >= 15)].tolist()
-    df1.loc["Reb_cat",idx] = 4
+    df1.loc[idx,"Reb_cat"] = 4
 
     df1["Stl_cat"] = 0
     idx = df1.index[((df1["Stl"] > 0) & (df1["Stl"] < 3))].tolist()
-    df1.loc["Stl_cat",idx] = 1
+    df1.loc[idx,"Stl_cat"] = 1
     idx = df1.index[((df1["Stl"] >= 3) & (df1["Stl"] < 5))].tolist()
-    df1.loc["Stl_cat",idx] = 2
+    df1.loc[idx,"Stl_cat"] = 2
     idx = df1.index[((df1["Stl"] >= 5) & (df1["Stl"] < 7))].tolist()
-    df1.loc["Stl_cat",idx] = 3
+    df1.loc[idx,"Stl_cat"] = 3
     idx = df1.index[(df1["Stl"] >= 7)].tolist()
-    df1.loc["Stl_cat",idx] = 4
+    df1.loc[idx,"Stl_cat"] = 4
 
     df1["Blk_cat"] = 0
     idx = df1.index[((df1["Blk"] > 0) & (df1["Blk"] < 3))].tolist()
-    df1.loc["Blk_cat",idx] = 1
+    df1.loc[idx,"Blk_cat"] = 1
     idx = df1.index[((df1["Blk"] >= 3) & (df1["Blk"] < 5))].tolist()
-    df1.loc["Blk_cat",idx] = 2
+    df1.loc[idx,"Blk_cat"] = 2
     idx = df1.index[((df1["Blk"] >= 5) & (df1["Blk"] < 7))].tolist()
-    df1.loc["Blk_cat",idx] = 3
+    df1.loc[idx,"Blk_cat"] = 3
     idx = df1.index[(df1["Blk"] >= 7)].tolist()
-    df1.loc["Blk_cat",idx] = 4
+    df1.loc[idx,"Blk_cat"] = 4
 
     df1["Tov_cat"] = 0
     idx = df1.index[((df1["Tov"] > 0) & (df1["Tov"] < 3))].tolist()
-    df1.loc["Tov_cat",idx] = 1
+    df1.loc[idx,"Tov_cat"] = 1
     idx = df1.index[((df1["Tov"] >= 3) & (df1["Tov"] < 5))].tolist()
-    df1.loc["Tov_cat",idx] = 2
+    df1.loc[idx,"Tov_cat"] = 2
     idx = df1.index[((df1["Tov"] >= 5) & (df1["Tov"] < 7))].tolist()
-    df1.loc["Tov_cat",idx] = 3
+    df1.loc[idx,"Tov_cat"] = 3
     idx = df1.index[(df1["Tov"] >= 7)].tolist()
-    df1.loc["Tov_cat",idx] = 4
+    df1.loc[idx,"Tov_cat"] = 4
 
     df1["Fg3M_cat"] = 0
     idx = df1.index[((df1["Fg3M"] > 0) & (df1["Fg3M"] < 4))].tolist()
-    df1.loc["Fg3M_cat",idx] = 1
+    df1.loc[idx,"Fg3M_cat"] = 1
     idx = df1.index[((df1["Fg3M"] >= 4) & (df1["Fg3M"] < 7))].tolist()
-    df1.loc["Fg3M_cat",idx] = 2
+    df1.loc[idx,"Fg3M_cat"] = 2
     idx = df1.index[((df1["Fg3M"] >= 7) & (df1["Fg3M"] < 10))].tolist()
-    df1.loc["Fg3M_cat",idx] = 3
+    df1.loc[idx,"Fg3M_cat"] = 3
     idx = df1.index[(df1["Fg3M"] >= 10)].tolist()
-    df1.loc["Fg3M_cat",idx] = 4
+    df1.loc[idx,"Fg3M_cat"] = 4
 
     df1["Ftm_cat"] = 0
     idx = df1.index[((df1["Ftm"] > 0) & (df1["Ftm"] < 5))].tolist()
-    df1.loc["Ftm_cat",idx] = 1
+    df1.loc[idx,"Ftm_cat"] = 1
     idx = df1.index[((df1["Ftm"] >= 5) & (df1["Ftm"] < 10))].tolist()
-    df1.loc["Ftm_cat",idx] = 2
+    df1.loc[idx,"Ftm_cat"] = 2
     idx = df1.index[((df1["Ftm"] >= 10) & (df1["Ftm"] < 15))].tolist()
-    df1.loc["Ftm_cat",idx] = 3
+    df1.loc[idx,"Ftm_cat"] = 3
     idx = df1.index[(df1["Ftm"] >= 15)].tolist()
-    df1.loc["Ftm_cat",idx] = 4
+    df1.loc[idx,"Ftm_cat"] = 4
 
     df1["Pts_cat"] = df1["Pts_cat"].astype("category")
     df1["Ast_cat"] = df1["Ast_cat"].astype("category")
@@ -378,7 +385,7 @@ def export_lineups():
     df_teams = df_teams.rename(columns={"text":"team"})
     teams_list = df_teams["id"].to_list()
     dfa = []
-    for year in range(2023,2024):
+    for year in range(2024,2025):
         season = str(year) + '-' + str(year+1)[-2:]
         for team in tqdm(teams_list):
             url = "https://api.pbpstats.com/get-team-players-for-season?S"
@@ -394,7 +401,7 @@ def export_lineups():
             df_players1 = df_players1.rename(columns={"index":"id"})
             df_players1["team"] = team
             df_players1["season"] = season
-            time.sleep(0.1)
+            time.sleep(1)
             dfa.append(df_players1)
     df_players = pd.concat(dfa)
     df_players = pd.merge(df_players,df_teams,left_on="team", right_on="id")
@@ -405,7 +412,7 @@ def export_lineups():
 
 def export_stat_query():
     dfa = []
-    for year in range(1946,2024):
+    for year in range(1946,2025):
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + str(year) + ".parquet")
         df1[df1["WL"] == 0]["WL"] = "L"
         df1["season"] = year+1
@@ -417,7 +424,7 @@ def export_stat_query():
     df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
     df.to_parquet(shiny_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
     # dfa = []
-    # for year in range(1946,2024):
+    # for year in range(1946,2025):
     #     df1 = pd.read_parquet(box_DIR + "NBA_Box_P_Lead_" + "Base" + "_" + str(year) + ".parquet")
     #     df1["season"] = year+1
     #     df1 = df1.fillna(0)
@@ -431,7 +438,7 @@ def export_stat_query():
         'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT','OREB', 'DREB', 'REB', 
         'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS','PLUS_MINUS']
     dfa = []
-    for year in [2023]:
+    for year in [2024]:
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + str(year) + ".parquet")
         df1 = df1.fillna(0)
         df1[df1["WL"] == 0]["WL"] = "L"
@@ -482,7 +489,7 @@ def is_injured(dfinj, pId_missed, game_date):
     return pId_m
 
 def export_Games_Missed():
-    year = 2023
+    year = 2024
     season_str = str(year) + "-" + str(year+1)[-2:]
     df0 = pd.read_parquet(box_DIR + f"NBA_BOX_T_Base_{year}.parquet")
     df0= df0[["GAME_ID","TEAM_ID","GAME_DATE","MATCHUP","WL","PLUS_MINUS"]]
@@ -563,9 +570,15 @@ def export_Games_Missed():
 
 
 def update_shiny_data(seasons):
-    export_player_distribution()
-    export_team_distribution()
-    get_scorigami_data()
+    print("Player Distributions")
+    # export_player_distribution()
+    print("Team Distributions")
+    # export_team_distribution()
+    print("Scorigami")
+    # get_scorigami_data()
+    print("Lineups")
     export_lineups()
-    export_stat_query()
-    export_Games_Missed()
+    print("Stat Query")
+    # export_stat_query()
+    print("Games Missed")
+    # export_Games_Missed()

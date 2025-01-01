@@ -87,7 +87,7 @@ theme_idv += theme(
 )
 
 
-os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.3.2\\"
+os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.4.2\\"
 pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/"
 
 
@@ -936,7 +936,7 @@ class geom_image(geom):
     Args:
         geom : ggplot geom
     """    
-    DEFAULT_AES = {"zoom": 0.1}#, "color": None, "fill": "#333333",
+    DEFAULT_AES = {"size": 0.1}#, "color": None, "fill": "#333333",
                    #"linetype": "solid", "size": 0.5 }
     DEFAULT_PARAMS = {"stat": "identity", "position": "identity",
                       "na_rm": False} # no idea if I need this
@@ -946,6 +946,7 @@ class geom_image(geom):
         """
         assume only one image per panel,
         """
+        data = coord.transform(data, panel_params)
         self.draw_unit(data, panel_params, coord, ax, **params)
     
     @staticmethod
@@ -960,7 +961,7 @@ class geom_image(geom):
     def draw_unit(data, panel_params, coord, ax, **params):
         for i in range(len(data)):
             img = data["image"].iloc[i]
-            zoom = data["zoom"].iloc[i]
+            zoom = data["size"].iloc[i]
             ab = AnnotationBbox(
                 OffsetImage(plt.imread(img), zoom=zoom),
                 (data["x"].iloc[i], data["y"].iloc[i]),

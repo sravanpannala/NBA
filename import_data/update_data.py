@@ -13,7 +13,7 @@ data_DIR = home_DIR + "data/"
 sys.setrecursionlimit(10000)
 pd.options.mode.chained_assignment =  None
 
-os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.3.2\\"
+os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.4.2\\"
 
 with open(data_DIR + "NBA.json") as f:
     data = json.load(f)
@@ -56,14 +56,14 @@ def parse_function():
     parser.add_argument(
         "--season1",
         "-s1",
-        default=2023,
+        default=2024,
         type=int,
         help="Enter season to start",
     )
     parser.add_argument(
         "--season2",
         "-s2",
-        default=2024,
+        default=2025,
         type=int,
         help="Enter season to start",
     )
