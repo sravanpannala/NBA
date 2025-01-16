@@ -11,10 +11,12 @@ Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 
 ## Single Season
 
-season <- 2024
+season <- 2023
+
+df2 <- bref_players_stats(seasons = 2017, tables = c("advanced", "totals"))
 
 df1 <- bref_players_stats(
-  seasons = season,
+  seasons = 2023,
   tables = "advanced",
   include_all_nba = FALSE,
   only_totals = FALSE,

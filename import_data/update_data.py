@@ -156,6 +156,8 @@ def main():
     if bool_pbp:
         print("Update PBP Data")
         update_pbp(seasons)
+        print("Shot Details PBP")
+        update_shotdetails_pbp(seasons)
 
     # Update Boxscores
     if bool_box:
@@ -164,6 +166,7 @@ def main():
             update_box_base_t(seasons)
             update_box_base_p(seasons)
             update_box_p_cum(seasons)
+            update_box_t_cum(seasons)
         if bool_idv:
             for season in seasons:
                 print(season)
@@ -183,8 +186,6 @@ def main():
         update_shot_dash(seasons)
         update_shot_dash_all(seasons)
         # Update Shot Details
-        print("Shot Details PBP")
-        update_shotdetails_pbp(seasons)
         update_shotdetails_nba(seasons)
 
     if bool_adv:
@@ -195,8 +196,8 @@ def main():
         print("Update DARKO")
         update_DARKO()
         # Update bbref advanced stats
-        print("Update bbref")
-        update_bbref(seasons)
+        # print("Update bbref")
+        # update_bbref(seasons)
 
     if bool_track:
         print("Update PBP Tracking")

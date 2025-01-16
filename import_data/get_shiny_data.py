@@ -48,12 +48,11 @@ cols3 = ['game_id', 'player_id', 'team_id',
        'miles_off', 'miles_def', 'avg_speed', 'avg_speed_off',
        'avg_speed_def']
 
-def export_player_distribution():
+def export_player_distribution(seasons):
     dfa = []
-    for season in [2024]:
+    for season in seasons:
         year = int(season)
     # for year in tqdm(range(2004,2025)):
-        season = str(year)
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base_"  + season + ".parquet", columns = cols1)
         df1["GAME_ID"] = df1["GAME_ID"].astype(int)
         df2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Adv_"  + season + ".parquet", columns = cols2)
@@ -162,12 +161,11 @@ cols3t = ['game_id', 'player_id', 'team_id',
        'miles_off', 'miles_def', 'avg_speed', 'avg_speed_off',
        'avg_speed_def']
 
-def export_team_distribution():
+def export_team_distribution(seasons):
     dfa = []
-    for season in [2024]:
+    for season in seasons:
         year = int(season)
     # for year in tqdm(range(2004,2025)):
-        season = str(year)
         df1 = pd.read_parquet(box_DIR + "NBA_Box_T_" + "Base_"  + season + ".parquet", columns=cols1t)
         df1["GAME_ID"] = df1["GAME_ID"].astype(int)
         df2 = pd.read_parquet(box_DIR + "NBA_Box_T_" + "Adv_"  + season + ".parquet", columns=cols2t)
@@ -416,7 +414,8 @@ def export_stat_query():
         df1 = pd.read_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + str(year) + ".parquet")
         df1[df1["WL"] == 0]["WL"] = "L"
         df1["season"] = year+1
-        df1 = df1.fillna(0).infer_objects(copy=False)
+        with pd.option_context("future.no_silent_downcasting", True):
+            df1 = df1.fillna(0).infer_objects(copy=False)
         dfa.append(df1)
     df = pd.concat(dfa)
     df.loc[df[df["WL"] == 0].index,"WL"] = "L"
@@ -571,14 +570,14 @@ def export_Games_Missed():
 
 def update_shiny_data(seasons):
     print("Player Distributions")
-    # export_player_distribution()
+    export_player_distribution(seasons)
     print("Team Distributions")
-    # export_team_distribution()
+    export_team_distribution(seasons)
     print("Scorigami")
-    # get_scorigami_data()
-    print("Lineups")
-    export_lineups()
+    get_scorigami_data()
+    # print("Lineups")
+    # export_lineups()
     print("Stat Query")
-    # export_stat_query()
-    print("Games Missed")
+    export_stat_query()
+    # print("Games Missed")
     # export_Games_Missed()

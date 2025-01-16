@@ -11,6 +11,7 @@ from nba_api.stats.endpoints import (
     boxscorescoringv3,
     leaguegamelog,
     leaguedashplayerstats,
+    leaguedashteamstats,
 )
 from tenacity import retry, stop_after_attempt, wait_fixed
 from tqdm import tqdm
@@ -191,6 +192,40 @@ def update_box_p_cum(seasons):
     get_box_p_cum(seasons, measure="Misc", n=23)
     print("Scoring")
     get_box_p_cum(seasons, measure="Scoring", n=29)
+
+def get_box_t_cum(seasons, measure="Base", n=32):
+    if measure == "Advanced":
+        per_mode = "Per100Possessions"
+    else:
+        per_mode = "PerGame"
+    for season in tqdm(seasons):
+        try:
+            season_str = season + "-" + str(int(season) + 1)[-2:]
+            stats = leaguedashteamstats.LeagueDashTeamStats(
+                measure_type_detailed_defense=measure,
+                per_mode_detailed=per_mode,
+                season=season_str,
+            )
+            df1 = stats.get_data_frames()[0]
+            df = df1.iloc[:, :n]
+            if measure == "Advanced":
+                measure1 = "Adv"
+            else:
+                 measure1 = measure
+            df.to_parquet(box_DIR + "NBA_Box_T_Cum_" + measure1 + "_" + season + ".parquet")
+            time.sleep(0.6)
+        except Exception as error:
+            continue
+
+def update_box_t_cum(seasons):
+    print("Base")
+    get_box_t_cum(seasons, measure="Base", n=28)
+    print("Advanced")
+    get_box_t_cum(seasons, measure="Advanced", n=27)
+    print("Misc")
+    get_box_t_cum(seasons, measure="Misc", n=15)
+    print("Scoring")
+    get_box_t_cum(seasons, measure="Scoring", n=22)
 
 boxscores = [
     {

@@ -89,8 +89,8 @@ def update_injury_data(seasons):
                     print(error)
                     continue
 
-        df1 = pd.concat(dfa)
-        df = df1.copy()
+        df10 = pd.concat(dfa)
+        df = df10.copy()
         acq = df["Acquired"]
         rel = df["Relinquished"]
         df["Acquired"] = np.where(
@@ -113,7 +113,8 @@ def update_injury_data(seasons):
         df["Player"].loc[df["Player"].str.contains("Enes")] = "Enes Kanter"
         df["playerID"] = df["Player"].map(pID_dict)
         df1 = df.copy()
-        df1.loc["playerID",df["playerID"].isna()] = df1.loc["playerID",df["playerID"].isna()].apply(lambda x: get_missing_pId(x, player_dict))
+        df1 = df1.dropna(subset=["Notes"])
+        df1.loc[df1["playerID"].isna(),"playerID"] = df1.loc[df1["playerID"].isna(),"Player"].apply(lambda x: get_missing_pId(x, player_dict))
         df1["playerID"] = df1["playerID"].astype(int)
         df1["Date"] = pd.to_datetime(df1["Date"], format="%Y-%m-%d")
         df1.insert(2, "playerID", df1.pop("playerID"))
@@ -173,6 +174,10 @@ def update_DARKO():
     url = secret["darko_parquet"]
     response = requests.get(url)
     with open(aio_DIR + "NBA_DARKO_FULL.parquet", 'wb') as f:
+        f.write(response.content)
+    url = "https://r2-bbi.fanspo.com/lebron_link25.csv"
+    response = requests.get(url)
+    with open(aio_DIR + "NBA_LEBRON_2024.csv", 'wb') as f:
         f.write(response.content)
 
 

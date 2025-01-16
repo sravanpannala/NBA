@@ -17,6 +17,7 @@ import operator
 from functools import reduce
 from itertools import product, chain
 from tqdm import tqdm
+from thefuzz import fuzz, process
 
 import dill
 import zstandard as zstd
@@ -29,9 +30,9 @@ import plotly.express as px
 import seaborn as sns
 from plotnine import ggplot, aes, ggsave, themes, theme, labs
 from plotnine import geom_point, geom_line, geom_hline, geom_vline
-from plotnine import geom_bar, geom_smooth, geom_abline
+from plotnine import geom_bar, geom_smooth, geom_abline, geom_col
 from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
-from plotnine import geom_jitter, geom_dotplot, geom_segment
+from plotnine import geom_jitter, geom_dotplot, geom_segment, geom_tile
 from plotnine import geom_text, annotate
 from plotnine import element_rect, element_blank, element_text, element_line
 from plotnine import coord_flip, lims, guides, coord_cartesian
@@ -39,8 +40,9 @@ from plotnine import ylim, scale_y_continuous, scale_y_reverse
 from plotnine import xlim, scale_x_continuous, scale_x_discrete, scale_x_date
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
 from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
-from plotnine import scale_fill_manual
-from plotnine import theme_xkcd
+from plotnine import scale_fill_manual, scale_fill_gradient
+from plotnine import theme_xkcd, theme_classic, theme_538
+from plotnine import arrow
 from plotnine.geoms.geom import geom
 from plotnine.doctools import document
 from mizani.formatters import percent_format
@@ -84,6 +86,14 @@ theme_sra += theme(
 theme_idv = theme_xkcd(base_size=12)
 theme_idv += theme(
     plot_title=element_text(face="bold", size=16),
+)
+
+pnba = labs(
+    caption="bsky:@sradjoker.cc | x:@SravanNBA | source: nba.com/stats",
+)
+
+ppbp = labs(
+    caption="bsky:@sradjoker.cc | x:@SravanNBA | source: pbpstats",
 )
 
 
@@ -136,6 +146,25 @@ def get_players(league="NBA", from_year=2020, to_year=2020):
     player_dict = player_data.to_dict(orient="records")
     return player_dict
 
+def get_missing_pId(player, player_dict):
+    pId = process.extract(player, player_dict, scorer=fuzz.partial_ratio, limit=1)[0][2]
+    return pId
+
+def get_box(PT="P",measure="Base",cum=False,seasons=[2024]):
+    PATH = pathlib.Path(__file__)
+    DATA_PATH = PATH.joinpath("../data/box").resolve()
+    join = ""
+    if cum:
+        join = "_Cum_"
+    dfa = []
+    for season in seasons:
+        loc = f"NBA_Box_{PT}"+join+f"{measure}_{season}.parquet"
+        df1 = pd.read_parquet(DATA_PATH.joinpath(loc))
+        df1.columns = map(str.lower,df1.columns)
+        df1["season"] = season +1
+        dfa.append(df1)
+    df2 = pd.concat(dfa)
+    return df2
 
 # function to get team info as dictionary using NBA database
 def get_teams(league="NBA"):
@@ -198,11 +227,11 @@ def rank_data_pbp(IDs, player_dict, team_dict, sort="Player", var="Fouls"):
         ppl = [
             team["full_name"] for team, tID in zip(team_dict, ID) if team["id"] == tID
         ]
-    df = pd.DataFrame({sort: ppl, var: items})
+    df = pd.DataFrame({sort: ppl, "pID": ID,var: items})
     df1 = df.sort_values(by=[var], ascending=False)
     df1 = df1.reset_index(drop=True)
     df1["#"] = df1.index + 1
-    df2 = df1[["#", sort, var]]
+    df2 = df1[["#", "pID", sort, var]]
     # df3 = df2.iloc[:10]
 
     return df2
@@ -975,6 +1004,17 @@ def path_to_image_html(path,width=60):
     str2 = path
     str3 = f'" width="' + f'{width}' + '" >'
     return str1 + str2 + str3
+
+# Bluesky
+PATH = pathlib.Path(__file__)
+DATA_PATH = PATH.joinpath("../").resolve()
+with open(DATA_PATH.joinpath("secret-bsky.json")) as f:
+     login_bsky = json.load(f)
+
+import atproto
+
+bsky = atproto.Client()
+bsky.login(login_bsky["bsky_user"], login_bsky["bsky_pass"])
 
 # Obsolete code from other places
 
