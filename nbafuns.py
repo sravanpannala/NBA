@@ -1,14 +1,18 @@
+# default packages for system, data and time
 import os, sys, pathlib
 import pandas as pd
 import numpy as np
 import scipy
-
-import requests
-from bs4 import BeautifulSoup
 import time
+from time import perf_counter
 import datetime as dt
 from datetime import datetime
-from time import perf_counter
+
+# scraping
+import requests
+from bs4 import BeautifulSoup
+
+# other convenience packages
 import json
 from IPython.display import clear_output
 from IPython.core.display import HTML
@@ -19,15 +23,20 @@ from itertools import product, chain
 from tqdm import tqdm
 from thefuzz import fuzz, process
 
+# save/load data
 import dill
 import zstandard as zstd
 
+# matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle, Arc
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+#seaborn
+import seaborn as sns
+# plotly
 import plotly.graph_objects as go
 import plotly.express as px
-import seaborn as sns
+# plotnine
 from plotnine import ggplot, aes, ggsave, themes, theme, labs
 from plotnine import geom_point, geom_line, geom_hline, geom_vline
 from plotnine import geom_bar, geom_smooth, geom_abline, geom_col
@@ -46,19 +55,21 @@ from plotnine import arrow
 from plotnine.geoms.geom import geom
 from plotnine.doctools import document
 from mizani.formatters import percent_format
-
+# great tables
 from great_tables import GT, md, html
-
+# save images from dataframe
 import imgkit
 from html2image import Html2Image
 hti = Html2Image()
 
+# nba api
 import nba_api
 from nba_api.stats.static import teams as nba_teams
 from nba_api.stats.endpoints import leaguegamelog, leaguedashteamstats
+# pbpstats
 from pbpstats.client import Client
 from pbpstats.resources.enhanced_pbp import Foul, Turnover, FieldGoal, Rebound
-
+# numba
 from numba import jit, njit
 from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 import warnings
@@ -70,6 +81,7 @@ pd.options.mode.chained_assignment =  None
 
 sns.set_theme(style="whitegrid")
 
+# plotnine themes
 theme_sra = themes.theme_538(base_size=9, base_family="Tahoma")
 theme_sra += theme(
     # plot_background = element_rect(fill = 'ghostwhite', color = "ghostwhite"),
@@ -237,91 +249,6 @@ def rank_data_pbp(IDs, player_dict, team_dict, sort="Player", var="Fouls"):
     return df2
 
 
-# Function to plot table with Top 10 ranked
-def plot_table_rank(
-    df1,
-    var,
-    sort="Player",
-    n=10,
-    title=" ",
-    title_shift=0.05,
-    title_font=15,
-    footer=" ",
-    source="nba.com/stats",
-    col_width=15,
-):
-    df = df1.iloc[:n]
-    fig = go.Figure(
-        data=[
-            go.Table(
-                columnwidth=[5, 40, col_width],
-                header=dict(
-                    values=list("<b>" + df.columns + "<b>"),
-                    fill_color="blue",
-                    align=["center", "left", "center"],
-                    font=dict(color="snow", size=12),
-                    line_color="grey",
-                ),
-                cells=dict(
-                    values=[df["#"], df[sort], df[var]],
-                    fill_color="lavender",
-                    align=["center", "left", "center"],
-                    height=23,
-                    line_color="grey",  # lightgrey",
-                    # font=dict(family="Cambria", size=12)
-                ),
-                # height=25
-            ),
-        ]
-    )
-    # fig.update_layout(title_text=title)
-    fig.update_layout(
-        title=dict(
-            text="<b>" + title + "<b>",
-            y=0.98,
-            x=title_shift,
-            font=dict(size=title_font),
-        )
-    )
-    tab_width = 250 + col_width
-    tab_height = 305
-    fig.add_annotation(
-        x=0.0,
-        y=0.0,
-        text="@SravanNBA",
-        showarrow=False,
-        xshift=1,
-        yshift=1,
-        font=dict(size=10),
-    )
-    fig.add_annotation(
-        x=1.0,
-        y=0.0,
-        text=f"Source: {source}",
-        showarrow=False,
-        xshift=1,
-        yshift=1,
-        font=dict(size=10),
-    )
-    if len(footer) > 1:
-        fig.add_annotation(
-            x=0.0,
-            y=0.0,
-            text=footer,
-            showarrow=False,
-            xshift=0,
-            yshift=15,
-            font=dict(size=10),
-        )
-        tab_height = 318
-    fig.update_layout(
-        width=tab_width, height=tab_height, margin=dict(t=25, b=1, l=1, r=1)
-    )
-    # fig.update_layout(autosize=True)
-    fig.show()
-    return fig
-
-
 # Amazing function by Bradley Fay for plotting the nba court
 # source: https://github.com/bradleyfay/py-Goldsberry/blob/master/docs/Visualizing%20NBA%20Shots%20with%20py-Goldsberry.ipynb
 def draw_court(ax=None, color="black", lw=2, outer_lines=True, z=3):
@@ -435,7 +362,6 @@ def draw_court(ax=None, color="black", lw=2, outer_lines=True, z=3):
         ax.add_patch(element)
 
     return ax
-
 
 # creating bins for hex shot chart
 def create_bins(
@@ -651,7 +577,6 @@ def create_bins(
     copied_df["LOC_RAW_COUNTS"] = raw_counts
 
     return copied_df
-
 
 # Drawing NBA court using plotly
 def draw_plotly_court(fig, lw=3, lcolor="Orange", fig_width=600, margins=10):
@@ -887,7 +812,6 @@ def layout_update_plotly(fig, player_name, season, league, season_type, bgcolor)
     )
     return True
 
-
 # Download Player image and export figure scale for plotly
 def import_image(league, player_id):
     if league == "NBA":
@@ -913,47 +837,6 @@ def import_image(league, player_id):
     #         f.write(response.content)
     # return str(img_path), sizex, sizey
     return url_image, sizex, sizey
-
-
-# Obsolete: Plot Table using matplotlib
-def render_mpl_table(
-    data,
-    col_width=3.0,
-    row_height=0.625,
-    font_size=14,
-    header_color="#40466e",
-    row_colors=["#f1f1f2", "w"],
-    edge_color="w",
-    bbox=[0, 0, 1, 1],
-    header_columns=0,
-    ax=None,
-    **kwargs,
-):
-    if ax is None:
-        size = (np.array(data.shape[::-1]) + np.array([0, 1])) * np.array(
-            [col_width, row_height]
-        )
-        fig, ax = plt.subplots(figsize=size)
-        ax.axis("off")
-    mpl_table = ax.table(
-        cellText=data.values,
-        bbox=bbox,
-        cellLoc="center",
-        colLabels=data.columns,
-        **kwargs,
-    )
-    mpl_table.auto_set_font_size(False)
-    mpl_table.set_fontsize(font_size)
-
-    for k, cell in mpl_table._cells.items():
-        cell.set_edgecolor(edge_color)
-        if k[0] == 0 or k[1] < header_columns:
-            cell.set_text_props(weight="bold", color="w")
-            cell.set_facecolor(header_color)
-        else:
-            cell.set_facecolor(row_colors[k[0] % len(row_colors)])
-    fig.set_facecolor("#fc8662")
-    return ax.get_figure(), ax
 
 @document
 class geom_image(geom):
@@ -1011,10 +894,139 @@ DATA_PATH = PATH.joinpath("../").resolve()
 with open(DATA_PATH.joinpath("secret-bsky.json")) as f:
      login_bsky = json.load(f)
 
-import atproto
+def bsky_client():
+    from atproto import Client
 
-bsky = atproto.Client()
-bsky.login(login_bsky["bsky_user"], login_bsky["bsky_pass"])
+    bsky = Client()
+    bsky.login(login_bsky["bsky_user"], login_bsky["bsky_pass"])
+    return bsky
+t3 = perf_counter()
+# Obsolete Code
+
+# Function to plot table with Top 10 ranked
+# def plot_table_rank_plotly(
+#     df1,
+#     var,
+#     sort="Player",
+#     n=10,
+#     title=" ",
+#     title_shift=0.05,
+#     title_font=15,
+#     footer=" ",
+#     source="nba.com/stats",
+#     col_width=15,
+# ):
+#     df = df1.iloc[:n]
+#     fig = go.Figure(
+#         data=[
+#             go.Table(
+#                 columnwidth=[5, 40, col_width],
+#                 header=dict(
+#                     values=list("<b>" + df.columns + "<b>"),
+#                     fill_color="blue",
+#                     align=["center", "left", "center"],
+#                     font=dict(color="snow", size=12),
+#                     line_color="grey",
+#                 ),
+#                 cells=dict(
+#                     values=[df["#"], df[sort], df[var]],
+#                     fill_color="lavender",
+#                     align=["center", "left", "center"],
+#                     height=23,
+#                     line_color="grey",  # lightgrey",
+#                     # font=dict(family="Cambria", size=12)
+#                 ),
+#                 # height=25
+#             ),
+#         ]
+#     )
+#     # fig.update_layout(title_text=title)
+#     fig.update_layout(
+#         title=dict(
+#             text="<b>" + title + "<b>",
+#             y=0.98,
+#             x=title_shift,
+#             font=dict(size=title_font),
+#         )
+#     )
+#     tab_width = 250 + col_width
+#     tab_height = 305
+#     fig.add_annotation(
+#         x=0.0,
+#         y=0.0,
+#         text="@SravanNBA",
+#         showarrow=False,
+#         xshift=1,
+#         yshift=1,
+#         font=dict(size=10),
+#     )
+#     fig.add_annotation(
+#         x=1.0,
+#         y=0.0,
+#         text=f"Source: {source}",
+#         showarrow=False,
+#         xshift=1,
+#         yshift=1,
+#         font=dict(size=10),
+#     )
+#     if len(footer) > 1:
+#         fig.add_annotation(
+#             x=0.0,
+#             y=0.0,
+#             text=footer,
+#             showarrow=False,
+#             xshift=0,
+#             yshift=15,
+#             font=dict(size=10),
+#         )
+#         tab_height = 318
+#     fig.update_layout(
+#         width=tab_width, height=tab_height, margin=dict(t=25, b=1, l=1, r=1)
+#     )
+#     # fig.update_layout(autosize=True)
+#     fig.show()
+#     return fig
+
+
+# Plot Table using matplotlib
+# def render_mpl_table(
+#     data,
+#     col_width=3.0,
+#     row_height=0.625,
+#     font_size=14,
+#     header_color="#40466e",
+#     row_colors=["#f1f1f2", "w"],
+#     edge_color="w",
+#     bbox=[0, 0, 1, 1],
+#     header_columns=0,
+#     ax=None,
+#     **kwargs,
+# ):
+#     if ax is None:
+#         size = (np.array(data.shape[::-1]) + np.array([0, 1])) * np.array(
+#             [col_width, row_height]
+#         )
+#         fig, ax = plt.subplots(figsize=size)
+#         ax.axis("off")
+#     mpl_table = ax.table(
+#         cellText=data.values,
+#         bbox=bbox,
+#         cellLoc="center",
+#         colLabels=data.columns,
+#         **kwargs,
+#     )
+#     mpl_table.auto_set_font_size(False)
+#     mpl_table.set_fontsize(font_size)
+
+#     for k, cell in mpl_table._cells.items():
+#         cell.set_edgecolor(edge_color)
+#         if k[0] == 0 or k[1] < header_columns:
+#             cell.set_text_props(weight="bold", color="w")
+#             cell.set_facecolor(header_color)
+#         else:
+#             cell.set_facecolor(row_colors[k[0] % len(row_colors)])
+#     fig.set_facecolor("#fc8662")
+#     return ax.get_figure(), ax
 
 # Obsolete code from other places
 

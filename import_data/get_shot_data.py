@@ -94,7 +94,8 @@ def update_shot_dash_all(seasons):
                 except Exception as error:
                     print(error)
                     # continue
-        dfa1 = [df2.fillna(0) for df2 in dfa if not df2.empty]
+        with pd.option_context("future.no_silent_downcasting", True):                    
+            dfa1 = [df2.fillna(0).infer_objects(copy=False) for df2 in dfa if not df2.empty]
         df = pd.concat(dfa1)
         df.to_parquet(shot_DIR + f"{league}_Shots_{season}_All.parquet")
 

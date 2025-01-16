@@ -114,7 +114,8 @@ def update_injury_data(seasons):
         df["playerID"] = df["Player"].map(pID_dict)
         df1 = df.copy()
         df1 = df1.dropna(subset=["Notes"])
-        df1.loc[df1["playerID"].isna(),"playerID"] = df1.loc[df1["playerID"].isna(),"Player"].apply(lambda x: get_missing_pId(x, player_dict))
+        with pd.option_context("future.no_silent_downcasting", True):
+            df1.loc[df1["playerID"].isna(),"playerID"] = df1.loc[df1["playerID"].isna(),"Player"].apply(lambda x: get_missing_pId(x, player_dict))
         df1["playerID"] = df1["playerID"].astype(int)
         df1["Date"] = pd.to_datetime(df1["Date"], format="%Y-%m-%d")
         df1.insert(2, "playerID", df1.pop("playerID"))

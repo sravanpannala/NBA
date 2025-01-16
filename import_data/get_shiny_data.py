@@ -419,6 +419,7 @@ def export_stat_query():
         dfa.append(df1)
     df = pd.concat(dfa)
     df.loc[df[df["WL"] == 0].index,"WL"] = "L"
+    df["TS_PCT"] = round(df["PTS"]*0.5/((df["FGA"]+0.44*df["FTA"])),3)
     df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"], format="%Y-%m-%d")
     df.to_parquet(box_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
     df.to_parquet(shiny_DIR + "NBA_Box_P_" + "Base" + "_" + "All" + ".parquet")
@@ -456,6 +457,7 @@ def export_stat_query():
             dfii["FG_PCT"] = round(dfii["FGM"]/dfii["FGA"],3)
             dfii["FG3_PCT"] = round(dfii["FG3M"]/dfii["FG3A"],3)
             dfii["FT_PCT"] = round(dfii["FTM"]/dfii["FTA"],3)
+            dfii["TS_PCT"] = round(dfii["PTS"]*0.5/((dfii["FGA"]+0.44*dfii["FTA"])),3)
             dfii[["PLAYER_ID", "PLAYER_NAME", "TEAM_ID", "TEAM_NAME"]] = list(key)
             dfb.append(dfii)
         dfb = pd.concat(dfb)
