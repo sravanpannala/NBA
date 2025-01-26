@@ -265,6 +265,12 @@ def get_scorigami_data():
     df = df.rename(columns=str.title)
     df = df.rename(columns={"Player_Name":"Player",'Player_Id':'Player ID'})
     df = df.reset_index(drop=True)
+    df['Player'] = (
+        df['Player']
+        .str.normalize('NFKD')
+        .str.encode('ascii', errors='ignore')
+        .str.decode('utf-8')
+    ) 
     df["Game_Date"] = pd.to_datetime(df["Game_Date"], format="%Y-%m-%d")
     df1 = df.copy()
     df1["Pts_cat"] = 0
@@ -399,7 +405,7 @@ def export_lineups():
             df_players1 = df_players1.rename(columns={"index":"id"})
             df_players1["team"] = team
             df_players1["season"] = season
-            time.sleep(1)
+            time.sleep(3)
             dfa.append(df_players1)
     df_players = pd.concat(dfa)
     df_players = pd.merge(df_players,df_teams,left_on="team", right_on="id")
@@ -577,8 +583,8 @@ def update_shiny_data(seasons):
     export_team_distribution(seasons)
     print("Scorigami")
     get_scorigami_data()
-    # print("Lineups")
-    # export_lineups()
+    print("Lineups")
+    export_lineups()
     print("Stat Query")
     export_stat_query()
     # print("Games Missed")

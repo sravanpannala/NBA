@@ -23,8 +23,7 @@ with open(data_DIR + "NBA.json") as f:
 pID_dict = {v: int(k) for k, v in data.items()}
 player_dict = {int(k): v for k, v in data.items()}
 
-def get_ratings(season=2024):
-    df1 = pd.read_parquet(box_DIR + f"NBA_Box_T_Adv_{season}.parquet")
+def get_ratings(season=2024,ngames=0):
     cols = [
         "gameId",
         "teamName",
@@ -34,36 +33,27 @@ def get_ratings(season=2024):
         "netRating",
         "possessions",
     ]
-    df2 = df1[cols]
-    df2.iloc[:, 2:] = df2.iloc[:, 2:].astype(str)
-    df3 = df2.groupby("gameId")[cols[1:]].agg(", ".join).reset_index()
-    df4 = df3.copy()
-    df4[["team1", "team2"]] = df3["teamName"].str.split(",", expand=True)
-    df4[["tId1", "tId2"]] = df3["teamId"].str.split(",", expand=True)
-    df4[["ORtg1", "ORtg2"]] = df3["offensiveRating"].str.split(",", expand=True)
-    df4[["DRtg1", "DRtg2"]] = df3["defensiveRating"].str.split(",", expand=True)
-    df4[["NRtg1", "NRtg2"]] = df3["netRating"].str.split(",", expand=True)
-    df4[["poss1", "poss2"]] = df3["possessions"].str.split(",", expand=True)
-    df4 = df4.drop(columns=cols[1:])
-    df5 = df3.copy()
-    df5[["team2", "team1"]] = df3["teamName"].str.split(",", expand=True)
-    df5[["tId2", "tId1"]] = df3["teamId"].str.split(",", expand=True)
-    df5[["ORtg2", "ORtg1"]] = df3["offensiveRating"].str.split(",", expand=True)
-    df5[["DRtg2", "DRtg1"]] = df3["defensiveRating"].str.split(",", expand=True)
-    df5[["NRtg2", "NRtg1"]] = df3["netRating"].str.split(",", expand=True)
-    df5[["poss2", "poss1"]] = df3["possessions"].str.split(",", expand=True)
-    df5 = df5.drop(columns=cols[1:])
-    df6 = pd.concat([df4, df5]).sort_values(by="gameId").reset_index(drop=True)
-    df6.iloc[:, 5:] = df6.iloc[:, 5:].astype(float)
-    df6.iloc[:, 3:5] = df6.iloc[:, 3:5].astype(int)
-    data1 = df6.copy()
-    stats = leaguegamelog.LeagueGameLog(
-        player_or_team_abbreviation="T",
-        season=season,
-        season_type_all_star="Regular Season",
-    )
-    df10 = stats.get_data_frames()[0]
-    df10["HOME"] = df10["MATCHUP"].str.contains("@")
+    df = pd.read_parquet(box_DIR + f"NBA_Box_T_Adv_{season}.parquet", columns=cols)
+    cols = ["gameId", "team", "tId", "ORtg", "DRtg", "NRtg", "poss"]
+    df.columns = cols
+    df1 = df.groupby("gameId")
+    df1_1 = df1.nth(0)
+    df1_2 = df1.nth(1)
+    df1_1.columns = ["gameId"] + [s + "1" for s in df1_1.columns if s != "gameId"]
+    df1_2.columns = ["gameId"] + [s + "2" for s in df1_2.columns if s != "gameId"]
+    df1_3 = pd.merge(df1_1, df1_2, on="gameId")
+    df1_4 = df1.nth(1)
+    df1_5 = df1.nth(0)
+    df1_4.columns = ["gameId"] + [s + "1" for s in df1_4.columns if s != "gameId"]
+    df1_5.columns = ["gameId"] + [s + "2" for s in df1_5.columns if s != "gameId"]
+    df1_6 = pd.merge(df1_4, df1_5, on="gameId")
+    df2 = pd.concat([df1_3, df1_6]).sort_values(by="gameId").reset_index(drop=True)
+    data1 = df2.copy()
+    df10 = pd.read_parquet(box_DIR + f"NBA_Box_T_Base_{season}.parquet")
+    if ngames != 0:
+            df10g = df10.groupby("TEAM_NAME")
+            df10 = df10g.nth(np.arange(-ngames,0,1)).reset_index(drop=True)
+    df10["HOME"] = ~df10["MATCHUP"].str.contains("@")
     df10["tId1"] = df10["TEAM_ID"]
     df10["gameId"] = df10["GAME_ID"]
     df11 = (
@@ -174,10 +164,10 @@ def calculate_netrtg(train_x, train_y, lambdas, teams_list):
     return results, model, intercept
 
 
-data = get_ratings(2024)
+data = get_ratings(season=2024, ngames=10)
 train_x, train_y = convert_to_matricies(data, "ORtg1", teams_list, scale=1 / 2)
 n = 1.5
-lambdas_net = [0.01 * n, 0.05 * n, 0.1 * n]
+lambdas_net = [0.001 * n, 0.005 * n, 0.01 * n]
 results_adj, model, intercept = calculate_netrtg(
     train_x, train_y, lambdas_net, teams_list
 )
@@ -189,7 +179,7 @@ results["aOFF_R"] = results["aOFF"].rank(ascending=False).astype(int)
 results["aDEF_R"] = results["aDEF"].rank(ascending=True).astype(int)
 results["aNET_R"] = results["aNET"].rank(ascending=False).astype(int)
 
-results.to_csv(export_DIR + "NBA_Adj_Ratings_2024_2024.csv", index=False)
+results.to_csv(export_DIR + "NBA_Adj_Ratings_2024_2025.csv", index=False)
 
 season = "2024"
 dft = pd.read_parquet(box_DIR + f"NBA_Box_P_Cum_Base_"+season+".parquet", columns = ["PLAYER_ID","TEAM_ID"])
@@ -254,7 +244,7 @@ fg1 = fg1[['Player', 'Team', 'PLAYER_ID',
 fg1[['xPTS2','Points_Added2','xPTS3','Points_Added3',]] = fg1[['xPTS2','Points_Added2','xPTS3','Points_Added3',]].round(2)
 fg1[['xPTS','Points_Added',]] = fg1[['xPTS','Points_Added']].round(2)
 fg1 = fg1.query("PTS >= 100").reset_index(drop=True)
-fg1.to_csv(export_DIR + "NBA_Shot_Quality_V2.csv")
+fg1.to_csv(export_DIR + "NBA_Shot_Quality_2024_2025_V2.csv")
 
 
 subprocess.run(["git", "add", "."], cwd=export_DIR)

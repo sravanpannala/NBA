@@ -43,7 +43,8 @@ dependencies = [
     "atproto (>=0.0.56,<0.0.57)",
     "atprototools (>=0.0.17,<0.0.18)",
     "easyocr (>=1.7.2,<2.0.0)",
-    "python-doctr (>=0.10.0,<0.11.0)"
+    "python-doctr (>=0.10.0,<0.11.0)",
+    "pyjson5 (>=1.6.8,<2.0.0)"
 ]
 
 

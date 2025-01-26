@@ -43,6 +43,7 @@ from plotnine import geom_bar, geom_smooth, geom_abline, geom_col
 from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
 from plotnine import geom_jitter, geom_dotplot, geom_segment, geom_tile
 from plotnine import geom_text, annotate
+from plotnine import geom_histogram, stat_bin, after_stat, stat_density, geom_rect
 from plotnine import element_rect, element_blank, element_text, element_line
 from plotnine import coord_flip, lims, guides, coord_cartesian
 from plotnine import ylim, scale_y_continuous, scale_y_reverse
@@ -50,7 +51,7 @@ from plotnine import xlim, scale_x_continuous, scale_x_discrete, scale_x_date
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
 from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
 from plotnine import scale_fill_manual, scale_fill_gradient
-from plotnine import theme_xkcd, theme_classic, theme_538
+from plotnine import theme_xkcd, theme_classic, theme_538, watermark
 from plotnine import arrow
 from plotnine.geoms.geom import geom
 from plotnine.doctools import document
@@ -82,19 +83,6 @@ pd.options.mode.chained_assignment =  None
 sns.set_theme(style="whitegrid")
 
 # plotnine themes
-theme_sra = themes.theme_538(base_size=9, base_family="Tahoma")
-theme_sra += theme(
-    # plot_background = element_rect(fill = 'ghostwhite', color = "ghostwhite"),
-    plot_title=element_text(face="bold", size=16),
-    strip_text=element_text(face="bold", size=10),
-    plot_caption=element_text(size=10),
-    plot_subtitle=element_text(size=12),
-    axis_text_x=element_text(size=8),
-    axis_text_y=element_text(size=8),
-    axis_title_x=element_text(size=12),
-    axis_title_y=element_text(size=12),
-)
-
 theme_idv = theme_xkcd(base_size=12)
 theme_idv += theme(
     plot_title=element_text(face="bold", size=16),
@@ -167,10 +155,10 @@ def get_box(PT="P",measure="Base",cum=False,seasons=[2024]):
     DATA_PATH = PATH.joinpath("../data/box").resolve()
     join = ""
     if cum:
-        join = "_Cum_"
+        join = "Cum_"
     dfa = []
     for season in seasons:
-        loc = f"NBA_Box_{PT}"+join+f"{measure}_{season}.parquet"
+        loc = f"NBA_Box_{PT}_"+join+f"{measure}_{season}.parquet"
         df1 = pd.read_parquet(DATA_PATH.joinpath(loc))
         df1.columns = map(str.lower,df1.columns)
         df1["season"] = season +1
@@ -187,6 +175,14 @@ def get_teams(league="NBA"):
     team_dict1 = team_data.to_dict(orient="records")
     team_dict = {team["TeamID"]: team["Team"] for team in team_dict1}
     return team_dict, team_list
+
+# Function to dd team info to dataframes
+def add_tinfo(df,on="team_name"):
+    PATH = pathlib.Path(__file__)
+    DATA_PATH = PATH.joinpath("../data").resolve()
+    dft = pd.read_parquet(DATA_PATH.joinpath("NBA_teams_colors_logos.parquet"))
+    df1 = pd.merge(df,dft,on=on)
+    return df1
 
 
 # pbp function to get all games list for a season
@@ -900,8 +896,27 @@ def bsky_client():
     bsky = Client()
     bsky.login(login_bsky["bsky_user"], login_bsky["bsky_pass"])
     return bsky
+
+def bsky_image(bsky,img_path="",text="",alt_tex=""):
+    with open(img_path, 'rb') as f:
+        img_data = f.read()
+    bsky.send_image(text=text, image=img_data, image_alt=alt_tex)
+
 t3 = perf_counter()
+
 # Obsolete Code
+# theme_sra = themes.theme_538(base_size=9, base_family="Tahoma")
+# theme_sra += theme(
+#     plot_background = element_rect(fill = 'ghostwhite', color = "ghostwhite"),
+#     plot_title=element_text(face="bold", size=16),
+#     strip_text=element_text(face="bold", size=10),
+#     plot_caption=element_text(size=10),
+#     plot_subtitle=element_text(size=12),
+#     axis_text_x=element_text(size=8),
+#     axis_text_y=element_text(size=8),
+#     axis_title_x=element_text(size=12),
+#     axis_title_y=element_text(size=12),
+# )
 
 # Function to plot table with Top 10 ranked
 # def plot_table_rank_plotly(
