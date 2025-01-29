@@ -77,4 +77,5 @@ imgkit = "^1.2.3"
 rpy2 = "^3.5.17"
 pyqt6 = "^6.8.0"
 selenium = "^4.27.1"
+html5lib = "^1.1"
 

@@ -9,6 +9,7 @@ pbpdata.zip
 **/player_imgs
 twitter_keys.json
 *.data.gz
+*.7z
 pbp-credentials.json
 secret*
 
