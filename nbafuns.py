@@ -46,7 +46,7 @@ from plotnine import geom_text, annotate
 from plotnine import geom_histogram, stat_bin, after_stat, stat_density, geom_rect
 from plotnine import element_rect, element_blank, element_text, element_line
 from plotnine import coord_flip, lims, guides, coord_cartesian
-from plotnine import ylim, scale_y_continuous, scale_y_reverse
+from plotnine import ylim, scale_y_continuous, scale_y_reverse, scale_x_reverse
 from plotnine import xlim, scale_x_continuous, scale_x_discrete, scale_x_date
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
 from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
@@ -59,9 +59,9 @@ from mizani.formatters import percent_format
 # great tables
 from great_tables import GT, md, html
 # save images from dataframe
-import imgkit
-from html2image import Html2Image
-hti = Html2Image()
+# import imgkit
+# from html2image import Html2Image
+# hti = Html2Image()
 
 # nba api
 import nba_api
@@ -83,10 +83,13 @@ pd.options.mode.chained_assignment =  None
 sns.set_theme(style="whitegrid")
 
 # plotnine themes
-theme_idv = theme_xkcd(base_size=12)
+theme_idv = theme_xkcd(base_size=16)
 theme_idv += theme(
-    plot_title=element_text(face="bold", size=16),
+    text=element_text(family=["Helvetica","Comic Sans MS"]),
+    plot_title=element_text(face="bold", size=20),
+    plot_caption=element_text(size=10,ha='left'),
 )
+
 
 pnba = labs(
     caption="bsky:@sradjoker.cc | x:@SravanNBA | source: nba.com/stats",
@@ -885,22 +888,22 @@ def path_to_image_html(path,width=60):
     return str1 + str2 + str3
 
 # Bluesky
-PATH = pathlib.Path(__file__)
-DATA_PATH = PATH.joinpath("../").resolve()
-with open(DATA_PATH.joinpath("secret-bsky.json")) as f:
-     login_bsky = json.load(f)
+# PATH = pathlib.Path(__file__)
+# DATA_PATH = PATH.joinpath("../").resolve()
+# with open(DATA_PATH.joinpath("secret-bsky.json")) as f:
+#      login_bsky = json.load(f)
 
-def bsky_client():
-    from atproto import Client
+# def bsky_client():
+#     from atproto import Client
 
-    bsky = Client()
-    bsky.login(login_bsky["bsky_user"], login_bsky["bsky_pass"])
-    return bsky
+#     bsky = Client()
+#     bsky.login(login_bsky["bsky_user"], login_bsky["bsky_pass"])
+#     return bsky
 
-def bsky_image(bsky,img_path="",text="",alt_tex=""):
-    with open(img_path, 'rb') as f:
-        img_data = f.read()
-    bsky.send_image(text=text, image=img_data, image_alt=alt_tex)
+# def bsky_image(bsky,img_path="",text="",alt_tex=""):
+#     with open(img_path, 'rb') as f:
+#         img_data = f.read()
+#     bsky.send_image(text=text, image=img_data, image_alt=alt_tex)
 
 t3 = perf_counter()
 

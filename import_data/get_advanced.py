@@ -176,7 +176,7 @@ def update_DARKO():
     response = requests.get(url)
     with open(aio_DIR + "NBA_DARKO_FULL.parquet", 'wb') as f:
         f.write(response.content)
-    url = "https://r2-bbi.fanspo.com/lebron_link25.csv"
+    url = secret["lebron_current"]
     response = requests.get(url)
     with open(aio_DIR + "NBA_LEBRON_2024.csv", 'wb') as f:
         f.write(response.content)

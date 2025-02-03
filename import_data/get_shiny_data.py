@@ -270,7 +270,8 @@ def get_scorigami_data():
         .str.normalize('NFKD')
         .str.encode('ascii', errors='ignore')
         .str.decode('utf-8')
-    ) 
+    )
+    df['Reb_Ast'] = df['Reb'] + df['Ast']  
     df["Game_Date"] = pd.to_datetime(df["Game_Date"], format="%Y-%m-%d")
     df1 = df.copy()
     df1["Pts_cat"] = 0
@@ -302,6 +303,16 @@ def get_scorigami_data():
     df1.loc[idx,"Reb_cat"] = 3
     idx = df1.index[(df1["Reb"] >= 15)].tolist()
     df1.loc[idx,"Reb_cat"] = 4
+
+    df1["Reb_Ast_cat"] = 0
+    idx = df1.index[((df1["Reb_Ast"] >= 5) & (df1["Reb_Ast"] < 10))].tolist()
+    df1.loc[idx,"Reb_Ast_cat"] = 1
+    idx = df1.index[((df1["Reb_Ast"] >= 10) & (df1["Reb_Ast"] < 15))].tolist()
+    df1.loc[idx,"Reb_Ast_cat"] = 2
+    idx = df1.index[((df1["Reb_Ast"] >= 15) & (df1["Reb_Ast"] < 20))].tolist()
+    df1.loc[idx,"Reb_Ast_cat"] = 3
+    idx = df1.index[(df1["Reb_Ast"] >= 20)].tolist()
+    df1.loc[idx,"Reb_Ast_cat"] = 4
 
     df1["Stl_cat"] = 0
     idx = df1.index[((df1["Stl"] > 0) & (df1["Stl"] < 3))].tolist()
@@ -356,6 +367,7 @@ def get_scorigami_data():
     df1["Pts_cat"] = df1["Pts_cat"].astype("category")
     df1["Ast_cat"] = df1["Ast_cat"].astype("category")
     df1["Reb_cat"] = df1["Reb_cat"].astype("category")
+    df1["Reb_Ast_cat"] = df1["Reb_Ast_cat"].astype("category")
     df1["Stl_cat"] = df1["Stl_cat"].astype("category")
     df1["Blk_cat"] = df1["Blk_cat"].astype("category")
     df1["Tov_cat"] = df1["Tov_cat"].astype("category")
@@ -368,6 +380,8 @@ def get_scorigami_data():
     df1["Ast_cat"] = df1["Ast_cat"].cat.rename_categories(Ast_cat)
     Reb_cat = ["0", "1 to 4", "5 to 9", "10 to 14", "15+"]
     df1["Reb_cat"] = df1["Reb_cat"].cat.rename_categories(Reb_cat)
+    Reb_Ast_cat = ["0 to 4", "5 to 9", "10 to 14", "15 to 19", "20+"]
+    df1["Reb_Ast_cat"] = df1["Reb_Ast_cat"].cat.rename_categories(Reb_Ast_cat)
     Stl_cat = ["0", "1 to 2", "3 to 4", "5 to 6", "7+"]
     df1["Stl_cat"] = df1["Stl_cat"].cat.rename_categories(Stl_cat)
     Blk_cat = ["0", "1 to 2", "3 to 4", "5 to 6", "7+"]
