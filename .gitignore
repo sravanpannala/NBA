@@ -9,9 +9,13 @@ pbpdata.zip
 **/player_imgs
 twitter_keys.json
 *.data.gz
-*.7z
+*.7z*
 pbp-credentials.json
 secret*
+miscodds_2024.parquet
+*.stignore
+.stfolder/*
+**/catboost_info/
 
 # Ignore png files
 *.png

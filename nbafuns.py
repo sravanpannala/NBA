@@ -22,6 +22,7 @@ from functools import reduce
 from itertools import product, chain
 from tqdm import tqdm
 from thefuzz import fuzz, process
+import icecream as ic
 
 # save/load data
 import dill
@@ -40,12 +41,12 @@ import plotly.express as px
 from plotnine import ggplot, aes, ggsave, themes, theme, labs
 from plotnine import geom_point, geom_line, geom_hline, geom_vline
 from plotnine import geom_bar, geom_smooth, geom_abline, geom_col
-from plotnine import facet_wrap, geom_boxplot, geom_violin, geom_density
+from plotnine import geom_boxplot, geom_violin, geom_density
 from plotnine import geom_jitter, geom_dotplot, geom_segment, geom_tile
 from plotnine import geom_text, annotate
-from plotnine import geom_histogram, stat_bin, after_stat, stat_density, geom_rect
+from plotnine import geom_histogram, stat_bin, stat_density, geom_rect
 from plotnine import element_rect, element_blank, element_text, element_line
-from plotnine import coord_flip, lims, guides, coord_cartesian
+from plotnine import coord_flip, lims, guides, coord_cartesian, facet_wrap
 from plotnine import ylim, scale_y_continuous, scale_y_reverse, scale_x_reverse
 from plotnine import xlim, scale_x_continuous, scale_x_discrete, scale_x_date
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
@@ -53,6 +54,7 @@ from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
 from plotnine import scale_fill_manual, scale_fill_gradient
 from plotnine import theme_xkcd, theme_classic, theme_538, watermark
 from plotnine import arrow
+from plotnine import after_stat, position_jitter, position_jitterdodge
 from plotnine.geoms.geom import geom
 from plotnine.doctools import document
 from mizani.formatters import percent_format
@@ -75,30 +77,28 @@ from numba import jit, njit
 from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 import warnings
 
-warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
-warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter(action='ignore', category=NumbaPendingDeprecationWarning)
 
 pd.options.mode.chained_assignment =  None
 
 sns.set_theme(style="whitegrid")
 
 # plotnine themes
-theme_idv = theme_xkcd(base_size=16)
+theme_idv = theme_xkcd(base_size=16,scale=0,length=2,randomness=0,stroke_size=3)
 theme_idv += theme(
-    text=element_text(family=["Helvetica","Comic Sans MS"]),
+    text=element_text(family=["Comic Sans MS","xkcd"]),
     plot_title=element_text(face="bold", size=20),
     plot_caption=element_text(size=10,ha='left'),
 )
 
-
 pnba = labs(
     caption="bsky:@sradjoker.cc | x:@SravanNBA | source: nba.com/stats",
 )
-
 ppbp = labs(
     caption="bsky:@sradjoker.cc | x:@SravanNBA | source: pbpstats",
 )
-
 
 os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.4.2\\"
 pbp_DIR = "C:/Users/pansr/Documents/NBA/pbpdata/"
@@ -183,7 +183,7 @@ def get_teams(league="NBA"):
 def add_tinfo(df,on="team_name"):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data").resolve()
-    dft = pd.read_parquet(DATA_PATH.joinpath("NBA_teams_colors_logos.parquet"))
+    dft = pd.read_csv(DATA_PATH.joinpath("NBA_teams_colors_logos.csv"))
     df1 = pd.merge(df,dft,on=on)
     return df1
 

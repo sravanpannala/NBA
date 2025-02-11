@@ -1,31 +1,32 @@
-,teamTricode,nameTeam,idDivision,idConference,colorsTeam,urlThumbnailTeam,team_name,team_id,image
-0,WAS,Washington Wizards,5,1,#002b5c,https://cdn.nba.com/logos/nba/1610612764/primary/L/logo.svg,Washington Wizards,1610612764,C:\Users\pansr\Documents\NBA\data\images\teams\Washington Wizards.png
-1,UTA,Utah Jazz,3,2,#002b5c,https://cdn.nba.com/logos/nba/1610612762/primary/L/logo.svg,Utah Jazz,1610612762,C:\Users\pansr\Documents\NBA\data\images\teams\Utah Jazz.png
-2,TOR,Toronto Raptors,1,1,#ce1141,https://cdn.nba.com/logos/nba/1610612761/primary/L/logo.svg,Toronto Raptors,1610612761,C:\Users\pansr\Documents\NBA\data\images\teams\Toronto Raptors.png
-3,SAS,San Antonio Spurs,6,2,#061922,https://cdn.nba.com/logos/nba/1610612759/primary/L/logo.svg,San Antonio Spurs,1610612759,C:\Users\pansr\Documents\NBA\data\images\teams\San Antonio Spurs.png
-4,SAC,Sacramento Kings,4,2,#724c9f,https://cdn.nba.com/logos/nba/1610612758/primary/L/logo.svg,Sacramento Kings,1610612758,C:\Users\pansr\Documents\NBA\data\images\teams\Sacramento Kings.png
-5,POR,Portland Trail Blazers,3,2,#061922,https://cdn.nba.com/logos/nba/1610612757/primary/L/logo.svg,Portland Trail Blazers,1610612757,C:\Users\pansr\Documents\NBA\data\images\teams\Portland Trail Blazers.png
-6,PHX,Phoenix Suns,4,2,#e56020,https://cdn.nba.com/logos/nba/1610612756/primary/L/logo.svg,Phoenix Suns,1610612756,C:\Users\pansr\Documents\NBA\data\images\teams\Phoenix Suns.png
-7,PHI,Philadelphia 76ers,1,1,#ed174c,https://cdn.nba.com/logos/nba/1610612755/primary/L/logo.svg,Philadelphia 76ers,1610612755,C:\Users\pansr\Documents\NBA\data\images\teams\Philadelphia 76ers.png
-8,ORL,Orlando Magic,5,1,#007dc5,https://cdn.nba.com/logos/nba/1610612753/primary/L/logo.svg,Orlando Magic,1610612753,C:\Users\pansr\Documents\NBA\data\images\teams\Orlando Magic.png
-9,OKC,Oklahoma City Thunder,3,2,#007dc3,https://cdn.nba.com/logos/nba/1610612760/primary/L/logo.svg,Oklahoma City Thunder,1610612760,C:\Users\pansr\Documents\NBA\data\images\teams\Oklahoma City Thunder.png
-10,NYK,New York Knicks,1,1,#006bb6,https://cdn.nba.com/logos/nba/1610612752/primary/L/logo.svg,New York Knicks,1610612752,C:\Users\pansr\Documents\NBA\data\images\teams\New York Knicks.png
-11,NOP,New Orleans Pelicans,6,2,#002b5c,https://cdn.nba.com/logos/nba/1610612740/primary/L/logo.svg,New Orleans Pelicans,1610612740,C:\Users\pansr\Documents\NBA\data\images\teams\New Orleans Pelicans.png
-12,MIN,Minnesota Timberwolves,3,2,#005083,https://cdn.nba.com/logos/nba/1610612750/primary/L/logo.svg,Minnesota Timberwolves,1610612750,C:\Users\pansr\Documents\NBA\data\images\teams\Minnesota Timberwolves.png
-13,MIL,Milwaukee Bucks,2,1,#00471b,https://cdn.nba.com/logos/nba/1610612749/primary/L/logo.svg,Milwaukee Bucks,1610612749,C:\Users\pansr\Documents\NBA\data\images\teams\Milwaukee Bucks.png
-14,MIA,Miami Heat,5,1,#98002e,https://cdn.nba.com/logos/nba/1610612748/primary/L/logo.svg,Miami Heat,1610612748,C:\Users\pansr\Documents\NBA\data\images\teams\Miami Heat.png
-15,MEM,Memphis Grizzlies,6,2,#7399c6,https://cdn.nba.com/logos/nba/1610612763/primary/L/logo.svg,Memphis Grizzlies,1610612763,C:\Users\pansr\Documents\NBA\data\images\teams\Memphis Grizzlies.png
-16,LAL,Los Angeles Lakers,4,2,#fdb927,https://cdn.nba.com/logos/nba/1610612747/primary/L/logo.svg,Los Angeles Lakers,1610612747,C:\Users\pansr\Documents\NBA\data\images\teams\Los Angeles Lakers.png
-17,LAC,LA Clippers,4,2,#ed174c,https://cdn.nba.com/logos/nba/1610612746/primary/L/logo.svg,LA Clippers,1610612746,C:\Users\pansr\Documents\NBA\data\images\teams\LA Clippers.png
-18,IND,Indiana Pacers,2,1,#ffc633,https://cdn.nba.com/logos/nba/1610612754/primary/L/logo.svg,Indiana Pacers,1610612754,C:\Users\pansr\Documents\NBA\data\images\teams\Indiana Pacers.png
-19,HOU,Houston Rockets,6,2,#ce1141,https://cdn.nba.com/logos/nba/1610612745/primary/L/logo.svg,Houston Rockets,1610612745,C:\Users\pansr\Documents\NBA\data\images\teams\Houston Rockets.png
-20,GSW,Golden State Warriors,4,2,#fdb927,https://cdn.nba.com/logos/nba/1610612744/primary/L/logo.svg,Golden State Warriors,1610612744,C:\Users\pansr\Documents\NBA\data\images\teams\Golden State Warriors.png
-21,DET,Detroit Pistons,2,1,#006bb6,https://cdn.nba.com/logos/nba/1610612765/primary/L/logo.svg,Detroit Pistons,1610612765,C:\Users\pansr\Documents\NBA\data\images\teams\Detroit Pistons.png
-22,DEN,Denver Nuggets,3,2,#4d90cd,https://cdn.nba.com/logos/nba/1610612743/primary/L/logo.svg,Denver Nuggets,1610612743,C:\Users\pansr\Documents\NBA\data\images\teams\Denver Nuggets.png
-23,DAL,Dallas Mavericks,6,2,#0064b1,https://cdn.nba.com/logos/nba/1610612742/primary/L/logo.svg,Dallas Mavericks,1610612742,C:\Users\pansr\Documents\NBA\data\images\teams\Dallas Mavericks.png
-24,CLE,Cleveland Cavaliers,2,1,#860038,https://cdn.nba.com/logos/nba/1610612739/primary/L/logo.svg,Cleveland Cavaliers,1610612739,C:\Users\pansr\Documents\NBA\data\images\teams\Cleveland Cavaliers.png
-25,CHI,Chicago Bulls,2,1,#ce1141,https://cdn.nba.com/logos/nba/1610612741/primary/L/logo.svg,Chicago Bulls,1610612741,C:\Users\pansr\Documents\NBA\data\images\teams\Chicago Bulls.png
-26,CHA,Charlotte Hornets,5,1,#1d1160,https://cdn.nba.com/logos/nba/1610612766/primary/L/logo.svg,Charlotte Hornets,1610612766,C:\Users\pansr\Documents\NBA\data\images\teams\Charlotte Hornets.png
-27,BKN,Brooklyn Nets,1,1,#061922,https://cdn.nba.com/logos/nba/1610612751/primary/L/logo.svg,Brooklyn Nets,1610612751,C:\Users\pansr\Documents\NBA\data\images\teams\Brooklyn Nets.png
-28,BOS,Boston Celtics,1,1,#008348,https://cdn.nba.com/logos/nba/1610612738/primary/L/logo.svg,Boston Celtics,1610612738,C:\Users\pansr\Documents\NBA\data\images\teams\Boston Celtics.png
-29,ATL,Atlanta Hawks,5,1,#e13a3e,https://cdn.nba.com/logos/nba/1610612737/primary/L/logo.svg,Atlanta Hawks,1610612737,C:\Users\pansr\Documents\NBA\data\images\teams\Atlanta Hawks.png
+,teamTricode,nameTeam,idDivision,idConference,colorsTeam,urlThumbnailTeam,team_name,team_slug,team_id,image
+0,WAS,Washington Wizards,5,1,#002b5c,https://cdn.nba.com/logos/nba/1610612764/primary/L/logo.svg,Washington Wizards,Wizards,1610612764,C:\Users\pansr\Documents\NBA\data\images\teams\Washington Wizards.png
+1,UTA,Utah Jazz,3,2,#002b5c,https://cdn.nba.com/logos/nba/1610612762/primary/L/logo.svg,Utah Jazz,Jazz,1610612762,C:\Users\pansr\Documents\NBA\data\images\teams\Utah Jazz.png
+2,TOR,Toronto Raptors,1,1,#ce1141,https://cdn.nba.com/logos/nba/1610612761/primary/L/logo.svg,Toronto Raptors,Raptors,1610612761,C:\Users\pansr\Documents\NBA\data\images\teams\Toronto Raptors.png
+3,SAS,San Antonio Spurs,6,2,#061922,https://cdn.nba.com/logos/nba/1610612759/primary/L/logo.svg,San Antonio Spurs,Spurs,1610612759,C:\Users\pansr\Documents\NBA\data\images\teams\San Antonio Spurs.png
+4,SAC,Sacramento Kings,4,2,#724c9f,https://cdn.nba.com/logos/nba/1610612758/primary/L/logo.svg,Sacramento Kings,Kings,1610612758,C:\Users\pansr\Documents\NBA\data\images\teams\Sacramento Kings.png
+5,POR,Portland Trail Blazers,3,2,#061922,https://cdn.nba.com/logos/nba/1610612757/primary/L/logo.svg,Portland Trail Blazers,Blazers,1610612757,C:\Users\pansr\Documents\NBA\data\images\teams\Portland Trail Blazers.png
+6,PHX,Phoenix Suns,4,2,#e56020,https://cdn.nba.com/logos/nba/1610612756/primary/L/logo.svg,Phoenix Suns,Suns,1610612756,C:\Users\pansr\Documents\NBA\data\images\teams\Phoenix Suns.png
+7,PHI,Philadelphia 76ers,1,1,#ed174c,https://cdn.nba.com/logos/nba/1610612755/primary/L/logo.svg,Philadelphia 76ers,76ers,1610612755,C:\Users\pansr\Documents\NBA\data\images\teams\Philadelphia 76ers.png
+8,ORL,Orlando Magic,5,1,#007dc5,https://cdn.nba.com/logos/nba/1610612753/primary/L/logo.svg,Orlando Magic,Magic,1610612753,C:\Users\pansr\Documents\NBA\data\images\teams\Orlando Magic.png
+9,OKC,Oklahoma City Thunder,3,2,#007dc3,https://cdn.nba.com/logos/nba/1610612760/primary/L/logo.svg,Oklahoma City Thunder,Thunder,1610612760,C:\Users\pansr\Documents\NBA\data\images\teams\Oklahoma City Thunder.png
+10,NYK,New York Knicks,1,1,#006bb6,https://cdn.nba.com/logos/nba/1610612752/primary/L/logo.svg,New York Knicks,Knicks,1610612752,C:\Users\pansr\Documents\NBA\data\images\teams\New York Knicks.png
+11,NOP,New Orleans Pelicans,6,2,#002b5c,https://cdn.nba.com/logos/nba/1610612740/primary/L/logo.svg,New Orleans Pelicans,Pelicans,1610612740,C:\Users\pansr\Documents\NBA\data\images\teams\New Orleans Pelicans.png
+12,MIN,Minnesota Timberwolves,3,2,#005083,https://cdn.nba.com/logos/nba/1610612750/primary/L/logo.svg,Minnesota Timberwolves,Timberwolves,1610612750,C:\Users\pansr\Documents\NBA\data\images\teams\Minnesota Timberwolves.png
+13,MIL,Milwaukee Bucks,2,1,#00471b,https://cdn.nba.com/logos/nba/1610612749/primary/L/logo.svg,Milwaukee Bucks,Bucks,1610612749,C:\Users\pansr\Documents\NBA\data\images\teams\Milwaukee Bucks.png
+14,MIA,Miami Heat,5,1,#98002e,https://cdn.nba.com/logos/nba/1610612748/primary/L/logo.svg,Miami Heat,Heat,1610612748,C:\Users\pansr\Documents\NBA\data\images\teams\Miami Heat.png
+15,MEM,Memphis Grizzlies,6,2,#7399c6,https://cdn.nba.com/logos/nba/1610612763/primary/L/logo.svg,Memphis Grizzlies,Grizzlies,1610612763,C:\Users\pansr\Documents\NBA\data\images\teams\Memphis Grizzlies.png
+16,LAL,Los Angeles Lakers,4,2,#fdb927,https://cdn.nba.com/logos/nba/1610612747/primary/L/logo.svg,Los Angeles Lakers,Lakers,1610612747,C:\Users\pansr\Documents\NBA\data\images\teams\Los Angeles Lakers.png
+17,LAC,LA Clippers,4,2,#ed174c,https://cdn.nba.com/logos/nba/1610612746/primary/L/logo.svg,LA Clippers,Clippers,1610612746,C:\Users\pansr\Documents\NBA\data\images\teams\LA Clippers.png
+18,IND,Indiana Pacers,2,1,#ffc633,https://cdn.nba.com/logos/nba/1610612754/primary/L/logo.svg,Indiana Pacers,Pacers,1610612754,C:\Users\pansr\Documents\NBA\data\images\teams\Indiana Pacers.png
+19,HOU,Houston Rockets,6,2,#ce1141,https://cdn.nba.com/logos/nba/1610612745/primary/L/logo.svg,Houston Rockets,Rockets,1610612745,C:\Users\pansr\Documents\NBA\data\images\teams\Houston Rockets.png
+20,GSW,Golden State Warriors,4,2,#fdb927,https://cdn.nba.com/logos/nba/1610612744/primary/L/logo.svg,Golden State Warriors,Warriors,1610612744,C:\Users\pansr\Documents\NBA\data\images\teams\Golden State Warriors.png
+21,DET,Detroit Pistons,2,1,#006bb6,https://cdn.nba.com/logos/nba/1610612765/primary/L/logo.svg,Detroit Pistons,Pistons,1610612765,C:\Users\pansr\Documents\NBA\data\images\teams\Detroit Pistons.png
+22,DEN,Denver Nuggets,3,2,#4d90cd,https://cdn.nba.com/logos/nba/1610612743/primary/L/logo.svg,Denver Nuggets,Nuggets,1610612743,C:\Users\pansr\Documents\NBA\data\images\teams\Denver Nuggets.png
+23,DAL,Dallas Mavericks,6,2,#0064b1,https://cdn.nba.com/logos/nba/1610612742/primary/L/logo.svg,Dallas Mavericks,Mavericks,1610612742,C:\Users\pansr\Documents\NBA\data\images\teams\Dallas Mavericks.png
+24,CLE,Cleveland Cavaliers,2,1,#860038,https://cdn.nba.com/logos/nba/1610612739/primary/L/logo.svg,Cleveland Cavaliers,Cavaliers,1610612739,C:\Users\pansr\Documents\NBA\data\images\teams\Cleveland Cavaliers.png
+25,CHI,Chicago Bulls,2,1,#ce1141,https://cdn.nba.com/logos/nba/1610612741/primary/L/logo.svg,Chicago Bulls,Bulls,1610612741,C:\Users\pansr\Documents\NBA\data\images\teams\Chicago Bulls.png
+26,CHA,Charlotte Hornets,5,1,#1d1160,https://cdn.nba.com/logos/nba/1610612766/primary/L/logo.svg,Charlotte Hornets,Hornets,1610612766,C:\Users\pansr\Documents\NBA\data\images\teams\Charlotte Hornets.png
+27,BKN,Brooklyn Nets,1,1,#061922,https://cdn.nba.com/logos/nba/1610612751/primary/L/logo.svg,Brooklyn Nets,Nets,1610612751,C:\Users\pansr\Documents\NBA\data\images\teams\Brooklyn Nets.png
+28,BOS,Boston Celtics,1,1,#008348,https://cdn.nba.com/logos/nba/1610612738/primary/L/logo.svg,Boston Celtics,Celtics,1610612738,C:\Users\pansr\Documents\NBA\data\images\teams\Boston Celtics.png
+29,ATL,Atlanta Hawks,5,1,#e13a3e,https://cdn.nba.com/logos/nba/1610612737/primary/L/logo.svg,Atlanta Hawks,Hawks,1610612737,C:\Users\pansr\Documents\NBA\data\images\teams\Atlanta Hawks.png
+.png
