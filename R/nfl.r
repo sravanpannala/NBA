@@ -59,7 +59,7 @@ p6 <- plt_func(df2, aes(x = week, y = passer_rating), "Passer Rating")
 p <- p1 + p2 + p3 + p4 + p5 + p6 + plot_layout(ncol = 2) + plot_annotation(
   theme = theme_sravan,
   title = "Jordan Love 2023 Passing Stats",
-  caption = "@SravanNBA | Source: nflverse"
+  caption = "@sradjoker | Source: nflverse"
 )
 ggsave("./figs/R/Jordan_Love_2023.png", p, w = 10, h = 8, dpi = 300)
 
@@ -92,7 +92,7 @@ dft <- df2 %>%
     data_row.padding = px(4)
   ) %>%
   tab_source_note(
-    source_note = "@SravanNBA | Source: nflverse"
+    source_note = "@sradjoker | Source: nflverse"
   ) %>%
   gtsave("./figs/R/Jalen_Hurts_2023.png", zoom = 5)
 dft
@@ -125,6 +125,6 @@ p6 <- plt_func(df2, aes(x = week, y = dakota), "Adjusted EPA + CPOE")
 p <- p1 + p2 + p3 + p4 + p5 + p6 + plot_layout(ncol = 2) + plot_annotation(
   theme = theme_sravan,
   title = "Dak Prescott 2023 Passing Stats",
-  caption = "@SravanNBA | Source: nflverse"
+  caption = "@sradjoker | Source: nflverse"
 )
 ggsave("./figs/R/Dak_Prescott_2023.png", p, w = 10, h = 8, dpi = 300)

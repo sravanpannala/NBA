@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from nba_api.stats.endpoints import (
     boxscoreadvancedv3,
+    boxscoretraditionalv2,
     boxscorefourfactorsv3,
     boxscorehustlev2,
     boxscoremiscv3,
@@ -13,7 +14,7 @@ from nba_api.stats.endpoints import (
     leaguedashplayerstats,
     leaguedashteamstats,
 )
-from tenacity import retry, stop_after_attempt, wait_fixed
+from tenacity import retry, Retrying, stop_after_attempt, wait_fixed
 from tqdm import tqdm
 
 from update_data import data_DIR
@@ -47,20 +48,40 @@ def get_gameids(season, name):
     return game_ids, dfr1, dfr2
 
 
-@retry(stop=stop_after_attempt(5), wait=wait_fixed(0.6))
-def get_game_box(game_id, fun):
-    try:
-        t1 = time.perf_counter()
-        stats = fun(game_id=game_id)
-        df = stats.get_data_frames()
-        t2 = time.perf_counter() - t1
-        tsleep = 0.6
-        if (t2)<0.6:
-            time.sleep(tsleep)
-    except Exception as error:
-        print(error)
-        df = pd.DataFrame()
-        pass
+# @retry(stop=stop_after_attempt(5), wait=wait_fixed(120))
+# def get_game_box(game_id, fun):
+#     try:
+#         df = pd.DataFrame()
+#         t1 = time.perf_counter()
+#         stats = fun(game_id=game_id)
+#         df = stats.get_data_frames()
+#         t2 = time.perf_counter() - t1
+#         tsleep = 0.6
+#         if t2<tsleep:
+#             time.sleep(tsleep-t2)
+#     except Exception as error:
+#         print(error)
+#     return df
+
+def get_game_box(game_id,fun):
+    # a = 1
+    # for attempt in Retrying(stop=stop_after_attempt(5)):
+    #     with attempt:
+    #         try:
+    t1 = time.perf_counter()
+    stats = fun(game_id=game_id)
+    df = stats.get_data_frames()
+    t2 = time.perf_counter() - t1
+    tsleep = 0.6
+    if t2<tsleep:
+        time.sleep(tsleep-t2)
+        #     except Exception as error:
+        #         time.sleep(120)
+        #         print(f"attempt: {a}")
+        #         print(error)
+        #         df = pd.DataFrame()
+        #         continue
+        # a+=1
     return df
 
 
@@ -71,12 +92,11 @@ def get_games_box(game_ids, fun):
             df0 = get_game_box(game_id, fun)
             df1 = df0[1]
             df2 = df0[0]
+            df_ap1.append(df1)
+            df_ap2.append(df2)
         except Exception as error:
             print(error)
-            df1 = pd.DataFrame()
-            df2 = pd.DataFrame()
-        df_ap1.append(df1)
-        df_ap2.append(df2)
+            break
     return df_ap1, df_ap2
 
 
@@ -87,12 +107,16 @@ def update_boxscores_idv(season, fun, name):
         df1 = pd.concat(df_ap1)
         df2 = pd.concat(df_ap2)
         df3 = pd.concat([dfr1, df1])
+        if name == "Trad":
+            df3["gameId"] = df3["GAME_ID"]
         df3["gameId"] = df3["gameId"].astype(int)
         df3 = df3.sort_values(by=["gameId"]).reset_index(drop=True)
         df3.to_parquet(
             box_DIR + "NBA_Box_T_" + name + "_" + season + ".parquet"
         )
         df4 = pd.concat([dfr2, df2])
+        if name == "Trad":
+            df4["gameId"] = df4["GAME_ID"]
         df4["gameId"] = df4["gameId"].astype(int)
         df4 = df4.sort_values(by=["gameId"]).reset_index(drop=True)
         df4.to_parquet(box_DIR+ "NBA_Box_P_"+ name + "_"+ season+ ".parquet")
@@ -228,6 +252,10 @@ def update_box_t_cum(seasons):
     get_box_t_cum(seasons, measure="Scoring", n=22)
 
 boxscores = [
+    {
+        "name": "Trad",
+        "fun": boxscoretraditionalv2.BoxScoreTraditionalV2,
+    },
     {
         "name": "Adv",
         "fun": boxscoreadvancedv3.BoxScoreAdvancedV3,

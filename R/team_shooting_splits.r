@@ -42,7 +42,7 @@ p1 <- ggplot(df1, aes(x = Team, y = value, fill = name)) +
   )  +
   labs(
     title = "NBA Shot Distribution by Distance",
-    caption = "@SravanNBA | Source: nba.com/stats"
+    caption = "@sradjoker | Source: nba.com/stats"
   ) +
   theme(
     plot.title.position = "plot",

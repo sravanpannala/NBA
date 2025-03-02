@@ -212,7 +212,7 @@ p <- p +
   plot_annotation(
     title = "Bad Calls That Have <span style='color:#BE4A47FF'>**Disadvantaged**</span> Or <span style='color:#008A80FF'>**Advantaged**</span> A Team From 2015-23",
     subtitle = "A call is considered to have disadvantaged a team if it was an incorrect no call on their opponent or a incorrect call against them\nand visa versa for calls that advantage a team",
-    caption = "graph: @SravanNBA |code: @owenlhjphillips | Source: github.com/atlhawksfanatic/L2M",
+    caption = "graph: @sradjoker |code: @owenlhjphillips | Source: github.com/atlhawksfanatic/L2M",
     theme = theme(
       plot.title = element_markdown(face = "bold", family = "Consolas", size = 9.5),
       plot.subtitle = element_text(family = "Consolas", size = 5.25),

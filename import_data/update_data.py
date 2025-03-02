@@ -170,13 +170,13 @@ def main():
         if bool_idv:
             for season in seasons:
                 print(season)
-                for boxscore in boxscores[:4]:
+                for boxscore in boxscores[:5]:
                     print("BoxScore " + boxscore["name"])
                     update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
         if bool_hus:
             for season in seasons:
                 print(season)
-                for boxscore in boxscores[4:]:
+                for boxscore in boxscores[5:]:
                     print("BoxScore " + boxscore["name"])
                     update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
 

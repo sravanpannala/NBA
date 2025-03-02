@@ -54,7 +54,7 @@ from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
 from plotnine import scale_fill_manual, scale_fill_gradient
 from plotnine import theme_xkcd, theme_classic, theme_538, watermark
 from plotnine import arrow
-from plotnine import after_stat, position_jitter, position_jitterdodge
+from plotnine import after_stat, position_jitter, position_jitterdodge, position_stack
 from plotnine.geoms.geom import geom
 from plotnine.doctools import document
 from mizani.formatters import percent_format
@@ -94,10 +94,10 @@ theme_idv += theme(
 )
 
 pnba = labs(
-    caption="bsky:@sradjoker.cc | x:@SravanNBA | source: nba.com/stats",
+    caption="bsky:@sradjoker.cc | X:@sradjoker | source: nba.com/stats",
 )
 ppbp = labs(
-    caption="bsky:@sradjoker.cc | x:@SravanNBA | source: pbpstats",
+    caption="bsky:@sradjoker.cc | X:@sradjoker | source: pbpstats",
 )
 
 os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.4.2\\"
@@ -788,7 +788,7 @@ def layout_update_plotly(fig, player_name, season, league, season_type, bgcolor)
                 x=200,
                 y=-65,
                 showarrow=False,
-                text="@SravanNBA",
+                text="@sradjoker",
                 font=dict(family="Arial, Tahoma, Helvetica", size=15, color="White"),
             ),
             go.layout.Annotation(
@@ -905,8 +905,6 @@ def path_to_image_html(path,width=60):
 #         img_data = f.read()
 #     bsky.send_image(text=text, image=img_data, image_alt=alt_tex)
 
-t3 = perf_counter()
-
 # Obsolete Code
 # theme_sra = themes.theme_538(base_size=9, base_family="Tahoma")
 # theme_sra += theme(
@@ -972,7 +970,7 @@ t3 = perf_counter()
 #     fig.add_annotation(
 #         x=0.0,
 #         y=0.0,
-#         text="@SravanNBA",
+#         text="@sradjoker",
 #         showarrow=False,
 #         xshift=1,
 #         yshift=1,

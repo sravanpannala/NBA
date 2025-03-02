@@ -183,7 +183,7 @@ df_print <- df_all %>%
     data_row.padding = px(2)
   ) %>%
   tab_source_note(
-    source_note = "@SravanNBA | Source: basketball-reference, DunksandThrees, ESPN"
+    source_note = "@sradjoker | Source: basketball-reference, DunksandThrees, ESPN"
   ) # %>% gtsave("./figs/R/NBA_rat_comp.png",zoom=5)
 df_print
 ```
@@ -233,7 +233,7 @@ p <- ggplot(
     title = "Adjusted Net Ratings Landscape",
     x = "Adjusted Offensive Rating", y = "Adjusted Defensive Rating",
     subtitle = "Net Ratings here are adjusted for Strength of Schedule",
-    caption = "@SravanNBA | Source: basketballreference"
+    caption = "@sradjoker | Source: basketballreference"
   )
 ggsave("./figs/R/BBRef_TRatings.png", p, w = 10 * 1.5, h = 8 * 1.5, dpi = 300)
 

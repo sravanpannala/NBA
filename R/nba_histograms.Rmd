@@ -98,7 +98,7 @@ p <- p +
   plot_annotation(
     title = "Age Distribution of NBA Teams 2024-25",
     subtitle = "Ages are weighted by mins played per game | These are density plots (similar to Histograms)",
-    caption = "@sradjoker.bsky.social | x:@SravanNBA | Source: nba.com/stats",
+    caption = "@sradjoker.bsky.social | x:@sradjoker | Source: nba.com/stats",
     theme = theme(
       plot.title = element_markdown(face = "bold", family = "Tahoma", size = 20),
       plot.subtitle = element_text(family = "Tahoma", size = 12),

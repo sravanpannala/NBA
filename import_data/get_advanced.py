@@ -180,6 +180,10 @@ def update_DARKO():
     response = requests.get(url)
     with open(aio_DIR + "NBA_LEBRON_2024.csv", 'wb') as f:
         f.write(response.content)
+    url = secret["lebron_all"]
+    response = requests.get(url)
+    with open(aio_DIR + "NBA_LEBRON_FULL.csv", 'wb') as f:
+        f.write(response.content)    
 
 
 def update_bbref(seasons):

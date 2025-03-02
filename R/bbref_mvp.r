@@ -103,5 +103,5 @@ df %>%
     data_row.padding = px(2)
   ) %>%
   tab_source_note(
-    source_note = md("@SravanNBA | **Source**: Basketball-Reference MVP Tracker")
+    source_note = md("@sradjoker | **Source**: Basketball-Reference MVP Tracker")
   ) # %>% gtsave("./figs/R/bbref_MVP_table.png")

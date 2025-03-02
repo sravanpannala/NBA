@@ -213,7 +213,7 @@ p <- p +
   plot_annotation(
     title = "Bad Shooting Foul Calls That Have <span style='color:#BE4A47FF'>**Disadvantaged**</span> Or <span style='color:#008A80FF'>**Advantaged**</span> A Player From 2015-23",
     subtitle = "A call is considered to have disadvantaged a player if it was an incorrect no call on their opponent or a incorrect call\nagainst them and visa versa for calls that advantage a player | Only showing players that have been ad/disadvantaged at least 3x\nSorted by the difference in disadavantaged and advantaged calls | Only Shooting Fouls are considered",
-    caption = "graph: @SravanNBA |code: @owenlhjphillips | Source: github.com/atlhawksfanatic/L2M",
+    caption = "graph: @sradjoker |code: @owenlhjphillips | Source: github.com/atlhawksfanatic/L2M",
     theme = theme(
       plot.title = element_markdown(face = "bold", family = "Consolas", size = 9.0),
       plot.subtitle = element_text(family = "Consolas", size = 5.75),
