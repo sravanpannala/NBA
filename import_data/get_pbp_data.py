@@ -2,8 +2,10 @@
 from itertools import product, chain
 from tqdm import tqdm
 import zstandard as zstd
+from zstandard import ZstdCompressor
 import dill
 import pandas as pd
+from time import perf_counter
 
 from pbpstats.client import Client
 from pbpstats.resources.enhanced_pbp import FieldGoal
@@ -194,8 +196,11 @@ def update_shotdetails_pbp(seasons):
         print("Compressing PBP Data")
         filename = pbp_loc_DIR + league + "_PBPdata_" + season + ".pkl.zst"
         print(filename)
+        t1 = perf_counter()
         with zstd.open(filename, "wb") as f:
             dill.dump(games_list, f)
+        t2 = perf_counter()
+        print(round(t2-t1))
         data = get_loc_data(games_list, player_dict)
         data = set_dtypes(data)
         data.to_parquet(shotloc_DIR + f"{league}_Shot_Loc_" + season + ".parquet")

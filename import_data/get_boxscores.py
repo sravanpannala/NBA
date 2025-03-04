@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from nba_api.stats.endpoints import (
     boxscoreadvancedv3,
-    boxscoretraditionalv2,
+    boxscoretraditionalv3,
     boxscorefourfactorsv3,
     boxscorehustlev2,
     boxscoremiscv3,
@@ -107,16 +107,16 @@ def update_boxscores_idv(season, fun, name):
         df1 = pd.concat(df_ap1)
         df2 = pd.concat(df_ap2)
         df3 = pd.concat([dfr1, df1])
-        if name == "Trad":
-            df3["gameId"] = df3["GAME_ID"]
+        # if name == "Trad":
+        #     df3["gameId"] = df3["GAME_ID"]
         df3["gameId"] = df3["gameId"].astype(int)
         df3 = df3.sort_values(by=["gameId"]).reset_index(drop=True)
         df3.to_parquet(
             box_DIR + "NBA_Box_T_" + name + "_" + season + ".parquet"
         )
         df4 = pd.concat([dfr2, df2])
-        if name == "Trad":
-            df4["gameId"] = df4["GAME_ID"]
+        # if name == "Trad":
+        #     df4["gameId"] = df4["GAME_ID"]
         df4["gameId"] = df4["gameId"].astype(int)
         df4 = df4.sort_values(by=["gameId"]).reset_index(drop=True)
         df4.to_parquet(box_DIR+ "NBA_Box_P_"+ name + "_"+ season+ ".parquet")
@@ -254,7 +254,7 @@ def update_box_t_cum(seasons):
 boxscores = [
     {
         "name": "Trad",
-        "fun": boxscoretraditionalv2.BoxScoreTraditionalV2,
+        "fun": boxscoretraditionalv3.BoxScoreTraditionalV3,
     },
     {
         "name": "Adv",

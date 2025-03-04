@@ -419,7 +419,7 @@ def export_lineups():
             df_players1 = df_players1.rename(columns={"index":"id"})
             df_players1["team"] = team
             df_players1["season"] = season
-            time.sleep(3)
+            time.sleep(2)
             dfa.append(df_players1)
     df_players = pd.concat(dfa)
     df_players = pd.merge(df_players,df_teams,left_on="team", right_on="id")
@@ -597,9 +597,13 @@ def update_shiny_data(seasons):
     export_team_distribution(seasons)
     print("Scorigami")
     get_scorigami_data()
-    print("Lineups")
-    export_lineups()
+    
     print("Stat Query")
     export_stat_query()
+    print("Lineups")
+    try:
+        export_lineups()
+    except Exception as error:
+        print(error)
     # print("Games Missed")
     # export_Games_Missed()
