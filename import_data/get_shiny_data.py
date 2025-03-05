@@ -545,6 +545,21 @@ def export_Games_Missed():
     dfm5 = pd.merge(dfm3,dflm2,on="player_id")
     dfm = pd.concat([dfm4,dfm5])
     dfm = dfm[~dfm.duplicated(keep="last")].reset_index(drop=True)
+    dfmgt = dfm.groupby("team_abbreviation")
+    keys = list(dfmgt.groups)
+    dfb = []
+    for key in keys:
+        dfmt1 =  dfmgt.get_group(key)
+        dfmt2 = dfmt1.groupby(["Name"])[["Name","LBWAR_PG","Min"]].agg({"Name":["count"],"Min":["sum"],"LBWAR_PG":["sum"]})
+        dfmt2.columns = ["Games","Min","WAR"]
+        dfmt2 = dfmt2.sort_values("WAR",ascending=False).reset_index()
+        dfmt2["Min"] = dfmt2["Min"].round()
+        dfmt2["WAR"] = dfmt2["WAR"].round(3)
+        dfmt2["Team"] = key
+        dfmt2.index +=1
+        dfb.append(dfmt2)
+    dfmt = pd.concat(dfb)
+    dfmt.insert(0,"Team",dfmt.pop("Team"))
     df10 = pd.read_parquet(box_DIR + f"NBA_BOX_T_Base_{year}.parquet")
     df10= df10[["GAME_ID","TEAM_ID","GAME_DATE","MATCHUP","WL","PLUS_MINUS"]]
     df10 = df10.rename(columns={"GAME_ID":"game_id","TEAM_ID":"team_id"})
@@ -586,8 +601,9 @@ def export_Games_Missed():
     df_z["Team"] = pd.Categorical(df_z['Team'], categories=teams)
     df_z.to_parquet(shiny_DIR + "NBA_games_minutes_war_missed.parquet")
     df_z.to_parquet(shiny_export_DIR1 + "NBA_games_minutes_war_missed.parquet")
+    dfmt.to_parquet(shiny_DIR + "NBA_games_minutes_war_missed_table.parquet")
+    dfmt.to_parquet(shiny_export_DIR1 + "NBA_games_minutes_war_missed_table.parquet")
     
-
 
 def update_shiny_data(seasons):
     # print("Player Distributions")
