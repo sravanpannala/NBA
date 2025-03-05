@@ -16,6 +16,7 @@ miscodds_2024.parquet
 *.stignore
 .stfolder/*
 **/catboost_info/
+data/NBA_teams_colors_logos.parquet
 
 # Ignore png files
 *.png
