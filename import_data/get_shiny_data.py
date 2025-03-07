@@ -10,7 +10,7 @@ import dill
 from update_data import data_DIR, teams_dict, player_dict
 
 box_DIR = data_DIR + "box/"
-pbp_DIR = data_DIR + "pbpdata/"
+pbpc_DIR = data_DIR + "pbpdata/"
 shiny_DIR = data_DIR + "shiny/"
 track_DIR = data_DIR + "tracking/"
 injury_DIR = data_DIR + "injuries/"
@@ -399,35 +399,12 @@ def get_scorigami_data():
     df1.to_parquet(shiny_DIR + "NBA_Player_Scorigami.parquet")
 
 def export_lineups():
-    teams_response = requests.get("https://api.pbpstats.com/get-teams/nba")
-    teams = teams_response.json()
-    teams_dict = teams["teams"]
-    df_teams = pd.DataFrame(teams_dict)
-    df_teams = df_teams.rename(columns={"text":"team"})
-    teams_list = df_teams["id"].to_list()
-    dfa = []
-    for year in range(2024,2025):
-        season = str(year) + '-' + str(year+1)[-2:]
-        for team in tqdm(teams_list):
-            url = "https://api.pbpstats.com/get-team-players-for-season?S"
-            params = {
-                "Season": season, # To get for multiple seasons, separate seasons by comma
-                "SeasonType": "Regular Season",
-                "TeamId": team,
-            }
-            response = requests.get(url, params=params)
-            response_json = response.json()
-            players = response_json["players"]
-            df_players1 = pd.DataFrame.from_dict(players,orient="index",columns=["player"]).reset_index()
-            df_players1 = df_players1.rename(columns={"index":"id"})
-            df_players1["team"] = team
-            df_players1["season"] = season
-            time.sleep(2)
-            dfa.append(df_players1)
-    df_players = pd.concat(dfa)
-    df_players = pd.merge(df_players,df_teams,left_on="team", right_on="id")
-    df_players = df_players.rename(columns={"id_x":"pid","id_y":"tid","team_y":"team"})
-    df_players = df_players.drop(columns=["team_x"]) 
+    df_teams = pd.read_csv(data_DIR+"NBA_teams_database.csv")
+    df_teams.columns = ["tid","team"]
+    df_players = pd.read_parquet(box_DIR + "NBA_Box_P_Base_2024.parquet")
+    df_players = df_players[['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID',]]
+    df_players.columns = ['pid', 'player', 'tid']
+    df_players = pd.merge(df_players,df_teams,on="tid")
     df_players.to_parquet(shiny_DIR + "lineup_data.parquet")
     df_players.to_parquet(shiny_export_DIR1 + "lineup_data.parquet")
 
@@ -503,7 +480,7 @@ def export_Games_Missed():
     df0.columns = map(str.lower,df0.columns)
     df0 = df0[['gameid', 'personid', 'comment']]
     df0.columns = ['game_id', 'player_id', 'comment']
-    with zstd.open(pbp_DIR +f"NBA_PBPdata_{year}"+".pkl.zst","rb") as f:
+    with zstd.open(pbpc_DIR +f"NBA_PBPdata_{year}"+".pkl.zst","rb") as f:
         games_list = dill.load(f)
     len(games_list)
     dfa = []
@@ -606,20 +583,20 @@ def export_Games_Missed():
     
 
 def update_shiny_data(seasons):
-    # print("Player Distributions")
-    # export_player_distribution(seasons)
-    # print("Team Distributions")
-    # export_team_distribution(seasons)
-    # print("Scorigami")
-    # get_scorigami_data()
+    print("Player Distributions")
+    export_player_distribution(seasons)
+    print("Team Distributions")
+    export_team_distribution(seasons)
+    print("Scorigami")
+    get_scorigami_data()
     
-    # print("Stat Query")
-    # export_stat_query()
+    print("Stat Query")
+    export_stat_query()
     print("Games Missed")
     export_Games_Missed()
-    # print("Lineups")
-    # try:
-    #     export_lineups()
-    # except Exception as error:
-    #     print(error)
+    print("Lineups")
+    try:
+        export_lineups()
+    except Exception as error:
+        print(error)
     

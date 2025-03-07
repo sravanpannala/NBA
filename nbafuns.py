@@ -55,6 +55,7 @@ from plotnine import scale_fill_manual, scale_fill_gradient
 from plotnine import theme_xkcd, theme_classic, theme_538, watermark
 from plotnine import arrow
 from plotnine import after_stat, position_jitter, position_jitterdodge, position_stack
+from plotnine import geom_step
 from plotnine.geoms.geom import geom
 from plotnine.doctools import document
 from mizani.formatters import percent_format
@@ -94,10 +95,10 @@ theme_idv += theme(
 )
 
 pnba = labs(
-    caption="bsky:@sradjoker.cc | X:@sradjoker | source: nba.com/stats",
+    caption="socials:@sradjoker | source: nba.com/stats",
 )
 ppbp = labs(
-    caption="bsky:@sradjoker.cc | X:@sradjoker | source: pbpstats",
+    caption="socials:@sradjoker | source: pbpstats",
 )
 
 os.environ["R_HOME"] = "C:\\Program Files\\R\\R-4.4.2\\"

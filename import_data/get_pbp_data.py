@@ -40,6 +40,7 @@ def update_pbp(seasons):
             "Possessions": {"source": "file", "data_provider": data_provider},
             "dir": pbp_DIR + data_provider,
         }
+        print(pbp_DIR + data_provider)
         client = Client(settings)
         games_list_online = []
         error_list = []
@@ -140,7 +141,7 @@ def get_loc_data(games_list, player_dict):
 # pbp function to get all games list for a season
 def pbp_season(
     league="NBA",
-    season_yr="2023",
+    season_yr="2024",
     season_type="Regular Season",
     data_provider="data_nba",
 ):
@@ -164,6 +165,7 @@ def pbp_games(games_id, data_provider="data_nba"):
         "Possessions": {"source": "file", "data_provider": data_provider},
         "dir": pbp_DIR + data_provider,
     }
+    print(pbp_DIR + data_provider)
     client = Client(settings)
     games_list = []
     bad_games_list = []
