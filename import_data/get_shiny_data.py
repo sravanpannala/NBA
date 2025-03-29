@@ -6,6 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 import zstandard as zstd
 import dill
+from nba_api.stats.endpoints import leaguedashlineups
 
 from update_data import data_DIR, teams_dict, player_dict
 
@@ -407,6 +408,25 @@ def export_lineups():
     df_players = pd.merge(df_players,df_teams,on="tid")
     df_players.to_parquet(shiny_DIR + "lineup_data.parquet")
     df_players.to_parquet(shiny_export_DIR1 + "lineup_data.parquet")
+    stats = leaguedashlineups.LeagueDashLineups(
+        group_quantity=5,
+        measure_type_detailed_defense="Base",
+        per_mode_detailed="Totals",
+        pace_adjust="Y",
+        plus_minus="Y",
+        rank="Y",
+        season_type_all_star="Regular Season"
+    )
+    df = stats.get_data_frames()[0]
+    df.iloc[:,9:]  = df.iloc[:,9:].round(3)
+    df1 = df.copy()
+    df1.columns = map(str.lower,df1.columns)
+    df1 = df1[['team_id','group_name','gp','min',]]
+    df1 = df1.rename(columns={"team_id":"tid"})
+    df2 = pd.merge(df_teams,df1)
+    df2 = df2.drop(columns=["tid"])
+    df2.to_parquet(shiny_DIR + "lineup_list_data.parquet")
+    df2.to_parquet(shiny_export_DIR1 + "lineup_list_data.parquet")
 
 def export_stat_query():
     dfa = []

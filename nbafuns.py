@@ -22,7 +22,7 @@ from functools import reduce
 from itertools import product, chain
 from tqdm import tqdm
 from thefuzz import fuzz, process
-import icecream as ic
+from icecream import ic
 
 # save/load data
 import dill
@@ -69,7 +69,7 @@ from great_tables import GT, md, html
 # nba api
 import nba_api
 from nba_api.stats.static import teams as nba_teams
-from nba_api.stats.endpoints import leaguegamelog, leaguedashteamstats
+from nba_api.stats.endpoints import leaguegamelog, leaguedashteamstats, leaguedashplayerstats
 # pbpstats
 from pbpstats.client import Client
 from pbpstats.resources.enhanced_pbp import Foul, Turnover, FieldGoal, Rebound

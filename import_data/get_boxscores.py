@@ -13,6 +13,9 @@ from nba_api.stats.endpoints import (
     leaguegamelog,
     leaguedashplayerstats,
     leaguedashteamstats,
+    boxscoredefensivev2,
+    boxscoreusagev3,
+    boxscorematchupsv3,
 )
 from tenacity import retry, Retrying, stop_after_attempt, wait_fixed
 from tqdm import tqdm
@@ -30,13 +33,13 @@ def get_gameids(season, name):
     game_ids1 = df["GAME_ID"].tolist()
     game_ids1 = np.unique(game_ids1)
     try:
-        dfr1 = pd.read_parquet(
-            box_DIR + "NBA_Box_T_" + name + "_" + season + ".parquet"
-        )
-        dfr2 = pd.read_parquet(
-            box_DIR + "NBA_Box_P_" + name + "_" + season + ".parquet"
-        )
-        game_ids3 = dfr1["gameId"].tolist()
+        dfr2 = pd.read_parquet(box_DIR + "NBA_Box_P_" + name + "_" + season + ".parquet")
+        if name != "Matchup":
+            dfr1 = pd.read_parquet(box_DIR + "NBA_Box_T_" + name + "_" + season + ".parquet")
+            game_ids3 = dfr1["gameId"].tolist()
+        else:
+            dfr1 = pd.DataFrame()
+            game_ids3 = dfr2["gameId"].tolist()
         game_ids2 = np.unique(game_ids3)
         game_ids2 = ["00" + str(s) for s in game_ids2]
         game_ids = list(set(game_ids1).difference(game_ids2))
@@ -47,27 +50,7 @@ def get_gameids(season, name):
         dfr2 = pd.DataFrame()
     return game_ids, dfr1, dfr2
 
-
-# @retry(stop=stop_after_attempt(5), wait=wait_fixed(120))
-# def get_game_box(game_id, fun):
-#     try:
-#         df = pd.DataFrame()
-#         t1 = time.perf_counter()
-#         stats = fun(game_id=game_id)
-#         df = stats.get_data_frames()
-#         t2 = time.perf_counter() - t1
-#         tsleep = 0.6
-#         if t2<tsleep:
-#             time.sleep(tsleep-t2)
-#     except Exception as error:
-#         print(error)
-#     return df
-
 def get_game_box(game_id,fun):
-    # a = 1
-    # for attempt in Retrying(stop=stop_after_attempt(5)):
-    #     with attempt:
-    #         try:
     t1 = time.perf_counter()
     stats = fun(game_id=game_id)
     df = stats.get_data_frames()
@@ -75,48 +58,40 @@ def get_game_box(game_id,fun):
     tsleep = 0.6
     if t2<tsleep:
         time.sleep(tsleep-t2)
-        #     except Exception as error:
-        #         time.sleep(120)
-        #         print(f"attempt: {a}")
-        #         print(error)
-        #         df = pd.DataFrame()
-        #         continue
-        # a+=1
     return df
 
-
-def get_games_box(game_ids, fun):
+def get_games_box(game_ids, fun, name):
     df_ap1, df_ap2 = [], []
     for game_id in tqdm(game_ids):
-        try:
-            df0 = get_game_box(game_id, fun)
-            df1 = df0[1]
-            df2 = df0[0]
-            df_ap1.append(df1)
-            df_ap2.append(df2)
-        except Exception as error:
-            print(error)
-            break
+        for attempt in range(2):
+            try:
+                df0 = get_game_box(game_id, fun)
+                if name != "Matchup":
+                    df1 = df0[1]
+                    df_ap1.append(df1)
+                df2 = df0[0]
+                df_ap2.append(df2)
+                break
+            except Exception as error:
+                if attempt == 0:
+                    print(error)
     return df_ap1, df_ap2
 
 
 def update_boxscores_idv(season, fun, name):
     game_ids, dfr1, dfr2 = get_gameids(season, name)
     try:
-        df_ap1, df_ap2 = get_games_box(game_ids, fun)
-        df1 = pd.concat(df_ap1)
+        df_ap1, df_ap2 = get_games_box(game_ids, fun, name)
+        if name != "Matchup":
+            df1 = pd.concat(df_ap1)
+            df3 = pd.concat([dfr1, df1])
+            df3["gameId"] = df3["gameId"].astype(int)
+            df3 = df3.sort_values(by=["gameId"]).reset_index(drop=True)
+            df3.to_parquet(
+                box_DIR + "NBA_Box_T_" + name + "_" + season + ".parquet"
+            )
         df2 = pd.concat(df_ap2)
-        df3 = pd.concat([dfr1, df1])
-        # if name == "Trad":
-        #     df3["gameId"] = df3["GAME_ID"]
-        df3["gameId"] = df3["gameId"].astype(int)
-        df3 = df3.sort_values(by=["gameId"]).reset_index(drop=True)
-        df3.to_parquet(
-            box_DIR + "NBA_Box_T_" + name + "_" + season + ".parquet"
-        )
         df4 = pd.concat([dfr2, df2])
-        # if name == "Trad":
-        #     df4["gameId"] = df4["GAME_ID"]
         df4["gameId"] = df4["gameId"].astype(int)
         df4 = df4.sort_values(by=["gameId"]).reset_index(drop=True)
         df4.to_parquet(box_DIR+ "NBA_Box_P_"+ name + "_"+ season+ ".parquet")
@@ -273,11 +248,23 @@ boxscores = [
         "fun": boxscorescoringv3.BoxScoreScoringV3
     },
     {
+        "name":"Usage",
+        "fun": boxscoreusagev3.BoxScoreUsageV3
+    },
+    {
         "name": "Track",
         "fun": boxscoreplayertrackv3.BoxScorePlayerTrackV3,
     },
     {
         "name": "Hustle",
         "fun": boxscorehustlev2.BoxScoreHustleV2,
+    },
+    {
+        "name": "Def",
+        "fun": boxscoredefensivev2.BoxScoreDefensiveV2
+    },
+    {
+        "name": "Matchup",
+        "fun": boxscorematchupsv3.BoxScoreMatchupsV3
     },
 ]

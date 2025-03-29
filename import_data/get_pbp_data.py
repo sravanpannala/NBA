@@ -184,7 +184,7 @@ def update_shotdetails_pbp(seasons):
     league = "NBA"
     season_type = "Regular Season"
     for season in seasons:
-        if int(season) > 2021:
+        if int(season) > 2015:
             data_provider = "data_nba"
         else:
             data_provider = "stats_nba"

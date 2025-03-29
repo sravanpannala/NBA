@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import os, sys
 import argparse
+from nba_api.stats.library.http import NBAStatsHTTP
 
 home_DIR = "C:/Users/pansr/Documents/NBA/"
 csv_export_DIR = "C:/Users/pansr/Documents/repos/csv/"
@@ -33,6 +34,12 @@ from get_shiny_data import *
 from get_pbp_tracking import *
 from get_player_database import *
 
+def refresh_session():
+    session = requests.Session()
+    session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0'
+    })
+    NBAStatsHTTP.set_session(session)
 
 
 def parse_function():
@@ -154,60 +161,83 @@ def main():
 
     # Update pbp Data
     if bool_pbp:
-        print("Update PBP Data")
-        update_pbp(seasons)
-        print("Shot Details PBP")
-        update_shotdetails_pbp(seasons)
+        try:
+            print("Update PBP Data")
+            update_pbp(seasons)
+            print("Shot Details PBP")
+            update_shotdetails_pbp(seasons)
+            refresh_session()
+        except:
+            pass
 
     # Update Boxscores
     if bool_box:
-        print("Update Boxscores")
-        if bool_cum:
-            update_box_base_t(seasons)
-            update_box_base_p(seasons)
-            update_box_p_cum(seasons)
-            update_box_t_cum(seasons)
-        if bool_idv:
-            for season in seasons:
-                print(season)
-                for boxscore in boxscores[:5]:
-                    print("BoxScore " + boxscore["name"])
-                    update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
-        if bool_hus:
-            for season in seasons:
-                print(season)
-                for boxscore in boxscores[5:]:
-                    print("BoxScore " + boxscore["name"])
-                    update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
+        try:
+            print("Update Boxscores")
+            if bool_cum:
+                update_box_base_t(seasons)
+                update_box_base_p(seasons)
+                update_box_p_cum(seasons)
+                update_box_t_cum(seasons)
+                refresh_session()
+            if bool_idv:
+                for season in seasons:
+                    print(season)
+                    for boxscore in boxscores[:6]:
+                        print("BoxScore " + boxscore["name"])
+                        update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
+                        refresh_session()
+            if bool_hus:
+                for season in seasons:
+                    print(season)
+                    for boxscore in boxscores[6:]:
+                        print("BoxScore " + boxscore["name"])
+                        update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
+                        refresh_session()
+        except:
+            pass
 
     if bool_shot:
-        # Update Shot Dashboard
-        print("Shot Dashboard")
-        update_shot_dash(seasons)
-        update_shot_dash_all(seasons)
-        # Update Shot Details
-        update_shotdetails_nba(seasons)
+        try:
+            # Update Shot Dashboard
+            print("Shot Dashboard")
+            update_shot_dash(seasons)
+            refresh_session()
+            update_shot_dash_all(seasons)
+            refresh_session()
+            # Update Shot Details
+            update_shotdetails_nba(seasons)
+        except:
+            pass
 
     if bool_adv:
-        # Update Injury Data
-        print("Update Injury Data")
-        update_injury_data(seasons)
-        # Update DARKO
-        print("Update DARKO")
-        update_DARKO()
-        # Update bbref advanced stats
-        # print("Update bbref")
-        # update_bbref(seasons)
+        try:
+            # Update Injury Data
+            print("Update Injury Data")
+            update_injury_data(seasons)
+            # Update DARKO
+            print("Update DARKO")
+            update_DARKO()
+            # Update bbref advanced stats
+            # print("Update bbref")
+            # update_bbref(seasons)
+        except:
+            pass
 
     if bool_track:
-        print("Update PBP Tracking")
-        update_pbp_tracking(seasons)
+        try:
+            print("Update PBP Tracking")
+            update_pbp_tracking(seasons)
+        except:
+            pass
 
     if bool_shiny:
-        print("Update Shiny Data")
-        update_shiny_data(seasons)
+        try:
+            print("Update Shiny Data")
+            update_shiny_data(seasons)
+        except:
+            pass
 
     
-
 if __name__ == "__main__":
     main()
