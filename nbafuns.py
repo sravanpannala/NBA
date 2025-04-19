@@ -51,7 +51,7 @@ from plotnine import ylim, scale_y_continuous, scale_y_reverse, scale_x_reverse
 from plotnine import xlim, scale_x_continuous, scale_x_discrete, scale_x_date
 from plotnine import scale_color_manual, scale_color_discrete, scale_color_identity
 from plotnine import scale_color_gradientn, scale_color_cmap, scale_color_brewer
-from plotnine import scale_fill_manual, scale_fill_gradient
+from plotnine import scale_fill_manual, scale_fill_gradient, scale_fill_discrete
 from plotnine import theme_xkcd, theme_classic, theme_538, watermark
 from plotnine import arrow
 from plotnine import after_stat, position_jitter, position_jitterdodge, position_stack
