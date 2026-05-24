@@ -1,0 +1,22 @@
+# Normalize line endings on commit; check out with LF on all platforms.
+* text=auto eol=lf
+
+# Windows-only files keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary types — don't touch.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.7z binary
+*.gz binary
+*.parquet binary
+*.feather binary
+*.pkl binary
+*.h5 binary
+*.xlsx binary
+*.xls binary
