@@ -18,13 +18,15 @@ shotloc_DIR = data_DIR + "ShotLocationData/"
 
 def update_pbp(seasons):
     season_types = ["Regular Season"]
+    # season_types = ["Playoffs"]
     leagues = ["nba"]
     for season_yr, league, season_type in product(seasons, leagues, season_types):
         print(f"{season_yr},{league},{season_type}")
-        if int(season_yr) > 2015:
-            data_provider = "data_nba"
-        else:
-            data_provider = "stats_nba"
+        # if int(season_yr) > 2015:
+        #     data_provider = "data_nba"
+        # else:
+        #     data_provider = "stats_nba"
+        data_provider = "stats_nba"
         settings = {
             "Games": {"source": "web", "data_provider": data_provider},
             "dir": pbp_DIR + data_provider,
@@ -141,9 +143,10 @@ def get_loc_data(games_list, player_dict):
 # pbp function to get all games list for a season
 def pbp_season(
     league="NBA",
-    season_yr="2024",
-    season_type="Regular Season",
-    data_provider="data_nba",
+    season_yr="2025",
+    # season_type="Regular Season",
+    season_type="Playoffs",
+    data_provider="stats_nba",
 ):
     settings = {
         "Games": {"source": "file", "data_provider": data_provider},
@@ -159,7 +162,7 @@ def pbp_season(
 
 
 # function to get all games pbp data for a season
-def pbp_games(games_id, data_provider="data_nba"):
+def pbp_games(games_id, data_provider="stats_nba"):
     settings = {
         "Boxscore": {"source": "file", "data_provider": data_provider},
         "Possessions": {"source": "file", "data_provider": data_provider},
@@ -183,11 +186,13 @@ def pbp_games(games_id, data_provider="data_nba"):
 def update_shotdetails_pbp(seasons):
     league = "NBA"
     season_type = "Regular Season"
+    # season_type = "Playoffs"
     for season in seasons:
-        if int(season) > 2015:
-            data_provider = "data_nba"
-        else:
-            data_provider = "stats_nba"
+        # if int(season) > 2015:
+        #     data_provider = "data_nba"
+        # else:
+        #     data_provider = "stats_nba"
+        data_provider = "stats_nba"
         games_id = pbp_season(
             league=league,
             season_yr=season,

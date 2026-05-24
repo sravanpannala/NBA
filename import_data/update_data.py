@@ -1,12 +1,17 @@
 import numpy as np
 import pandas as pd
 import json
-import os, sys
+import os, sys, platform
 import argparse
 from nba_api.stats.library.http import NBAStatsHTTP
 
-home_DIR = "C:/Users/pansr/Documents/NBA/"
-csv_export_DIR = "C:/Users/pansr/Documents/repos/csv/"
+home_DIR_os = os.path.expanduser("~") +"/"
+base_DIR = home_DIR_os + "Documents/"
+arch = str(platform.processor())
+if "ARM" in arch:
+    base_DIR = home_DIR_os
+home_DIR = base_DIR + "NBA/"
+csv_export_DIR = base_DIR + "repos/csv/"
 
 pbp_DIR = home_DIR + "pbpdata/"
 data_DIR = home_DIR + "data/"
@@ -63,14 +68,14 @@ def parse_function():
     parser.add_argument(
         "--season1",
         "-s1",
-        default=2024,
+        default=2025,
         type=int,
         help="Enter season to start",
     )
     parser.add_argument(
         "--season2",
         "-s2",
-        default=2025,
+        default=2026,
         type=int,
         help="Enter season to start",
     )
@@ -154,6 +159,7 @@ def main():
     parse_function()
 
     seasons = np.arange(season_start, season_end, 1).astype(str)
+    print(seasons)
 
     if bool_db:
         print("Update Player DB")
@@ -186,6 +192,7 @@ def main():
                     for boxscore in boxscores[:6]:
                         print("BoxScore " + boxscore["name"])
                         update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
+                        # update_boxscores_idv_PS(season, boxscore["fun"], boxscore["name"])
                         refresh_session()
             if bool_hus:
                 for season in seasons:
@@ -193,6 +200,7 @@ def main():
                     for boxscore in boxscores[6:]:
                         print("BoxScore " + boxscore["name"])
                         update_boxscores_idv(season, boxscore["fun"], boxscore["name"])
+                        # update_boxscores_idv_PS(season, boxscore["fun"], boxscore["name"])
                         refresh_session()
         except:
             pass

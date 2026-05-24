@@ -154,7 +154,7 @@ def get_missing_pId(player, player_dict):
     pId = process.extract(player, player_dict, scorer=fuzz.partial_ratio, limit=1)[0][2]
     return pId
 
-def get_box(PT="P",measure="Base",cum=False,seasons=[2024]):
+def get_box(PT="P",measure="Base",cum=False,seasons=[2024],playoffs=False):
     PATH = pathlib.Path(__file__)
     DATA_PATH = PATH.joinpath("../data/box").resolve()
     join = ""
@@ -162,7 +162,10 @@ def get_box(PT="P",measure="Base",cum=False,seasons=[2024]):
         join = "Cum_"
     dfa = []
     for season in seasons:
-        loc = f"NBA_Box_{PT}_"+join+f"{measure}_{season}.parquet"
+        if playoffs:
+            loc = f"NBA_Box_{PT}_"+join+f"{measure}_{season}_PS.parquet"
+        else:
+            loc = f"NBA_Box_{PT}_"+join+f"{measure}_{season}.parquet"
         df1 = pd.read_parquet(DATA_PATH.joinpath(loc))
         df1.columns = map(str.lower,df1.columns)
         df1["season"] = season +1

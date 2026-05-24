@@ -36,6 +36,10 @@ dependencies = [
     "ipympl>=0.9.7",
     "notebook>=7.3.3",
     "jupyterthemes>=0.20.0",
+    "procyclingstats>=0.2.6",
+    "selenium>=4.30.0",
+    "psutil>=7.1.3",
+    "wmi>=1.5.1",
 ]
 
 [project.optional-dependencies]

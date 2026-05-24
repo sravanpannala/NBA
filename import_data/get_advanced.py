@@ -10,9 +10,9 @@ from thefuzz import fuzz, process
 from tqdm import tqdm
 from tenacity import retry, stop_after_attempt, wait_fixed, Retrying
 
-from rpy2.robjects.packages import importr
-import rpy2.robjects as robjects
-from rpy2.robjects import pandas2ri
+# from rpy2.robjects.packages import importr
+# import rpy2.robjects as robjects
+# from rpy2.robjects import pandas2ri
 
 from update_data import data_DIR, player_dict, pID_dict, csv_export_DIR, home_DIR
 
@@ -186,36 +186,36 @@ def update_DARKO():
         f.write(response.content)    
 
 
-def update_bbref(seasons):
-    for season in seasons:
-        season1 = str(int(season) + 1)
-        nbastatR = importr("nbastatR")
-        robjects.r(
-            """
-                Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
-            """
-        )
-        r_df = nbastatR.bref_players_stats(
-            seasons=season1,
-            tables="advanced",
-            include_all_nba=False,
-            only_totals=False,
-            nest_data=False,
-            assign_to_environment=True,
-            widen_data=True,
-            join_data=True,
-            return_message=False,
-        )
-        with (robjects.default_converter + pandas2ri.converter).context():
-            bpm = robjects.conversion.get_conversion().rpy2py(r_df)
-        vars = [
-            "urlPlayerThumbnail",
-            "urlPlayerHeadshot",
-            "urlPlayerPhoto",
-            "urlPlayerStats",
-            "urlPlayerActionPhoto",
-        ]
-        bpm[vars] = bpm[vars].astype(str)
-        # bpm.to_csv(bbref_DIR + f"NBA_bbref_P_Adv_{season}.csv")
-        bpm.to_parquet(bbref_DIR + f"NBA_bbref_P_Adv_{season}.parquet")
-        time.sleep(5)
+# def update_bbref(seasons):
+#     for season in seasons:
+#         season1 = str(int(season) + 1)
+#         nbastatR = importr("nbastatR")
+#         robjects.r(
+#             """
+#                 Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
+#             """
+#         )
+#         r_df = nbastatR.bref_players_stats(
+#             seasons=season1,
+#             tables="advanced",
+#             include_all_nba=False,
+#             only_totals=False,
+#             nest_data=False,
+#             assign_to_environment=True,
+#             widen_data=True,
+#             join_data=True,
+#             return_message=False,
+#         )
+#         with (robjects.default_converter + pandas2ri.converter).context():
+#             bpm = robjects.conversion.get_conversion().rpy2py(r_df)
+#         vars = [
+#             "urlPlayerThumbnail",
+#             "urlPlayerHeadshot",
+#             "urlPlayerPhoto",
+#             "urlPlayerStats",
+#             "urlPlayerActionPhoto",
+#         ]
+#         bpm[vars] = bpm[vars].astype(str)
+#         # bpm.to_csv(bbref_DIR + f"NBA_bbref_P_Adv_{season}.csv")
+#         bpm.to_parquet(bbref_DIR + f"NBA_bbref_P_Adv_{season}.parquet")
+#         time.sleep(5)

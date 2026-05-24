@@ -31,7 +31,8 @@ def update_shot_dash(seasons):
         print(season)
         season_str = season + "-" + str(int(season) + 1)[-2:]
         stats = playerdashptshots.PlayerDashPtShots(
-            league_id=league_id, team_id=0, player_id=0, season=season_str
+            league_id=league_id, team_id=0, player_id=0, season=season_str,
+                    season_type_all_star = "Playoffs",
         ).get_data_frames()
         for i, d in enumerate(dash_types):
             df = stats[i].drop(
@@ -43,7 +44,7 @@ def update_shot_dash(seasons):
                 ]
             )
             df.to_parquet(
-                shot_DIR + f"{league}_Shots_{season}_{d}.parquet"
+                shot_DIR + f"{league}_Shots_{season}_{d}_PS.parquet"
             )
         time.sleep(0.6)
 
@@ -83,6 +84,7 @@ def update_shot_dash_all(seasons):
                         close_def_dist_range_nullable=b,
                         touch_time_range_nullable=c,
                         # dribble_range_nullable =  d,
+                        season_type_all_star = "Playoffs",
                     ).get_data_frames()
                     df1 = stats[0]
                     df1["general_range"] = a
@@ -97,7 +99,7 @@ def update_shot_dash_all(seasons):
         with pd.option_context("future.no_silent_downcasting", True):                    
             dfa1 = [df2.fillna(0).infer_objects(copy=False) for df2 in dfa if not df2.empty]
         df = pd.concat(dfa1)
-        df.to_parquet(shot_DIR + f"{league}_Shots_{season}_All.parquet")
+        df.to_parquet(shot_DIR + f"{league}_Shots_{season}_All_PS.parquet")
 
 
 def update_shotdetails_nba(seasons):
@@ -109,10 +111,11 @@ def update_shotdetails_nba(seasons):
             player_id=0,
             context_measure_simple="FGA",
             season_nullable=season_str,
+            season_type_all_star = "Playoffs",
         )
         shots = player_shotchart.get_data_frames()[0]
         shots["LOC_X"] = -shots["LOC_X"]
         shots.to_parquet(
-            shotloc_DIR + f"NBA_Shot_Details_{season}.parquet"
+            shotloc_DIR + f"NBA_Shot_Details_{season}_PS.parquet"
         )
         time.sleep(0.6)

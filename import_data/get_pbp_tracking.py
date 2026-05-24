@@ -21,12 +21,13 @@ def update_pbp_tracking(seasons):
     headers = {"Authorization": f"JWT {access_token}"}
     for season in seasons:
         season_str = season + "-" + str(int(season)+1)[-2:]
-        params = {"Season": season_str, "SeasonType": "RegularSeason", "Type": "game_logs"}
+        # params = {"Season": season_str, "SeasonType": "RegularSeason", "Type": "game_logs"}
+        params = {"Season": season_str, "SeasonType": "Playoffs", "Type": "game_logs"}
         tracking_csv = requests.get("https://tracking.pbpstats.com/get-tracking-csv", params=params, headers=headers)
         txt = StringIO(tracking_csv.text)
         df = pd.read_csv(txt)
-        df.to_csv(track_DIR + f"NBA_PBP_Tracking_{season}.csv")
-        df.to_parquet(track_DIR + f"NBA_PBP_Tracking_{season}.parquet")
+        df.to_csv(track_DIR + f"NBA_PBP_Tracking_{season}_PS.csv")
+        df.to_parquet(track_DIR + f"NBA_PBP_Tracking_{season}_PS.parquet")
         time.sleep(1)
 
 
